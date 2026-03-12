@@ -51,9 +51,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hotel_id = intval($_POST['hotel_id'] ?? 0);
         $status = $conn->real_escape_string($_POST['status'] ?? 'Checked');
         
-        $sql = "INSERT INTO hotels (check_in, hotel_search, accommodations, phone, hotel_id, status) VALUES ('$check_in', '$search', '$accom', '$phone', $hotel_id, '$status')";
+        $user_name = $conn->real_escape_string($_POST['name'] ?? '');
+        $email = $conn->real_escape_string($_POST['email'] ?? '');
+        $b_type = $conn->real_escape_string($_POST['booking_type'] ?? 'Check');
+        
+        $sql = "INSERT INTO hotels (check_in, hotel_search, accommodations, phone, hotel_id, status, user_name, email, booking_type) 
+                VALUES ('$check_in', '$search', '$accom', '$phone', $hotel_id, '$status', '$user_name', '$email', '$b_type')";
+                
         if ($conn->query($sql) === TRUE) {
-            $response = ['status' => 'success', 'message' => "Hotel Availability Checked!"];
+            $msg = ($b_type == 'Booking') ? "Booking Query Sent Successfully!" : "Hotel Availability Checked!";
+            $response = ['status' => 'success', 'message' => $msg];
         } else {
             $response = ['status' => 'error', 'message' => 'Error: ' . $conn->error];
         }

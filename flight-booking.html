@@ -341,51 +341,57 @@
                         </div>
                     </div>
                     <!-- Booking Form -->
-                    <div class="row g-3 align-items-end">
-
+                    <div class="row g-3 align-items-end mb-3">
                         <!-- FROM -->
-                        <div class="col-md-2 px-1">
+                        <div class="col-md-3 px-1">
                             <label class="fw-semibold small">From</label>
                             <div class="city-wrapper">
-                                <input type="text" name="from" class="form-control city-input" placeholder="From city" required>
+                                <input type="text" name="from" class="form-control city-input" placeholder="From city"
+                                    required>
                                 <div class="city-display"></div>
                                 <div class="dropdown-menu city-dropdown"></div>
                             </div>
                         </div>
 
                         <!-- TO -->
-                        <div class="col-md-2 px-1">
+                        <div class="col-md-3 px-1">
                             <label class="fw-semibold small">To</label>
                             <div class="city-wrapper">
-                                <input type="text" name="to" class="form-control city-input" placeholder="To city" required>
+                                <input type="text" name="to" class="form-control city-input" placeholder="To city"
+                                    required>
                                 <div class="city-display"></div>
                                 <div class="dropdown-menu city-dropdown"></div>
                             </div>
                         </div>
 
                         <!-- Departure -->
-                        <div class="col-md-1 px-1" style="min-width: 120px;">
+                        <div class="col-md-3 px-1">
                             <label class="fw-semibold small">Departure</label>
                             <input type="date" name="depart_date" class="form-control city-input px-2" required>
                         </div>
 
                         <!-- Return -->
-                        <div class="col-md-1 px-1" id="returnField" style="min-width: 120px;">
+                        <div class="col-md-3 px-1" id="returnField">
                             <label class="fw-semibold small">Return</label>
-                            <input type="date" name="return_date" id="returnDateInput" class="form-control city-input px-2">
+                            <input type="date" name="return_date" id="returnDateInput"
+                                class="form-control city-input px-2">
                         </div>
+                    </div>
 
+                    <div class="row g-3 align-items-end">
                         <!-- Travellers & Class -->
-                        <div class="col-md-2 px-1 position-relative">
+                        <div class="col-md-5 px-1 position-relative">
                             <label class="form-label fw-semibold mb-0 small">Travellers</label>
                             <!-- Trigger -->
-                            <div class="form-control cursor-pointer py-2 px-2" id="travellerTrigger" style="height: 48px; font-size: 13px;">
+                            <div class="form-control cursor-pointer py-2 px-2" id="travellerTrigger"
+                                style="height: 48px; font-size: 13px;">
                                 <div id="travellerCount" class="fw-bold">1 Traveller</div>
                                 <small class="text-muted" id="travelClass">Economy</small>
                             </div>
 
                             <!-- Dropdown -->
-                            <div class="dropdown-menu p-3 shadow traveller-dropdown" id="travellerDropdown" style="width:300px;">
+                            <div class="dropdown-menu p-3 shadow traveller-dropdown" id="travellerDropdown"
+                                style="width:300px;">
                                 <!-- Adults -->
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <div>
@@ -462,24 +468,24 @@
                         </div>
 
                         <!-- Phone Number -->
-                        <div class="col-md-2 px-1">
+                        <div class="col-md-5 px-1">
                             <label class="form-label fw-semibold mb-0 small">Phone</label>
                             <input type="tel" name="phone" class="form-control city-input" placeholder="Phone" required>
                         </div>
 
                         <!-- Submit Button -->
-                        <div class="col-md-1 px-1">
+                        <div class="col-md-2 px-1">
                             <input type="hidden" name="adults" id="hiddenAdults" value="1">
                             <input type="hidden" name="children" id="hiddenChildren" value="0">
                             <input type="hidden" name="infants" id="hiddenInfants" value="0">
                             <input type="hidden" name="travel_class" id="hiddenClass" value="Economy">
-                            <button type="submit" class="main-btn city-input secondary-btn text-light p-0" style="height: 48px; width: 100%; border-radius: 6px; font-size: 14px;">Submit</button>
+                            <button type="submit" class="main-btn city-input secondary-btn text-light p-0"
+                                style="height: 48px; width: 100%; border-radius: 6px; font-size: 14px;">Submit</button>
                         </div>
-
                     </div> <!-- End Row -->
-                    </div>
                 </div>
-            </form>
+        </div>
+        </form>
     </section>
 
 
@@ -937,7 +943,7 @@
                             confirmButtonColor: '#133a25'
                         }).then(() => {
                             document.getElementById('searchForm').reset();
-                            
+
                             // Reset city selects display
                             document.querySelectorAll('.city-display').forEach(d => d.style.display = 'none');
                             document.querySelectorAll('.city-input').forEach(i => i.style.color = '#212529');

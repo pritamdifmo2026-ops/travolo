@@ -1,0 +1,24 @@
+ Access the Application
+Once the server is running, you can access the project in your browser:
+
+Main Website: http://localhost:8000
+Admin Dashboard: http://localhost:8000/login.php
+4. Admin Credentials
+The database is pre-seeded with a default admin account:
+
+Username: admin
+Password: password123
+Troubleshooting
+
+
+
+SHOW DATABASES;
+
+
+Flight Bookings: SELECT * FROM flights;
+Hotel Database: SELECT * FROM app_hotels;
+Cab Bookings: SELECT * FROM cabs;
+Admin Accounts: SELECT * FROM admins;
+
+
+php -S localhost:8000

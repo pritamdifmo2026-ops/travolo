@@ -344,10 +344,9 @@
 							  </div>
 							</div>
 
-							<div class="row g-2 align-items-end"> <!-- Added g-2 and align-items-end -->
-							
+						<div class="row g-3 align-items-end mb-3">
 								<!-- PICKUP TYPE -->
-								<div class="col-md-1 px-1" style="min-width: 130px;" id="pickupTypeWrapper">
+								<div class="col-md-3 px-1" id="pickupTypeWrapper">
 									<label class="fw-semibold small">Type</label>
 									<select class="wide" name="pickup">                               
 										<option value="Airport Pickup">Airport Pickup</option>
@@ -355,7 +354,7 @@
 									</select>
 								</div>				 
 								<!-- FROM -->
-								<div class="col-md-2 px-1" id="fromWrapper">
+								<div class="col-md-3 px-1" id="fromWrapper">
 								  <label class="fw-semibold small">From</label>
 								  <div class="cab-wrapper">
 									<input type="text" name="from" class="form-control cab-input" placeholder="Pick-up city">
@@ -365,7 +364,7 @@
 								</div>
 
 								<!-- TO -->
-								<div class="col-md-2 px-1" id="toWrapper">
+								<div class="col-md-3 px-1" id="toWrapper">
 								  <label class="fw-semibold small">To</label>
 								  <div class="cab-wrapper">
 									<input type="text" name="to" class="form-control cab-input" placeholder="Drop city">
@@ -375,7 +374,7 @@
 								</div>
 
 								<!-- PICKUP DATE & TIME -->
-								<div class="col-md-1 px-1" style="min-width: 130px;" id="pickupWrapper">
+								<div class="col-md-3 px-1" id="pickupWrapper">
 								  <label class="fw-semibold small">Pick-Up</label>
 								  <div class="form-control cursor-pointer py-1 px-2" id="pickupTrigger" style="height: 48px; font-size: 13px; line-height: 1.2;">
 									<span id="pickupDate" class="fw-bold">Date</span><br>
@@ -398,9 +397,11 @@
 									<button type="button" class="btn btn-primary w-100" id="pickupSetBtn">Set</button>
 								  </div>
 								</div>
+						</div>
 
+						<div class="row g-3 align-items-end">
 								<!-- RETURN DATE & TIME -->
-								<div class="col-md-1 px-1 position-relative d-none" id="returnWrapper" style="min-width: 130px;">
+								<div class="col-md-4 px-1 position-relative d-none" id="returnWrapper">
 								  <label class="fw-semibold small">Return</label>
 								  <div class="form-control cursor-pointer py-1 px-2" id="returnTrigger" style="height: 48px; font-size: 13px; line-height: 1.2;">
 									<span id="returnDate" class="fw-bold">Date</span><br>
@@ -425,7 +426,7 @@
 								</div>
 
 								<!-- HOURLY -->
-								<div class="col-md-1 px-1 d-none" id="hourlyWrapper" style="min-width: 110px;">
+								<div class="col-md-4 px-1 d-none" id="hourlyWrapper">
 									<label class="fw-semibold small">Hours</label>
 									<select class="wide" name="hours">                               
 										<option value="">Select</option>
@@ -437,21 +438,20 @@
 								</div>
 								
 								<!-- PHONE NUMBER -->
-								<div class="col-md-2 px-1">
+								<div class="col-md-5 px-1">
 									<label class="fw-semibold small">Phone</label>
 									<input type="tel" name="phone" class="form-control cab-input" placeholder="Phone" required>
 								</div>
 
 								<!-- SUBMIT -->
-								<div class="col-md-1 px-1">
+								<div class="col-md-3 px-1">
                                     <input type="hidden" name="pickup_date" id="hiddenPickupDate">
                                     <input type="hidden" name="pickup_time" id="hiddenPickupTime">
                                     <input type="hidden" name="return_date" id="hiddenReturnDate">
                                     <input type="hidden" name="return_time" id="hiddenReturnTime">
 									<button type="submit" class="main-btn city-input secondary-btn text-light p-0" style="height: 48px; width: 100%; border-radius: 6px; font-size: 14px;">Submit</button>
 								</div>
-
-						  </div> <!-- End Row -->
+						</div>
 
 						  </div>
 					</form>

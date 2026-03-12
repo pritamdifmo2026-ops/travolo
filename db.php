@@ -35,6 +35,7 @@ $table_flight = "CREATE TABLE IF NOT EXISTS flights (
     children INT,
     infants INT,
     travel_class VARCHAR(30),
+    phone VARCHAR(20),
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )";
 $conn->query($table_flight);
@@ -44,8 +45,14 @@ $table_hotel = "CREATE TABLE IF NOT EXISTS hotels (
     check_in VARCHAR(30),
     hotel_search VARCHAR(100),
     accommodations VARCHAR(50),
+    phone VARCHAR(20),
+    hotel_id INT(6),
+    status VARCHAR(30) DEFAULT 'Checked',
+    user_name VARCHAR(50),
+    email VARCHAR(50),
+    booking_type ENUM('Check', 'Booking') DEFAULT 'Check',
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)";
+) engine=InnoDB DEFAULT CHARSET=utf8;";
 $conn->query($table_hotel);
 
 $table_cab = "CREATE TABLE IF NOT EXISTS cabs (
@@ -59,9 +66,34 @@ $table_cab = "CREATE TABLE IF NOT EXISTS cabs (
     return_date VARCHAR(30),
     return_time VARCHAR(20),
     hours VARCHAR(20),
+    phone VARCHAR(20),
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )";
 $conn->query($table_cab);
+
+// Add columns if they don't exist (Migration)
+$tables_to_check = ['flights', 'hotels', 'cabs'];
+foreach ($tables_to_check as $table) {
+    if ($table == 'hotels') {
+        $cols = [
+            'phone' => 'VARCHAR(20) AFTER accommodations', 
+            'user_name' => 'VARCHAR(50) AFTER status',
+            'email' => 'VARCHAR(50) AFTER user_name',
+            'booking_type' => "ENUM('Check', 'Booking') DEFAULT 'Check' AFTER email"
+        ];
+        foreach ($cols as $col => $def) {
+            $check = $conn->query("SHOW COLUMNS FROM `$table` LIKE '$col'");
+            if ($check->num_rows == 0) {
+                $conn->query("ALTER TABLE `$table` ADD `$col` $def");
+            }
+        }
+    } else {
+        $result = $conn->query("SHOW COLUMNS FROM `$table` LIKE 'phone'");
+        if ($result->num_rows == 0) {
+            $conn->query("ALTER TABLE `$table` ADD `phone` VARCHAR(20) AFTER " . ($table == 'flights' ? 'travel_class' : 'hours'));
+        }
+    }
+}
 
 $table_contact = "CREATE TABLE IF NOT EXISTS contact_messages (
     id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -91,6 +123,7 @@ $table_app_hotels = "CREATE TABLE IF NOT EXISTS app_hotels (
     image VARCHAR(255),
     description TEXT,
     availability TINYINT(1) DEFAULT 1,
+    available_dates TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )";
 $conn->query($table_app_hotels);
