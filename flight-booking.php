@@ -1557,6 +1557,19 @@ else {
 
             const fromIata = fromMatch[1];
             const toIata   = toMatch[1];
+
+            // LOG SEARCH IN BACKGROUND
+            const logData = new FormData();
+            logData.append('form_type', 'flight_search');
+            logData.append('from', from);
+            logData.append('to', to);
+            logData.append('depart_date', rawDate);
+            logData.append('tripType', formData.get('tripType') || 'One Way');
+            logData.append('adults', formData.get('adults') || 1);
+            logData.append('children', formData.get('children') || 0);
+            logData.append('infants', formData.get('infants') || 0);
+            logData.append('travel_class', formData.get('travel_class') || 'Economy');
+            fetch('submit.php', { method: 'POST', body: logData });
             const dt       = new Date(rawDate);
             const year     = dt.getFullYear();
             const month    = dt.getMonth() + 1;

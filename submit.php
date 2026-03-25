@@ -29,7 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $children = intval($_POST['children'] ?? 0);
         $infants = intval($_POST['infants'] ?? 0);
         $tclass = $conn->real_escape_string($_POST['travel_class'] ?? 'Economy');
-        $tclass = $conn->real_escape_string($_POST['travel_class'] ?? 'Economy');
         $phone = $conn->real_escape_string($_POST['phone'] ?? '');
         
         if ($from === $to && $from !== '') {
@@ -41,6 +40,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 $response = ['status' => 'error', 'message' => 'Error: ' . $conn->error];
             }
+        }
+    }
+    else if ($type == "flight_search") {
+        $from = $conn->real_escape_string($_POST['from'] ?? '');
+        $to = $conn->real_escape_string($_POST['to'] ?? '');
+        $depart_date = $conn->real_escape_string($_POST['depart_date'] ?? '');
+        $trip_type = $conn->real_escape_string($_POST['tripType'] ?? 'One Way');
+        $adults = intval($_POST['adults'] ?? 1);
+        $children = intval($_POST['children'] ?? 0);
+        $infants = intval($_POST['infants'] ?? 0);
+        $tclass = $conn->real_escape_string($_POST['travel_class'] ?? 'Economy');
+
+        $sql = "INSERT INTO flight_searches (from_city, to_city, depart_date, trip_type, adults, children, infants, travel_class) 
+                VALUES ('$from', '$to', '$depart_date', '$trip_type', $adults, $children, $infants, '$tclass')";
+        if ($conn->query($sql) === TRUE) {
+            $response = ['status' => 'success', 'message' => 'Search Logged'];
+        } else {
+            $response = ['status' => 'error', 'message' => 'Error: ' . $conn->error];
         }
     }
     else if ($type == "hotel") {

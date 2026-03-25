@@ -98,6 +98,21 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_hotel' && isset($_GET[
     exit;
 }
 
+// Delete Search Log Logic
+if (isset($_GET['action']) && $_GET['action'] === 'delete_search' && isset($_GET['id'])) {
+    $search_id = (int)$_GET['id'];
+    $conn->query("DELETE FROM flight_searches WHERE id=$search_id");
+    header("Location: admin.php?success=Search+Log+Deleted");
+    exit;
+}
+
+// Clear All Search Logs
+if (isset($_GET['action']) && $_GET['action'] === 'clear_searches') {
+    $conn->query("TRUNCATE TABLE flight_searches");
+    header("Location: admin.php?success=All+Search+Logs+Cleared");
+    exit;
+}
+
 // Toggle Hotel Availability
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_hotel') {
     $hotel_id = (int)$_POST['hotel_id'];
@@ -116,6 +131,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     header("Location: admin.php?success=Calendar+Dates+Updated");
     exit;
 }
+
+$offer_modals_html = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -412,6 +429,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <li><a href="#" class="nav-link" data-target="hotels"><i class="fas fa-hotel"></i> Hotel Bookings</a></li>
             <li><a href="#" class="nav-link" data-target="manage-hotels"><i class="fas fa-building"></i> Manage Hotels</a></li>
             <li><a href="#" class="nav-link" data-target="manage-offers"><i class="fas fa-tags"></i> Manage Offers</a></li>
+            <li><a href="#" class="nav-link" data-target="flight-searches"><i class="fas fa-search-location"></i> Flight Searches</a></li>
             <li><a href="#" class="nav-link" data-target="contacts"><i class="fas fa-envelope-open-text"></i>
                     Messages</a></li>
             <li><a href="index.php" target="_blank"><i class="fas fa-external-link-alt"></i> View Website</a></li>
@@ -477,6 +495,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             </div>
         </div>
 
+        <?php if (isset($_GET['success'])): ?>
+            <div class="alert alert-success alert-dismissible fade show mx-4 mt-2 mb-0" role="alert" id="success-alert">
+                <i class="fas fa-check-circle me-2"></i> <?php echo htmlspecialchars($_GET['success']); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
         <!-- Flights Card -->
         <div class="data-card active" id="flights-card">
             <div class="card-header">
@@ -512,6 +537,51 @@ while ($row = $res->fetch_assoc()) {
     echo "</tr>";
 }
 ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Flight Searches Card -->
+        <div class="data-card" id="flight-searches-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4><i class="fas fa-search-location"></i> Flight Search Logs</h4>
+                <a href="admin.php?action=clear_searches" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete ALL search history?')">
+                    <i class="fas fa-trash-sweep"></i> Clear All History
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Route</th>
+                            <th>Date / Type</th>
+                            <th>Passengers / Class</th>
+                            <th>Searched At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $res = $conn->query("SELECT * FROM flight_searches ORDER BY id DESC LIMIT 100");
+                        if ($res && $res->num_rows > 0) {
+                            while ($row = $res->fetch_assoc()) {
+                                echo "<tr>";
+                                echo "<td><strong>{$row['from_city']}</strong><br>to <strong>{$row['to_city']}</strong></td>";
+                                echo "<td>{$row['depart_date']}<br><span class='badge bg-light text-dark border'>{$row['trip_type']}</span></td>";
+                                echo "<td>{$row['adults']}A, {$row['children']}C, {$row['infants']}I<br><span class='text-muted' style='font-size:11px;'>{$row['travel_class']}</span></td>";
+                                echo "<td><span style='color:#95a5a6; font-size:12px;'>" . date('M j, Y g:i A', strtotime($row['search_time'])) . "</span></td>";
+                                echo "<td>
+                                        <a href='admin.php?action=delete_search&id={$row['id']}' class='btn btn-outline-danger btn-sm' onclick=\"return confirm('Delete this log entry?')\">
+                                            <i class='fas fa-trash-alt'></i>
+                                        </a>
+                                      </td>";
+                                echo "</tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='5' class='text-center py-4 text-muted'>No search records found.</td></tr>";
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>
@@ -675,11 +745,6 @@ while ($row = $res->fetch_assoc()) {
                 <h4><i class="fas fa-building"></i> Manage Hotels Data</h4>
             </div>
             <div class="table-responsive" style="padding: 30px;">
-                <?php if (isset($_GET['success'])): ?>
-                    <div class="alert alert-success"><?php echo htmlspecialchars($_GET['success']); ?></div>
-                <?php
-endif; ?>
-
                 <h5>Add New Hotel</h5>
                 <form action="admin.php" method="POST" enctype="multipart/form-data" class="mb-5 row g-3">
                     <input type="hidden" name="action" value="add_hotel">
@@ -784,10 +849,6 @@ else {
                 <h4><i class="fas fa-tags"></i> Manage Exclusive Offers</h4>
             </div>
             <div class="table-responsive" style="padding: 30px;">
-                <?php if (isset($_GET['success'])): ?>
-                    <div class="alert alert-success"><?php echo htmlspecialchars($_GET['success']); ?></div>
-                <?php endif; ?>
-
                 <h5>Add New Offer</h5>
                 <form action="admin.php" method="POST" enctype="multipart/form-data" class="mb-5 row g-3">
                     <input type="hidden" name="action" value="add_offer">
@@ -881,9 +942,9 @@ else {
                                 echo "</tr>";
 
                                 // Setup modal for editing this particular offer
-                                echo "
+                                $offer_modals_html .= "
                                 <div class='modal fade' id='editOfferModal{$row['id']}' tabindex='-1' aria-hidden='true'>
-                                  <div class='modal-dialog modal-lg'>
+                                  <div class='modal-dialog modal-lg modal-dialog-centered'>
                                     <div class='modal-content'>
                                       <div class='modal-header'>
                                         <h5 class='modal-title'><i class='fas fa-edit me-2 text-primary'></i>Edit Exclusive Offer</h5>
@@ -919,7 +980,7 @@ else {
                                             <div class='col-md-6'>
                                                 <label class='form-label small text-muted'>Offer Image (Upload new to change)</label>
                                                 <input type='file' class='form-control' name='offer_image' accept='image/*'>
-                                                <div class='mt-1 small text-muted'>Current: {$row['image_url']}</div>
+                                                <div class='mt-1 small text-muted'>Current: " . basename($row['image_url']) . "</div>
                                             </div>
                                             <div class='col-md-12'>
                                                 <label class='form-label small text-muted'>Footer Text</label>
@@ -946,8 +1007,10 @@ else {
 
     </div>
 
+    <?php echo $offer_modals_html; ?>
+
     <!-- JS for Tabs -->
-    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
@@ -1008,6 +1071,13 @@ else {
         const savedTab = localStorage.getItem('activeAdminTab');
         if (savedTab) {
             switchTab(savedTab);
+        }
+
+        // Clean URL after success message displayed to prevent reappear on refresh
+        if (window.history.replaceState && window.location.search.includes('success=')) {
+            const url = new URL(window.location);
+            url.searchParams.delete('success');
+            window.history.replaceState({}, '', url);
         }
     </script>
 </body>
