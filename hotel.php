@@ -360,13 +360,13 @@
                 htmlString += `
                 <div class="col-xl-4 col-md-6 col-sm-12 places-column">
                     <div class="single-place-item mb-60 wow fadeInUp" style="visibility: visible; animation-name: fadeInUp;">
-                        <div class="place-img text-center" style="background:#eee;">
-                            <a href="hotel-details.php?id=${hotel.id}">
-                                <img src="${hotel.image}" alt="Place Image" style="object-fit:cover; height:240px; width:100%;">
+                        <div class="place-img text-center" style="background:#eee; border-radius: 15px; overflow: hidden;">
+                            <a href="hotel-details.php?id=${hotel.id}" class="d-block w-100">
+                                <img src="${hotel.image}" alt="Place Image" style="object-fit:cover; height:240px; width:100%; display: block;">
                             </a>
                         </div>
                         <div class="place-content">
-                            <div class="info">
+                            <div class="info" style="word-wrap: break-word; overflow-wrap: break-word;">
                                 <ul class="ratings">
                                     <li><i class="fas fa-star"></i></li>
                                     <li><i class="fas fa-star"></i></li>
@@ -376,9 +376,9 @@
                                     <li><a href="#">(5.0)</a></li>
                                 </ul>
                                 <h4 class="title"><a href="hotel-details.php?id=${hotel.id}">${hotel.name}</a></h4>
-                                <p class="location" style="margin-bottom:8px;"><i class="far fa-map-marker-alt"></i> ${hotel.location}</p>
+                                <p class="location" style="margin-bottom:8px; word-break: break-word;"><i class="far fa-map-marker-alt"></i> ${hotel.location}</p>
                                 <p class="price" style="margin-bottom:8px; font-weight:600;"><i class="fas fa-rupee-sign"></i> ₹${hotel.price} <span style="font-size:12px; font-weight:normal; color:#888;">/ Night</span></p>
-                                <p style="font-size:13px; color:#666; margin-bottom:15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${hotel.description}</p>
+                                <p style="font-size:13px; color:#666; margin-bottom:15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">${hotel.description}</p>
                                 <div class="meta" style="padding-top:12px; border-top:1px dashed #eee;">
                                     <span><i class="far fa-bed"></i> ${hotel.accommodations}</span>
                                     <span><a href="hotel-details.php?id=${hotel.id}">Book Now <i class="far fa-long-arrow-right"></i></a></span>

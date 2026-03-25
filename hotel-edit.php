@@ -7,6 +7,18 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
+// Helper function for File Uploads
+function handleFileUpload($fileInputName, $targetDir = "assets/images/") {
+    if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] === UPLOAD_ERR_OK) {
+        $name = basename($_FILES[$fileInputName]["name"]);
+        $targetFile = $targetDir . time() . "_" . $name;
+        if (move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFile)) {
+            return $targetFile;
+        }
+    }
+    return null;
+}
+
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $res = $conn->query("SELECT * FROM app_hotels WHERE id = $id");
 $hotel = $res->fetch_assoc();
@@ -22,8 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accom = $conn->real_escape_string($_POST['accommodations']);
     $desc = $conn->real_escape_string($_POST['description']);
     $dates = $conn->real_escape_string($_POST['available_dates']);
-    $image = $conn->real_escape_string($_POST['image']);
+    $image = $conn->real_escape_string($_POST['existing_image']); // Keep old image by default
     $avail = isset($_POST['availability']) ? 1 : 0;
+
+    // Handle File Upload
+    $new_image = handleFileUpload('hotel_image');
+    if ($new_image) {
+        $image = $new_image;
+    }
 
     $sql = "UPDATE app_hotels SET 
             name='$name', 
@@ -77,7 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="alert alert-danger px-3"><?php echo $error; ?></div>
             <?php endif; ?>
 
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="existing_image" value="<?php echo htmlspecialchars($hotel['image']); ?>">
                 <div class="row g-4">
                     <div class="col-md-6">
                         <label>Hotel Name</label>
@@ -104,8 +123,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label>Image URL</label>
-                        <input type="text" name="image" class="form-control" value="<?php echo htmlspecialchars($hotel['image']); ?>" required>
+                        <label>Hotel Image (Upload new to change)</label>
+                        <input type="file" name="hotel_image" class="form-control" accept="image/*">
+                        <div class="mt-1 small text-muted">Current: <?php echo htmlspecialchars($hotel['image']); ?></div>
                     </div>
                     <div class="col-12">
                         <label>Description</label>

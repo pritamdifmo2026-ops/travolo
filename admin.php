@@ -7,6 +7,18 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
+// Helper function for File Uploads
+function handleFileUpload($fileInputName, $targetDir = "assets/images/") {
+    if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] === UPLOAD_ERR_OK) {
+        $name = basename($_FILES[$fileInputName]["name"]);
+        $targetFile = $targetDir . time() . "_" . $name;
+        if (move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFile)) {
+            return $targetFile;
+        }
+    }
+    return null;
+}
+
 // Add New Hotel logic
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_hotel') {
     $name = $conn->real_escape_string($_POST['name']);
@@ -14,7 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $price = $conn->real_escape_string($_POST['price']);
     $accom = $conn->real_escape_string($_POST['accommodations']);
     $desc = $conn->real_escape_string($_POST['description']);
-    $image = 'assets/images/tour-3-550x590.jpg'; // static placeholder image
+    
+    // File Upload for Hotel Image
+    $image = handleFileUpload('hotel_image') ?: 'assets/images/tour-3-550x590.jpg';
 
     $conn->query("INSERT INTO app_hotels (name, location, price, accommodations, image, description) VALUES ('$name', '$loc', '$price', '$accom', '$image', '$desc')");
     header("Location: admin.php?success=Hotel+Added+Successfully");
@@ -28,7 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $color = $conn->real_escape_string($_POST['badge_color']);
     $desc = $conn->real_escape_string($_POST['description']);
     $footer = $conn->real_escape_string($_POST['footer_text']);
-    $image = $conn->real_escape_string($_POST['image_url']);
+    
+    // File Upload for Offer Image
+    $image = handleFileUpload('offer_image') ?: 'assets/images/tour-3-550x590.jpg';
 
     $conn->query("INSERT INTO app_offers (image_url, badge_text, badge_color, title, description, footer_text) VALUES ('$image', '$badge', '$color', '$title', '$desc', '$footer')");
     header("Location: admin.php?success=Exclusive+Offer+Added+Successfully");
@@ -43,7 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $color = $conn->real_escape_string($_POST['badge_color']);
     $desc = $conn->real_escape_string($_POST['description']);
     $footer = $conn->real_escape_string($_POST['footer_text']);
-    $image = $conn->real_escape_string($_POST['image_url']);
+    $image = $_POST['existing_image']; // Keep the old image by default
+    
+    // File Upload (Update existing only if new provided)
+    $new_image = handleFileUpload('offer_image');
+    if ($new_image) {
+        $image = $new_image;
+    }
 
     $conn->query("UPDATE app_offers SET image_url='$image', badge_text='$badge', badge_color='$color', title='$title', description='$desc', footer_text='$footer' WHERE id=$offer_id");
     header("Location: admin.php?success=Exclusive+Offer+Updated+Successfully");
@@ -65,6 +87,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_offer' && isset($_GET[
     $offer_id = (int)$_GET['id'];
     $conn->query("DELETE FROM app_offers WHERE id=$offer_id");
     header("Location: admin.php?success=Offer+Deleted");
+    exit;
+}
+
+// Delete Hotel Logic
+if (isset($_GET['action']) && $_GET['action'] === 'delete_hotel' && isset($_GET['id'])) {
+    $hotel_id = (int)$_GET['id'];
+    $conn->query("DELETE FROM app_hotels WHERE id=$hotel_id");
+    header("Location: admin.php?success=Hotel+Deleted+Successfully");
     exit;
 }
 
@@ -651,9 +681,10 @@ while ($row = $res->fetch_assoc()) {
 endif; ?>
 
                 <h5>Add New Hotel</h5>
-                <form action="admin.php" method="POST" class="mb-5 row g-3">
+                <form action="admin.php" method="POST" enctype="multipart/form-data" class="mb-5 row g-3">
                     <input type="hidden" name="action" value="add_hotel">
                     <div class="col-md-3">
+                        <label class="form-label small text-muted">Hotel Name</label>
                         <input type="text" class="form-control" name="name" placeholder="Hotel Name" required>
                     </div>
                     <div class="col-md-3">
@@ -674,8 +705,13 @@ endif; ?>
                         </select>
                     </div>
                     <div class="col-md-5">
+                        <label class="form-label small text-muted">Hotel Description</label>
                         <textarea class="form-control" name="description" placeholder="Description" rows="1"
                             required></textarea>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small text-muted">Upload Hotel Image</label>
+                        <input type="file" class="form-control" name="hotel_image" accept="image/*" required>
                     </div>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary w-100"
@@ -700,20 +736,36 @@ endif; ?>
 $res = $conn->query("SELECT * FROM app_hotels ORDER BY id DESC");
 if ($res && $res->num_rows > 0) {
     while ($row = $res->fetch_assoc()) {
-        $avail_badge = $row['availability'] ? '<span class="badge bg-success">Visible</span>' : '<span class="badge bg-danger">Hidden</span>';
+        $avail_btn_class = $row['availability'] ? 'btn-success' : 'btn-secondary';
+        $avail_text = $row['availability'] ? 'Active' : 'Inactive';
+        $toggle_title = $row['availability'] ? 'Deactivate' : 'Activate';
 
         echo "<tr>";
         echo "<td><img src='{$row['image']}' alt='hotel' style='border-radius:8px; width:70px; height:50px; object-fit:cover;'></td>";
         echo "<td>
-                                        <div style='font-weight:600; font-size:15px;'>{$row['name']}</div>
-                                        <div style='font-size:12px; color:#7f8c8d;'><i class='fas fa-map-marker-alt me-1'></i>{$row['location']} | ₹{$row['price']}</div>
-                                      </td>";
-        echo "<td>{$avail_badge}</td>";
+                <div style='font-weight:600; font-size:15px;'>{$row['name']}</div>
+                <div style='font-size:12px; color:#7f8c8d;'><i class='fas fa-map-marker-alt me-1'></i>{$row['location']} | ₹{$row['price']}</div>
+              </td>";
         echo "<td>
-                                        <a href='hotel-edit.php?id={$row['id']}' class='btn btn-outline-primary btn-sm' style='padding: 5px 15px;'>
-                                            <i class='fas fa-edit me-1'></i> Manage
-                                        </a>
-                                      </td>";
+                <form action='admin.php' method='POST' style='display:inline;'>
+                    <input type='hidden' name='action' value='toggle_hotel'>
+                    <input type='hidden' name='hotel_id' value='{$row['id']}'>
+                    <input type='hidden' name='current_status' value='{$row['availability']}'>
+                    <button type='submit' class='btn {$avail_btn_class} btn-sm' style='font-size: 11px; padding: 2px 10px; border-radius: 20px;' title='{$toggle_title}'>
+                        {$avail_text}
+                    </button>
+                </form>
+              </td>";
+        echo "<td>
+                <div class='btn-group'>
+                    <a href='hotel-edit.php?id={$row['id']}' class='btn btn-outline-primary btn-sm' title='Edit'>
+                        <i class='fas fa-edit'></i> Edit
+                    </a>
+                    <a href='admin.php?action=delete_hotel&id={$row['id']}' class='btn btn-outline-danger btn-sm' onclick=\"return confirm('Are you sure you want to delete this hotel?')\" title='Delete'>
+                        <i class='fas fa-trash-alt'></i> Delete
+                    </a>
+                </div>
+              </td>";
         echo "</tr>";
     }
 }
@@ -737,10 +789,11 @@ else {
                 <?php endif; ?>
 
                 <h5>Add New Offer</h5>
-                <form action="admin.php" method="POST" class="mb-5 row g-3">
+                <form action="admin.php" method="POST" enctype="multipart/form-data" class="mb-5 row g-3">
                     <input type="hidden" name="action" value="add_offer">
                     <div class="col-md-2">
-                        <input type="text" class="form-control" name="badge_text" placeholder="Badge Code" required>
+                        <label class="form-label small text-muted">Badge Code</label>
+                        <input type="text" class="form-control" name="badge_text" placeholder="e.g. FLAT25" required>
                     </div>
                     <div class="col-md-2">
                         <select class="form-select" name="badge_color" required>
@@ -755,10 +808,12 @@ else {
                         <input type="text" class="form-control" name="title" placeholder="Title (Up to 25%)" required>
                     </div>
                     <div class="col-md-3">
-                        <input type="text" class="form-control" name="description" placeholder="Description (on Flights)" required>
+                        <label class="form-label small text-muted">Description (Flights)</label>
+                        <input type="text" class="form-control" name="description" placeholder="on Domestic Flights" required>
                     </div>
                     <div class="col-md-3">
-                        <input type="text" class="form-control" name="image_url" placeholder="Image URL (assets/images/...)" required>
+                        <label class="form-label small text-muted">Upload Offer Image</label>
+                        <input type="file" class="form-control" name="offer_image" accept="image/*" required>
                     </div>
                     <div class="col-md-9">
                         <input type="text" class="form-control" name="footer_text" placeholder="Footer text (EMI Valid)" required>
@@ -799,32 +854,30 @@ else {
                                         <div style='font-weight:600; font-size:15px;'>{$row['title']}</div>
                                         <div style='font-size:12px; color:#7f8c8d;'><span style='color: white; background: {$colorCode}; padding: 2px 6px; border-radius: 4px;'>{$row['badge_text']}</span> • {$row['description']}</div>
                                       </td>";
+                                 $status_btn_class = $row['status'] == 1 ? 'btn-success' : 'btn-secondary';
+                                 $status_text = $row['status'] == 1 ? 'Active' : 'Inactive';
+                                 $toggle_title = $row['status'] == 1 ? 'Deactivate' : 'Activate';
 
-                                $status_badge = $row['status'] == 1 ? "<span class='badge bg-success'>Active</span>" : "<span class='badge bg-secondary'>Hidden</span>";
-                                $toggle_btn_class = $row['status'] == 1 ? "btn-outline-secondary" : "btn-outline-success";
-                                $toggle_btn_text = $row['status'] == 1 ? "Hide" : "Show";
-
-                                echo "<td>{$status_badge}</td>";
-                                echo "<td>
-                                        <div class='d-flex gap-2'>
-                                            <form action='admin.php' method='POST' style='display:inline;'>
-                                                <input type='hidden' name='action' value='toggle_offer'>
-                                                <input type='hidden' name='offer_id' value='{$row['id']}'>
-                                                <input type='hidden' name='current_status' value='{$row['status']}'>
-                                                <button type='submit' class='btn {$toggle_btn_class} btn-sm' style='padding: 5px 15px;'>
-                                                    <i class='fas fa-eye" . ($row['status'] == 1 ? "-slash" : "") . " me-1'></i> {$toggle_btn_text}
-                                                </button>
-                                            </form>
-                                            
-                                            <button type='button' class='btn btn-outline-primary btn-sm' data-bs-toggle='modal' data-bs-target='#editOfferModal{$row['id']}' style='padding: 5px 15px;'>
-                                                <i class='fas fa-edit me-1'></i> Edit
-                                            </button>
-
-                                            <a href='admin.php?action=delete_offer&id={$row['id']}' class='btn btn-outline-danger btn-sm' style='padding: 5px 15px;' onclick='return confirm(\"Are you sure you want to delete this offer?\");'>
-                                                <i class='fas fa-trash me-1'></i> Delete
-                                            </a>
-                                        </div>
-                                      </td>";
+                                 echo "<td>
+                                         <form action='admin.php' method='POST' style='display:inline;'>
+                                             <input type='hidden' name='action' value='toggle_offer'>
+                                             <input type='hidden' name='offer_id' value='{$row['id']}'>
+                                             <input type='hidden' name='current_status' value='{$row['status']}'>
+                                             <button type='submit' class='btn {$status_btn_class} btn-sm' style='font-size: 11px; padding: 2px 10px; border-radius: 20px;' title='{$toggle_title}'>
+                                                 {$status_text}
+                                             </button>
+                                         </form>
+                                       </td>";
+                                 echo "<td>
+                                         <div class='btn-group'>
+                                             <button type='button' class='btn btn-outline-primary btn-sm' data-bs-toggle='modal' data-bs-target='#editOfferModal{$row['id']}' title='Edit'>
+                                                 <i class='fas fa-edit'></i> Edit
+                                             </button>
+                                             <a href='admin.php?action=delete_offer&id={$row['id']}' class='btn btn-outline-danger btn-sm' onclick='return confirm(\"Are you sure you want to delete this offer?\");' title='Delete'>
+                                                 <i class='fas fa-trash-alt'></i> Delete
+                                             </a>
+                                         </div>
+                                       </td>";
                                 echo "</tr>";
 
                                 // Setup modal for editing this particular offer
@@ -837,9 +890,10 @@ else {
                                         <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                                       </div>
                                       <div class='modal-body'>
-                                        <form action='admin.php' method='POST' class='row g-3'>
+                                        <form action='admin.php' method='POST' enctype='multipart/form-data' class='row g-3'>
                                             <input type='hidden' name='action' value='edit_offer'>
                                             <input type='hidden' name='offer_id' value='{$row['id']}'>
+                                            <input type='hidden' name='existing_image' value='{$row['image_url']}'>
                                             <div class='col-md-4'>
                                                 <label class='form-label small text-muted'>Badge Code</label>
                                                 <input type='text' class='form-control' name='badge_text' value='" . htmlspecialchars($row['badge_text'], ENT_QUOTES) . "' required>
@@ -863,8 +917,9 @@ else {
                                                 <input type='text' class='form-control' name='description' value='" . htmlspecialchars($row['description'], ENT_QUOTES) . "' required>
                                             </div>
                                             <div class='col-md-6'>
-                                                <label class='form-label small text-muted'>Image URL</label>
-                                                <input type='text' class='form-control' name='image_url' value='" . htmlspecialchars($row['image_url'], ENT_QUOTES) . "' required>
+                                                <label class='form-label small text-muted'>Offer Image (Upload new to change)</label>
+                                                <input type='file' class='form-control' name='offer_image' accept='image/*'>
+                                                <div class='mt-1 small text-muted'>Current: {$row['image_url']}</div>
                                             </div>
                                             <div class='col-md-12'>
                                                 <label class='form-label small text-muted'>Footer Text</label>
@@ -920,23 +975,40 @@ else {
         const dataCards = document.querySelectorAll('.data-card');
         const pageTitle = document.getElementById('page-title');
 
+        function switchTab(target) {
+            const link = document.querySelector(`.nav-link[data-target="${target}"]`);
+            if (link) {
+                // Update active link
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                // Update Page Title
+                pageTitle.textContent = link.textContent.trim();
+
+                // Hide all cards, show target
+                const targetId = target + '-card';
+                dataCards.forEach(card => card.classList.remove('active'));
+                const targetCard = document.getElementById(targetId);
+                if (targetCard) targetCard.classList.add('active');
+                
+                // Save to localStorage
+                localStorage.setItem('activeAdminTab', target);
+            }
+        }
+
         navLinks.forEach(link => {
             link.addEventListener('click', function (e) {
                 e.preventDefault();
-
-                // Update active link
-                navLinks.forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-
-                // Update Page Title
-                pageTitle.textContent = this.textContent.trim();
-
-                // Hide all cards, show target
-                const targetId = this.getAttribute('data-target') + '-card';
-                dataCards.forEach(card => card.classList.remove('active'));
-                document.getElementById(targetId).classList.add('active');
+                const target = this.getAttribute('data-target');
+                switchTab(target);
             });
         });
+
+        // On page load, restore tab from localStorage immediately
+        const savedTab = localStorage.getItem('activeAdminTab');
+        if (savedTab) {
+            switchTab(savedTab);
+        }
     </script>
 </body>
 
