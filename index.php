@@ -254,7 +254,7 @@
                     <!--=== We Image Box ===-->
                     <div class="we-two_image-box mb-20">
                         <div class="we-image mb-30">
-                            <img src="assets/images/abt.png" alt="we Image">
+                            <img src="assets/images/abt1.png" alt="we Image">
                         </div>
                     </div>
                 </div>
