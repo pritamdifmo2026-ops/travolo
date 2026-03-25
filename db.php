@@ -148,4 +148,32 @@ if ($hotel_check->num_rows == 0) {
     }
 }
 
+// Create offers table
+$table_app_offers = "CREATE TABLE IF NOT EXISTS app_offers (
+    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    image_url VARCHAR(255) NOT NULL,
+    badge_text VARCHAR(100) NOT NULL,
+    badge_color VARCHAR(50) DEFAULT 'primary',
+    title VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    footer_text VARCHAR(255),
+    status INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)";
+$conn->query($table_app_offers);
+
+// Seed offer data
+$offer_check = $conn->query("SELECT * FROM app_offers");
+if ($offer_check->num_rows == 0) {
+    $seed_offers = [
+        "('assets/images/tour-12-550x590.jpg', 'ICICICC | KOTAKCC', 'primary', 'Up to 25% off', 'on Domestic Flights!', 'Valid on Credit Card & EMI', 1)",
+        "('assets/images/tour-3-550x590.jpg', 'SUMMERSALE', 'danger', 'Flat 10% off', 'on all domestic flights', 'No minimum booking amount', 1)",
+        "('assets/images/slider-1.jpg', 'INTDOTD', 'success', 'Flat 15% off', 'on International Flights', 'Valid on limited routes', 1)",
+        "('assets/images/slider-2.jpg', 'CTNOV', 'warning', 'Up to 20% off', 'on flights', 'Special Holiday Discount', 1)"
+    ];
+    foreach ($seed_offers as $offer_values) {
+        $conn->query("INSERT INTO app_offers (image_url, badge_text, badge_color, title, description, footer_text, status) VALUES $offer_values");
+    }
+}
+
 ?>

@@ -21,6 +21,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
+// Add New Offer Logic
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_offer') {
+    $title = $conn->real_escape_string($_POST['title']);
+    $badge = $conn->real_escape_string($_POST['badge_text']);
+    $color = $conn->real_escape_string($_POST['badge_color']);
+    $desc = $conn->real_escape_string($_POST['description']);
+    $footer = $conn->real_escape_string($_POST['footer_text']);
+    $image = $conn->real_escape_string($_POST['image_url']);
+
+    $conn->query("INSERT INTO app_offers (image_url, badge_text, badge_color, title, description, footer_text) VALUES ('$image', '$badge', '$color', '$title', '$desc', '$footer')");
+    header("Location: admin.php?success=Exclusive+Offer+Added+Successfully");
+    exit;
+}
+
+// Update Offer Logic
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_offer') {
+    $offer_id = (int)$_POST['offer_id'];
+    $title = $conn->real_escape_string($_POST['title']);
+    $badge = $conn->real_escape_string($_POST['badge_text']);
+    $color = $conn->real_escape_string($_POST['badge_color']);
+    $desc = $conn->real_escape_string($_POST['description']);
+    $footer = $conn->real_escape_string($_POST['footer_text']);
+    $image = $conn->real_escape_string($_POST['image_url']);
+
+    $conn->query("UPDATE app_offers SET image_url='$image', badge_text='$badge', badge_color='$color', title='$title', description='$desc', footer_text='$footer' WHERE id=$offer_id");
+    header("Location: admin.php?success=Exclusive+Offer+Updated+Successfully");
+    exit;
+}
+
+// Toggle Offer Status
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_offer') {
+    $offer_id = (int)$_POST['offer_id'];
+    $current_status = (int)$_POST['current_status'];
+    $new_status = $current_status ? 0 : 1;
+    $conn->query("UPDATE app_offers SET status=$new_status WHERE id=$offer_id");
+    header("Location: admin.php?success=Offer+Status+Toggled");
+    exit;
+}
+
+// Delete Offer Logic
+if (isset($_GET['action']) && $_GET['action'] === 'delete_offer' && isset($_GET['id'])) {
+    $offer_id = (int)$_GET['id'];
+    $conn->query("DELETE FROM app_offers WHERE id=$offer_id");
+    header("Location: admin.php?success=Offer+Deleted");
+    exit;
+}
+
 // Toggle Hotel Availability
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_hotel') {
     $hotel_id = (int)$_POST['hotel_id'];
@@ -333,8 +380,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     Bookings</a></li>
             <li><a href="#" class="nav-link" data-target="cabs"><i class="fas fa-car-side"></i> Cab Bookings</a></li>
             <li><a href="#" class="nav-link" data-target="hotels"><i class="fas fa-hotel"></i> Hotel Bookings</a></li>
-            <li><a href="#" class="nav-link" data-target="manage-hotels"><i class="fas fa-building"></i> Manage
-                    Hotels</a></li>
+            <li><a href="#" class="nav-link" data-target="manage-hotels"><i class="fas fa-building"></i> Manage Hotels</a></li>
+            <li><a href="#" class="nav-link" data-target="manage-offers"><i class="fas fa-tags"></i> Manage Offers</a></li>
             <li><a href="#" class="nav-link" data-target="contacts"><i class="fas fa-envelope-open-text"></i>
                     Messages</a></li>
             <li><a href="index.php" target="_blank"><i class="fas fa-external-link-alt"></i> View Website</a></li>
@@ -674,6 +721,169 @@ else {
     echo "<tr><td colspan='4' class='text-center py-4 text-muted'>No hotels found in database.</td></tr>";
 }
 ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Manage Offers Card -->
+        <div class="data-card" id="manage-offers-card">
+            <div class="card-header">
+                <h4><i class="fas fa-tags"></i> Manage Exclusive Offers</h4>
+            </div>
+            <div class="table-responsive" style="padding: 30px;">
+                <?php if (isset($_GET['success'])): ?>
+                    <div class="alert alert-success"><?php echo htmlspecialchars($_GET['success']); ?></div>
+                <?php endif; ?>
+
+                <h5>Add New Offer</h5>
+                <form action="admin.php" method="POST" class="mb-5 row g-3">
+                    <input type="hidden" name="action" value="add_offer">
+                    <div class="col-md-2">
+                        <input type="text" class="form-control" name="badge_text" placeholder="Badge Code" required>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" name="badge_color" required>
+                            <option value="primary">Blue</option>
+                            <option value="danger">Red</option>
+                            <option value="success">Green</option>
+                            <option value="warning">Yellow</option>
+                            <option value="dark">Black</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" class="form-control" name="title" placeholder="Title (Up to 25%)" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="description" placeholder="Description (on Flights)" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="image_url" placeholder="Image URL (assets/images/...)" required>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" name="footer_text" placeholder="Footer text (EMI Valid)" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100" style="background-color: #F7921E; border:none;">Add Offer Card</button>
+                    </div>
+                </form>
+
+                <hr>
+
+                <h5 class="mt-4">Active Offers</h5>
+                <table class="table mt-3 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Theme</th>
+                            <th>Details</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $res = $conn->query("SELECT * FROM app_offers ORDER BY id DESC");
+                        if ($res && $res->num_rows > 0) {
+                            while ($row = $res->fetch_assoc()) {
+                                $colorCode = [
+                                    'primary' => '#0d6efd',
+                                    'danger'  => '#dc3545',
+                                    'success' => '#198754',
+                                    'warning' => '#ffc107',
+                                    'dark'    => '#212529'
+                                ][$row['badge_color']] ?? '#000';
+
+                                echo "<tr>";
+                                echo "<td><img src='{$row['image_url']}' style='border-radius:8px; width:70px; height:50px; object-fit:cover;'></td>";
+                                echo "<td>
+                                        <div style='font-weight:600; font-size:15px;'>{$row['title']}</div>
+                                        <div style='font-size:12px; color:#7f8c8d;'><span style='color: white; background: {$colorCode}; padding: 2px 6px; border-radius: 4px;'>{$row['badge_text']}</span> • {$row['description']}</div>
+                                      </td>";
+
+                                $status_badge = $row['status'] == 1 ? "<span class='badge bg-success'>Active</span>" : "<span class='badge bg-secondary'>Hidden</span>";
+                                $toggle_btn_class = $row['status'] == 1 ? "btn-outline-secondary" : "btn-outline-success";
+                                $toggle_btn_text = $row['status'] == 1 ? "Hide" : "Show";
+
+                                echo "<td>{$status_badge}</td>";
+                                echo "<td>
+                                        <div class='d-flex gap-2'>
+                                            <form action='admin.php' method='POST' style='display:inline;'>
+                                                <input type='hidden' name='action' value='toggle_offer'>
+                                                <input type='hidden' name='offer_id' value='{$row['id']}'>
+                                                <input type='hidden' name='current_status' value='{$row['status']}'>
+                                                <button type='submit' class='btn {$toggle_btn_class} btn-sm' style='padding: 5px 15px;'>
+                                                    <i class='fas fa-eye" . ($row['status'] == 1 ? "-slash" : "") . " me-1'></i> {$toggle_btn_text}
+                                                </button>
+                                            </form>
+                                            
+                                            <button type='button' class='btn btn-outline-primary btn-sm' data-bs-toggle='modal' data-bs-target='#editOfferModal{$row['id']}' style='padding: 5px 15px;'>
+                                                <i class='fas fa-edit me-1'></i> Edit
+                                            </button>
+
+                                            <a href='admin.php?action=delete_offer&id={$row['id']}' class='btn btn-outline-danger btn-sm' style='padding: 5px 15px;' onclick='return confirm(\"Are you sure you want to delete this offer?\");'>
+                                                <i class='fas fa-trash me-1'></i> Delete
+                                            </a>
+                                        </div>
+                                      </td>";
+                                echo "</tr>";
+
+                                // Setup modal for editing this particular offer
+                                echo "
+                                <div class='modal fade' id='editOfferModal{$row['id']}' tabindex='-1' aria-hidden='true'>
+                                  <div class='modal-dialog modal-lg'>
+                                    <div class='modal-content'>
+                                      <div class='modal-header'>
+                                        <h5 class='modal-title'><i class='fas fa-edit me-2 text-primary'></i>Edit Exclusive Offer</h5>
+                                        <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                      </div>
+                                      <div class='modal-body'>
+                                        <form action='admin.php' method='POST' class='row g-3'>
+                                            <input type='hidden' name='action' value='edit_offer'>
+                                            <input type='hidden' name='offer_id' value='{$row['id']}'>
+                                            <div class='col-md-4'>
+                                                <label class='form-label small text-muted'>Badge Code</label>
+                                                <input type='text' class='form-control' name='badge_text' value='" . htmlspecialchars($row['badge_text'], ENT_QUOTES) . "' required>
+                                            </div>
+                                            <div class='col-md-3'>
+                                                <label class='form-label small text-muted'>Badge Color</label>
+                                                <select class='form-select' name='badge_color' required>
+                                                    <option value='primary' " . ($row['badge_color']=='primary'?'selected':'') . ">Blue</option>
+                                                    <option value='danger' " . ($row['badge_color']=='danger'?'selected':'') . ">Red</option>
+                                                    <option value='success' " . ($row['badge_color']=='success'?'selected':'') . ">Green</option>
+                                                    <option value='warning' " . ($row['badge_color']=='warning'?'selected':'') . ">Yellow</option>
+                                                    <option value='dark' " . ($row['badge_color']=='dark'?'selected':'') . ">Black</option>
+                                                </select>
+                                            </div>
+                                            <div class='col-md-5'>
+                                                <label class='form-label small text-muted'>Title</label>
+                                                <input type='text' class='form-control' name='title' value='" . htmlspecialchars($row['title'], ENT_QUOTES) . "' required>
+                                            </div>
+                                            <div class='col-md-6'>
+                                                <label class='form-label small text-muted'>Description</label>
+                                                <input type='text' class='form-control' name='description' value='" . htmlspecialchars($row['description'], ENT_QUOTES) . "' required>
+                                            </div>
+                                            <div class='col-md-6'>
+                                                <label class='form-label small text-muted'>Image URL</label>
+                                                <input type='text' class='form-control' name='image_url' value='" . htmlspecialchars($row['image_url'], ENT_QUOTES) . "' required>
+                                            </div>
+                                            <div class='col-md-12'>
+                                                <label class='form-label small text-muted'>Footer Text</label>
+                                                <input type='text' class='form-control' name='footer_text' value='" . htmlspecialchars($row['footer_text'], ENT_QUOTES) . "' required>
+                                            </div>
+                                            <div class='col-12 text-end mt-4'>
+                                                <button type='button' class='btn btn-secondary me-2' data-bs-dismiss='modal'>Cancel</button>
+                                                <button type='submit' class='btn btn-primary px-4' style='background-color: #F7921E; border:none;'>Update Offer</button>
+                                            </div>
+                                        </form>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='4' class='text-center py-4 text-muted'>No Offers Found.</td></tr>";
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>

@@ -85,7 +85,7 @@
                         <h4 class="widget-title text-white">About</h4>
                         <div class="footer-content">
                             <p>Drop a Line<br>
-                                +91-9910516644</p>
+                                +91-8373996644</p>
 
                             <p>Email Address<br>
                                sales@travolo.online</p>

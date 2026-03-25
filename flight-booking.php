@@ -1,3 +1,4 @@
+<?php include 'db.php'; ?>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -1065,7 +1066,7 @@
 
                     <!-- Special Fares -->
                     <div class="special-fares">
-                        <div class="special-fare-label">Special Fares (Optional):</div>
+                        <div class="special-fare-label">Special Fares :</div>
                         <div class="fare-chip"><i class="fas fa-briefcase"></i> Corporate</div>
                         <div class="fare-chip"><i class="fas fa-user-shield"></i> Defence & Army</div>
                         <div class="fare-chip"><i class="fas fa-user-md"></i> Doctors & Nurses</div>
@@ -1126,64 +1127,51 @@
             </div>
 
             <!-- Offers Section -->
-            <div class="offers-section-wrapper wow fadeInUp">
+            <div id="offers-section" class="offers-section-wrapper wow fadeInUp" style="scroll-margin-top: 100px;">
                 <div class="offers-header">
                     <h4>Exclusive Offers</h4>
-                    <a href="#" class="text-primary fw-bold text-decoration-none">View All <i class="fas fa-arrow-right ms-1"></i></a>
+                    <?php if (!isset($_GET['view_offers'])) { ?>
+                        <a href="flight-booking.php?view_offers=all#offers-section" class="text-primary fw-bold text-decoration-none">View All <i class="fas fa-arrow-right ms-1"></i></a>
+                    <?php
+}
+else { ?>
+                        <a href="flight-booking.php#offers-section" class="text-primary fw-bold text-decoration-none"><i class="fas fa-arrow-left me-1"></i> View Less </a>
+                    <?php
+}?>
                 </div>
                 <div class="row g-4">
-                    <!-- Offer 1 -->
+                    <?php
+// Only show 4 offers by default, remove LIMIT if "View All" is clicked
+$limit_clause = isset($_GET['view_offers']) ? "" : "LIMIT 4";
+$offer_query = $conn->query("SELECT * FROM app_offers WHERE status = 1 ORDER BY id DESC $limit_clause");
+
+if ($offer_query && $offer_query->num_rows > 0) {
+    while ($offer = $offer_query->fetch_assoc()) {
+        $colorClass = "text-" . htmlspecialchars($offer['badge_color']);
+?>
+                    <!-- Dynamic Offer -->
                     <div class="col-lg-3 col-md-6 col-12">
-                        <a href="#" class="offer-card" style="background-image: url('assets/images/tour-12-550x590.jpg'); position: relative;">
-                            <span style="position: absolute; right: 15px; top: 15px; background: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; z-index: 10; color: #000; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">ICICICC | KOTAKCC</span>
+                        <a href="#" class="offer-card" style="background-image: url('<?php echo htmlspecialchars($offer['image_url']); ?>'); position: relative;">
+                            <span class="<?php echo $colorClass; ?>" style="position: absolute; right: 15px; top: 15px; background: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                <?php echo htmlspecialchars($offer['badge_text']); ?>
+                            </span>
                             <div class="mt-4">
-                                <h5 class="offer-title text-white">Up to 25% off</h5>
-                                <p class="offer-desc">on Domestic Flights!</p>
+                                <h5 class="offer-title text-white"><?php echo htmlspecialchars($offer['title']); ?></h5>
+                                <p class="offer-desc"><?php echo htmlspecialchars($offer['description']); ?></p>
                             </div>
                             <div class="offer-footer mt-auto">
-                                <small>Valid on Credit Card & EMI</small>
+                                <small><?php echo htmlspecialchars($offer['footer_text']); ?></small>
                             </div>
                         </a>
                     </div>
-                    <!-- Offer 2 -->
-                    <div class="col-lg-3 col-md-6 col-12">
-                        <a href="#" class="offer-card" style="background-image: url('assets/images/tour-3-550x590.jpg'); position: relative;">
-                            <span style="position: absolute; right: 15px; top: 15px; background: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; z-index: 10; color: #dc3545; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">SUMMERSALE</span>
-                            <div class="mt-4">
-                                <h5 class="offer-title text-white">Flat 10% off</h5>
-                                <p class="offer-desc">on all domestic flights</p>
-                            </div>
-                            <div class="offer-footer mt-auto">
-                                <small>No minimum booking amount</small>
-                            </div>
-                        </a>
-                    </div>
-                    <!-- Offer 3 -->
-                    <div class="col-lg-3 col-md-6 col-12">
-                        <a href="#" class="offer-card" style="background-image: url('assets/images/slider-1.jpg'); position: relative;">
-                            <span style="position: absolute; right: 15px; top: 15px; background: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; z-index: 10; color: #198754; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">INTDOTD</span>
-                            <div class="mt-4">
-                                <h5 class="offer-title text-white">Flat 15% off</h5>
-                                <p class="offer-desc">on International Flights</p>
-                            </div>
-                            <div class="offer-footer mt-auto">
-                                <small>Valid on limited routes</small>
-                            </div>
-                        </a>
-                    </div>
-                    <!-- Offer 4 -->
-                    <div class="col-lg-3 col-md-6 col-12">
-                        <a href="#" class="offer-card" style="background-image: url('assets/images/slider-2.jpg'); position: relative;">
-                            <span style="position: absolute; right: 15px; top: 15px; background: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; z-index: 10; color: #ffc107; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">CTNOV</span>
-                            <div class="mt-4">
-                                <h5 class="offer-title text-white">Up to 20% off</h5>
-                                <p class="offer-desc">on flights</p>
-                            </div>
-                            <div class="offer-footer mt-auto">
-                                <small>Special Holiday Discount</small>
-                            </div>
-                        </a>
-                    </div>
+                    <?php
+    }
+}
+else {
+    // If no offers in DB, display a fallback message
+    echo "<div class='col-12 text-center text-muted my-5'>No exclusive offers available at the moment.</div>";
+}
+?>
                 </div>
             </div>
         </div>

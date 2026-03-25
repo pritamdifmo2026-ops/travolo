@@ -37,7 +37,7 @@
                                             <i class="fas fa-phone-alt"></i>
                                         </div>
                                         <div class="info2">
-                                            <p><a href="tel:+919910516644">+91-9910516644</a></p>
+                                            <p><a href="tel:+918373996644">+91-8373996644</a></p>
                                         </div>
                                     </div>
                                 </div>
