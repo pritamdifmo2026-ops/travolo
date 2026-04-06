@@ -785,15 +785,15 @@ button {
   .header-navigation .main-menu ul > li > a {
     position: relative;
     display: block;
-    font: 500 18px "Prompt", sans-serif;
-    padding: 34px 0 37px;
+    font: 450 25px "Prompt", sans-serif !important;
+    padding: 30px 0 32px;
     text-transform: capitalize;
     line-height: 1; }
     .header-navigation .main-menu ul > li > a span.dd-trigger {
       margin-left: 5px; }
     @media only screen and (min-width: 1200px) and (max-width: 1600px) {
       .header-navigation .main-menu ul > li > a {
-        font-size: 16px; } }
+        font-size: 24px !important; } }
   .header-navigation .main-menu ul > li .sub-menu {
     position: absolute;
     left: 0;
@@ -5693,4 +5693,255 @@ ul.policy-points li {
     position: fixed;
     bottom: 0;
     z-index: 9999!important;
+}
+
+/*---==================
+    34. Custom Hotel Search (EaseMyTrip Style)
+=================----*/
+/*---==================
+    34. Custom Hotel Search (EaseMyTrip Style) - Refined
+=================----*/
+.emt-search-container {
+    background: #fff !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2) !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    margin-top: -60px !important;
+    position: relative !important;
+    z-index: 100 !important;
+}
+
+.emt-search-item {
+    padding: 15px 20px !important;
+    border-right: 1px solid #efefef !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    position: relative !important;
+}
+
+.emt-search-item:last-of-type {
+    border-right: none !important;
+}
+
+.emt-search-item-large { flex: 2.5 !important; }
+.emt-search-item-medium { flex: 1.5 !important; }
+.emt-search-item-small { flex: 1 !important; }
+
+.emt-label {
+    font-size: 12px !important;
+    color: #888 !important;
+    margin-bottom: 5px !important;
+    display: block !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.emt-input {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #1c231f !important;
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    width: 100% !important;
+    outline: none !important;
+}
+
+.emt-display-value {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #1c231f !important;
+    cursor: pointer !important;
+    line-height: 1.2 !important;
+}
+
+.emt-display-sub {
+    font-size: 12px !important;
+    color: #666 !important;
+    font-weight: 400 !important;
+}
+
+.emt-search-btn-wrapper {
+    background: #F7921E !important;
+    border-top-right-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 35px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.emt-search-btn-wrapper:hover {
+    background: #e0841b !important;
+}
+
+.emt-search-btn-wrapper button {
+    background: transparent !important;
+    color: #fff !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    border: none !important;
+    padding: 0 !important;
+    letter-spacing: 1px !important;
+}
+
+/* Rooms & Guests Popover - Prefix fix */
+.emt-rooms-guests-popover {
+    position: absolute !important;
+    top: calc(100% + 10px) !important;
+    right: 0 !important;
+    width: 320px !important;
+    background: #fff !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+    z-index: 1000 !important;
+    display: none !important;
+}
+
+.emt-rooms-guests-popover.active {
+    display: block !important;
+}
+
+.emt-room-item {
+    border-bottom: 1px solid #efefef !important;
+    padding-bottom: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+.emt-room-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+}
+
+.emt-room-title {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    margin-bottom: 15px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    color: #000 !important;
+}
+
+.emt-remove-room {
+    color: #bf1e2e !important;
+    cursor: pointer !important;
+    font-size: 11px !important;
+}
+
+.emt-guest-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 12px !important;
+}
+
+.emt-guest-info {
+    font-size: 14px !important;
+    color: #333 !important;
+    font-weight: 500 !important;
+}
+
+.emt-guest-info span {
+    display: block !important;
+    font-size: 10px !important;
+    color: #888 !important;
+    font-weight: 400 !important;
+}
+
+.emt-counter-group {
+    display: flex !important;
+    align-items: center !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    overflow: hidden !important;
+}
+
+.emt-counter-btn {
+    width: 28px !important;
+    height: 28px !important;
+    background: #f4f4f4 !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    color: #333 !important;
+}
+
+.emt-counter-btn:hover:not(:disabled) {
+    background: #e0e0e0 !important;
+}
+
+.emt-count-display {
+    width: 30px !important;
+    text-align: center !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #000 !important;
+}
+
+.emt-popover-footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-top: 15px !important;
+    padding-top: 15px !important;
+    border-top: 1px solid #efefef !important;
+}
+
+.emt-btn-add {
+    background: transparent !important;
+    border: 1.5px solid #00a79d !important;
+    color: #00a79d !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+}
+
+.emt-btn-done {
+    background: #F7921E !important;
+    color: #fff !important;
+    padding: 8px 20px !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+}
+
+@media (max-width: 991px) {
+    .emt-search-container {
+        flex-direction: column !important;
+        margin-top: 0 !important;
+        border-radius: 10px !important;
+    }
+    .emt-search-item {
+        border-right: none !important;
+        border-bottom: 1px solid #efefef !important;
+        padding: 12px 15px !important;
+    }
+    .emt-search-btn-wrapper {
+        border-radius: 0 0 10px 10px !important;
+        padding: 15px !important;
+    }
+    .emt-rooms-guests-popover {
+        right: auto !important;
+        left: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+    }
 }

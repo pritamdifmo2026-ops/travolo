@@ -34,6 +34,240 @@
     <link rel="stylesheet" href="assets/css/default.css">
     <!--====== Style css ======-->
     <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .emt-search-container {
+            background: #ffffff !important;
+            border-radius: 10px !important;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15) !important;
+            display: flex !important;
+            align-items: stretch !important;
+            width: 100% !important;
+            margin-top: -60px !important;
+            position: relative !important;
+            z-index: 999 !important;
+            overflow: visible !important;
+            border: 1px solid #efefef !important;
+        }
+
+        .emt-search-item {
+            padding: 15px 25px !important;
+            border-right: 1px solid #eee !important;
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            position: relative !important;
+            text-align: left !important;
+        }
+
+        .emt-search-item:nth-last-child(2) {
+            border-right: none !important;
+        }
+
+        .emt-search-item-large { flex: 2 !important; }
+        .emt-search-item-medium { flex: 1.5 !important; }
+
+        .emt-label {
+            font-size: 12px !important;
+            color: #888 !important;
+            margin-bottom: 3px !important;
+            display: block !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
+
+        .emt-input {
+            font-size: 17px !important;
+            font-weight: 700 !important;
+            color: #000 !important;
+            border: none !important;
+            padding: 0 !important;
+            background: transparent !important;
+            width: 100% !important;
+            outline: none !important;
+            box-shadow: none !important;
+            height: auto !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
+
+        .emt-display-value {
+            font-size: 17px !important;
+            font-weight: 700 !important;
+            color: #000 !important;
+            cursor: pointer !important;
+            line-height: normal !important;
+            font-family: 'Prompt', sans-serif !important;
+        }
+
+        .emt-display-sub {
+            font-size: 12px !important;
+            color: #666 !important;
+            font-weight: 400 !important;
+            display: block !important;
+        }
+
+        .emt-search-btn-wrapper {
+            background: #F7921E !important;
+            border-top-right-radius: 10px !important;
+            border-bottom-right-radius: 10px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 45px !important;
+            cursor: pointer !important;
+        }
+
+        .emt-search-btn-wrapper button {
+            background: transparent !important;
+            color: #fff !important;
+            font-size: 20px !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            border: none !important;
+            padding: 0 !important;
+            cursor: pointer !important;
+        }
+
+        .emt-rooms-guests-popover {
+            position: absolute !important;
+            top: calc(100% + 15px) !important;
+            right: 0 !important;
+            width: 320px !important;
+            background: #fff !important;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25) !important;
+            border-radius: 12px !important;
+            padding: 25px !important;
+            z-index: 10000 !important;
+            display: none !important;
+            border: 1px solid #ddd !important;
+        }
+
+        .emt-rooms-guests-popover.active {
+            display: block !important;
+        }
+
+        .emt-room-item {
+            border-bottom: 1px solid #f0f0f0 !important;
+            padding-bottom: 15px !important;
+            margin-bottom: 15px !important;
+        }
+
+        .emt-room-title {
+            font-size: 15px !important;
+            font-weight: 800 !important;
+            margin-bottom: 20px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            color: #1a1a1a !important;
+        }
+
+        .emt-remove-room {
+            color: #d9534f !important;
+            cursor: pointer !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+        }
+
+        .emt-guest-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: 15px !important;
+        }
+
+        .emt-guest-info {
+            font-size: 15px !important;
+            color: #333 !important;
+            font-weight: 600 !important;
+        }
+
+        .emt-guest-info span {
+            display: block !important;
+            font-size: 11px !important;
+            color: #999 !important;
+            font-weight: 400 !important;
+        }
+
+        .emt-counter-group {
+            display: flex !important;
+            align-items: center !important;
+            border: 1px solid #ccc !important;
+            border-radius: 6px !important;
+            overflow: hidden !important;
+            height: 34px !important;
+        }
+
+        .emt-counter-btn {
+            width: 34px !important;
+            height: 100% !important;
+            background: #fdfdfd !important;
+            border: none !important;
+            font-size: 20px !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
+            color: #F7921E !important;
+            line-height: 1 !important;
+            padding: 0 !important;
+        }
+
+        .emt-count-display {
+            width: 34px !important;
+            text-align: center !important;
+            font-size: 15px !important;
+            font-weight: 800 !important;
+            color: #000 !important;
+        }
+
+        .emt-popover-footer {
+            display: flex !important;
+            justify-content: space-between !important;
+            margin-top: 5px !important;
+        }
+
+        .emt-btn-add {
+            background: transparent !important;
+            border: 1.5px solid #00a79d !important;
+            color: #00a79d !important;
+            padding: 8px 15px !important;
+            border-radius: 6px !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            cursor: pointer !important;
+        }
+
+        .emt-btn-done {
+            background: #F7921E !important;
+            color: #fff !important;
+            padding: 8px 30px !important;
+            border-radius: 6px !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            cursor: pointer !important;
+            border: none !important;
+        }
+
+        @media (max-width: 991px) {
+            .emt-search-container {
+                flex-direction: column !important;
+                margin-top: 0 !important;
+            }
+            .emt-search-item {
+                border-right: none !important;
+                border-bottom: 1px solid #efefef !important;
+            }
+            .emt-search-btn-wrapper {
+                border-radius: 0 0 10px 10px !important;
+                padding: 15px !important;
+            }
+            .emt-rooms-guests-popover {
+                width: 100% !important;
+                right: 0 !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -59,49 +293,54 @@
         </div>
     </section><!--====== End Breadcrumb Section ======-->
     <!--====== Start Booking Section ======-->
-    <section class="booking-form-section pb-100">
-        <div class="container-fluid ">
-            <div class="booking-form-wrapper p-r z-2">
-                <form id="hotelSearchForm" action="submit.php" method="POST"
-                    class="booking-form-two justify-content-center">
+    <section class="booking-form-section pb-100" style="padding-top: 0;">
+        <div class="container">
+            <div class="emt-search-container">
+                <form id="hotelSearchForm" action="submit.php" method="POST" class="d-flex w-100 flex-wrap flex-lg-nowrap" style="margin:0; padding:0;">
                     <input type="hidden" name="form_type" value="hotel">
-                    <div class="form_group">
-                        <span>Tour Start Date</span>
-                        <label><i class="far fa-calendar-alt"></i></label>
-                        <input type="text" class="form_control datepicker" name="check_in" placeholder="Check In"
-                            required>
-                    </div>
+                    <input type="hidden" name="hotel_id" id="selectedHotelId" value="0">
+                    <input type="hidden" name="status" id="checkStatus" value="Checked">
+                    <input type="hidden" name="accommodations" id="accommodationsInput" value="1 Room, 2 Guests">
 
-                    <div class="form_group">
-                        <span>Search</span>
-                        <label></label>
-                        <input type="text" class="form_control" name="search" placeholder="hotel" list="hotelList"
-                            required>
+                    <div class="emt-search-item emt-search-item-large">
+                        <span class="emt-label">City / Hotel</span>
+                        <input type="text" class="emt-input" name="search" placeholder="Where are you going?" list="hotelList" required autocomplete="off">
                         <datalist id="hotelList"></datalist>
                     </div>
 
-                    <div class="form_group">
-                        <span>Accommodations</span>
-                        <select class="wide" name="accommodations" required>
-                            <option value="" data-display="Accommodations">Accommodations</option>
-                            <option value="Classic Tent">Classic Tent</option>
-                            <option value="Forest Camping">Forest Camping</option>
-                            <option value="Small Trailer">Small Trailer</option>
-                            <option value="Tree House Tent">Tree House Tent</option>
-                            <option value="Tent Camping">Tent Camping</option>
-                            <option value="Couple Tent">Couple Tent</option>
-                        </select>
+                    <div class="emt-search-item">
+                        <span class="emt-label">Check-In</span>
+                        <input type="text" class="emt-input datepicker" name="check_in" id="check_in" placeholder="Select Date" required readonly style="background:transparent;">
                     </div>
-                    <div class="form_group">
-                        <span>Phone Number</span>
-                        <label><i class="far fa-phone"></i></label>
-                        <input type="tel" class="form_control" name="phone" placeholder="Phone Number" required>
+
+                    <div class="emt-search-item">
+                        <span class="emt-label">Check-Out</span>
+                        <input type="text" class="emt-input datepicker" name="check_out" id="check_out" placeholder="Select Date" required readonly style="background:transparent;">
                     </div>
-                    <div class="form_group">
-                        <input type="hidden" name="hotel_id" id="selectedHotelId" value="0">
-                        <input type="hidden" name="status" id="checkStatus" value="Checked">
-                        <button type="submit" class="booking-btn">Check Availability <i
-                                class="far fa-angle-double-right"></i></button>
+
+                    <div class="emt-search-item emt-search-item-medium">
+                        <span class="emt-label">Mobile Number</span>
+                        <input type="tel" class="emt-input" name="phone" placeholder="+91 1234567890" required>
+                    </div>
+
+                    <div class="emt-search-item emt-search-item-large" id="roomsGuestsTrigger" style="cursor:pointer;">
+                        <span class="emt-label">Rooms & Guests</span>
+                        <div class="emt-display-value" id="roomsGuestsDisplay">1 Room, 2 Guests</div>
+                        <div class="emt-display-sub">Adults, Children</div>
+
+                        <div class="emt-rooms-guests-popover" id="roomsGuestsPopover">
+                            <div id="roomContainer">
+                                <!-- Dynamic Content -->
+                            </div>
+                            <div class="emt-popover-footer">
+                                <button type="button" class="emt-btn-add" id="addRoomBtn">Add Room</button>
+                                <button type="button" class="emt-btn-done" id="doneBtn">Done</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="emt-search-btn-wrapper">
+                        <button type="submit">SEARCH</button>
                     </div>
                 </form>
             </div>
@@ -206,16 +445,115 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Room and Guest Management
+        let rooms = [
+            { id: 1, adults: 2, children: 0 }
+        ];
+
+        const roomsGuestsTrigger = document.getElementById('roomsGuestsTrigger');
+        const roomsGuestsPopover = document.getElementById('roomsGuestsPopover');
+        const roomContainer = document.getElementById('roomContainer');
+        const addRoomBtn = document.getElementById('addRoomBtn');
+        const doneBtn = document.getElementById('doneBtn');
+        const roomsGuestsDisplay = document.getElementById('roomsGuestsDisplay');
+        const accommodationsInput = document.getElementById('accommodationsInput');
+
+        // Toggle Popover
+        roomsGuestsTrigger.addEventListener('click', function(e) {
+            if (e.target.closest('.emt-rooms-guests-popover')) return;
+            roomsGuestsPopover.classList.toggle('active');
+        });
+
+        // Close on click outside
+        document.addEventListener('click', function(e) {
+            if (!roomsGuestsTrigger.contains(e.target)) {
+                roomsGuestsPopover.classList.remove('active');
+            }
+        });
+
+        function updateRoomsUI() {
+            roomContainer.innerHTML = '';
+            rooms.forEach((room, index) => {
+                const roomDiv = document.createElement('div');
+                roomDiv.className = 'emt-room-item';
+                roomDiv.innerHTML = `
+                    <div class="emt-room-title">
+                        Room ${index + 1}:
+                        ${index > 0 ? `<span class="emt-remove-room" onclick="removeRoom(${index})">Remove</span>` : ''}
+                    </div>
+                    <div class="emt-guest-row">
+                        <div class="emt-guest-info">
+                            Adult
+                            <span>(Above 12 years)</span>
+                        </div>
+                        <div class="emt-counter-group">
+                            <button type="button" class="emt-counter-btn" onclick="updateGuest(${index}, 'adults', -1)" ${room.adults <= 1 ? 'disabled' : ''}>-</button>
+                            <div class="emt-count-display">${room.adults}</div>
+                            <button type="button" class="emt-counter-btn" onclick="updateGuest(${index}, 'adults', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="emt-guest-row">
+                        <div class="emt-guest-info">
+                            Child
+                            <span>(Below 12 years)</span>
+                        </div>
+                        <div class="emt-counter-group">
+                            <button type="button" class="emt-counter-btn" onclick="updateGuest(${index}, 'children', -1)" ${room.children <= 0 ? 'disabled' : ''}>-</button>
+                            <div class="emt-count-display">${room.children}</div>
+                            <button type="button" class="emt-counter-btn" onclick="updateGuest(${index}, 'children', 1)">+</button>
+                        </div>
+                    </div>
+                `;
+                roomContainer.appendChild(roomDiv);
+            });
+            updateSummary();
+        }
+
+        window.updateGuest = function(roomIndex, type, delta) {
+            rooms[roomIndex][type] += delta;
+            updateRoomsUI();
+        };
+
+        window.removeRoom = function(roomIndex) {
+            rooms.splice(roomIndex, 1);
+            updateRoomsUI();
+        };
+
+        addRoomBtn.addEventListener('click', function() {
+            if (rooms.length < 5) {
+                rooms.push({ id: Date.now(), adults: 2, children: 0 });
+                updateRoomsUI();
+            } else {
+                alert('Maximum 5 rooms allowed');
+            }
+        });
+
+        doneBtn.addEventListener('click', function() {
+            roomsGuestsPopover.classList.remove('active');
+        });
+
+        function updateSummary() {
+            const totalRooms = rooms.length;
+            const totalGuests = rooms.reduce((acc, room) => acc + room.adults + room.children, 0);
+            const summaryStr = `${totalRooms} Room${totalRooms > 1 ? 's' : ''}, ${totalGuests} Guest${totalGuests > 1 ? 's' : ''}`;
+            roomsGuestsDisplay.innerText = summaryStr;
+            accommodationsInput.value = summaryStr; // For form submission
+        }
+
+        // Initialize Rooms UI
+        updateRoomsUI();
+
+        // Search Form Logic
         document.getElementById('hotelSearchForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
             const formData = new FormData(this);
             const checkIn = formData.get('check_in');
+            const checkOut = formData.get('check_out');
             const hotelName = formData.get('search');
             const accommodations = formData.get('accommodations');
-            const phone = formData.get('phone');
 
-            if (!checkIn || !hotelName || !accommodations || !phone) {
+            if (!checkIn || !hotelName || !accommodations) {
                 Swal.fire({ icon: 'error', title: 'Missing Fields', text: 'Please fill in all the required fields.' });
                 return;
             }
@@ -230,9 +568,6 @@
                 document.getElementById('selectedHotelId').value = hId;
                 if (hotel.available_dates) {
                     const availableDates = hotel.available_dates.split(', ');
-                    // Format check-in to match flatpickr Y-m-d if needed. 
-                    // Datepicker might be d/m/Y or similar, depends on init.
-                    // Assuming current datepicker provides YYYY-MM-DD or we can parse it.
                     if (availableDates.includes(checkIn)) {
                         isAvailable = true;
                     }
@@ -273,7 +608,12 @@
                 .then(data => {
                     if (data.status === 'success') {
                         Swal.fire({ icon: 'success', title: 'Saved!', text: data.message, confirmButtonColor: '#F7921E' })
-                            .then(() => { form.reset(); });
+                            .then(() => { 
+                                // Reset form and summary
+                                form.reset(); 
+                                rooms = [{ id: 1, adults: 2, children: 0 }];
+                                updateRoomsUI();
+                            });
                     } else {
                         Swal.fire({ icon: 'error', title: 'Oops...', text: data.message });
                     }
@@ -292,7 +632,17 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Force datepicker to use YYYY-MM-DD
             if ($.fn.datepicker) {
-                $(".datepicker").datepicker("option", "dateFormat", "yy-mm-dd");
+                $(".datepicker").datepicker({
+                    dateFormat: "yy-mm-dd",
+                    minDate: 0,
+                    onSelect: function(selectedDate) {
+                        if (this.id === 'check_in') {
+                             var date = $(this).datepicker('getDate');
+                             date.setDate(date.getDate() + 1);
+                             $('#check_out').datepicker('option', 'minDate', date);
+                        }
+                    }
+                });
             }
 
             fetch('get_hotels.php')
@@ -332,7 +682,6 @@
         function goToPage(page) {
             currentPage = page;
             renderHotels();
-            // Scroll to top of list
             document.querySelector('.places-section').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -341,32 +690,36 @@
             const pagination = document.getElementById('paginationContainer');
 
             if (filteredHotels.length === 0) {
-                container.innerHTML = `<div class="col-12 text-center py-5">
-                    <h5>No hotels found matching your search.</h5>
-                </div>`;
+                container.innerHTML = `<div class="col-12 text-center py-5"><h5>No hotels found matching your search.</h5></div>`;
                 pagination.innerHTML = '';
                 return;
             }
 
-            // Pagination calculations
             const totalPages = Math.ceil(filteredHotels.length / itemsPerPage);
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const currentHotels = filteredHotels.slice(startIndex, endIndex);
 
-            // Render Items
             let htmlString = '';
             currentHotels.forEach(hotel => {
+                const checkIn = document.getElementById('check_in').value;
+                const checkOut = document.getElementById('check_out').value;
+                const roomsVal = document.getElementById('roomsGuestsDisplay').innerText;
+                const mobile = document.querySelector('input[name="phone"]').value;
+                
+                const searchParams = `&checkin=${checkIn}&checkout=${checkOut}&rooms=${encodeURIComponent(roomsVal)}&mobile=${mobile}`;
+                const detailUrl = `hotel-details.php?id=${hotel.id}${searchParams}`;
+
                 htmlString += `
                 <div class="col-xl-4 col-md-6 col-sm-12 places-column">
-                    <div class="single-place-item mb-60 wow fadeInUp" style="visibility: visible; animation-name: fadeInUp;">
+                    <div class="single-place-item mb-60 wow fadeInUp">
                         <div class="place-img text-center" style="background:#eee; border-radius: 15px; overflow: hidden;">
-                            <a href="hotel-details.php?id=${hotel.id}" class="d-block w-100">
+                            <a href="${detailUrl}" class="d-block w-100">
                                 <img src="${hotel.image}" alt="Place Image" style="object-fit:cover; height:240px; width:100%; display: block;">
                             </a>
                         </div>
                         <div class="place-content">
-                            <div class="info" style="word-wrap: break-word; overflow-wrap: break-word;">
+                            <div class="info">
                                 <ul class="ratings">
                                     <li><i class="fas fa-star"></i></li>
                                     <li><i class="fas fa-star"></i></li>
@@ -375,13 +728,13 @@
                                     <li><i class="fas fa-star"></i></li>
                                     <li><a href="#">(5.0)</a></li>
                                 </ul>
-                                <h4 class="title"><a href="hotel-details.php?id=${hotel.id}">${hotel.name}</a></h4>
-                                <p class="location" style="margin-bottom:8px; word-break: break-word;"><i class="far fa-map-marker-alt"></i> ${hotel.location}</p>
-                                <p class="price" style="margin-bottom:8px; font-weight:600;"><i class="fas fa-rupee-sign"></i> ₹${hotel.price} <span style="font-size:12px; font-weight:normal; color:#888;">/ Night</span></p>
-                                <p style="font-size:13px; color:#666; margin-bottom:15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word;">${hotel.description}</p>
-                                <div class="meta" style="padding-top:12px; border-top:1px dashed #eee;">
+                                <h4 class="title"><a href="${detailUrl}">${hotel.name}</a></h4>
+                                <p class="location"><i class="far fa-map-marker-alt"></i> ${hotel.location}</p>
+                                <p class="price"><i class="fas fa-rupee-sign"></i> ₹${hotel.price} <span>/ Night</span></p>
+                                <p class="description">${hotel.description}</p>
+                                <div class="meta">
                                     <span><i class="far fa-bed"></i> ${hotel.accommodations}</span>
-                                    <span><a href="hotel-details.php?id=${hotel.id}">Book Now <i class="far fa-long-arrow-right"></i></a></span>
+                                    <span><a href="${detailUrl}">Book Now <i class="far fa-long-arrow-right"></i></a></span>
                                 </div>
                             </div>
                         </div>
@@ -390,19 +743,14 @@
             });
             container.innerHTML = htmlString;
 
-            // Render Pagination Logic
             if (totalPages > 1) {
                 let phtml = '';
-                if (currentPage > 1) {
-                    phtml += `<li><a href="javascript:void(0)" onclick="goToPage(${currentPage - 1})"><i class="far fa-arrow-left"></i></a></li>`;
-                }
+                if (currentPage > 1) phtml += `<li><a href="javascript:void(0)" onclick="goToPage(${currentPage - 1})"><i class="far fa-arrow-left"></i></a></li>`;
                 for (let i = 1; i <= totalPages; i++) {
                     const activeClass = i === currentPage ? 'class="active"' : '';
                     phtml += `<li><a href="javascript:void(0)" ${activeClass} onclick="goToPage(${i})">${i < 10 ? '0' + i : i}</a></li>`;
                 }
-                if (currentPage < totalPages) {
-                    phtml += `<li><a href="javascript:void(0)" onclick="goToPage(${currentPage + 1})"><i class="far fa-arrow-right"></i></a></li>`;
-                }
+                if (currentPage < totalPages) phtml += `<li><a href="javascript:void(0)" onclick="goToPage(${currentPage + 1})"><i class="far fa-arrow-right"></i></a></li>`;
                 pagination.innerHTML = phtml;
             } else {
                 pagination.innerHTML = '';

@@ -1,10 +1,4 @@
-<!--====== Start Preloader ======-->
-<div class="preloader">
-    <div class="loader">
-        <div class="pre-shadow"></div>
-        <div class="pre-box"></div>
-    </div>
-</div><!--====== End Preloader ======-->
+<!-- Preloader Disabled -->
 
 <!--====== Search From ======-->
 <div class="modal fade search-modal" id="search-modal">

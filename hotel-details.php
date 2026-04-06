@@ -1,9 +1,12 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 include 'db.php';
 
-$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+// Fetching details if available
 $res = $conn->query("SELECT * FROM app_hotels WHERE id = $id AND availability = 1");
-$hotel = $res->fetch_assoc();
+$hotel = $res ? $res->fetch_assoc() : null;
 
 if (!$hotel) {
     header("Location: hotel.php");
@@ -12,203 +15,497 @@ if (!$hotel) {
 ?>
 <!DOCTYPE html>
 <html lang="zxx">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title><?php echo $hotel['name']; ?> - Travelo</title>
-        
-        <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
-        <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="assets/fonts/flaticon/flaticon_gowilds.css">
-        <link rel="stylesheet" href="assets/fonts/fontawesome/css/all.min.css">
-        <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
-        <link rel="stylesheet" href="assets/vendor/magnific-popup/dist/magnific-popup.css">
-        <link rel="stylesheet" href="assets/vendor/slick/slick.css">
-        <link rel="stylesheet" href="assets/vendor/jquery-ui/jquery-ui.min.css">
-        <link rel="stylesheet" href="assets/vendor/nice-select/css/nice-select.css">
-        <link rel="stylesheet" href="assets/vendor/animate.css">
-        <link rel="stylesheet" href="assets/css/default.css">
-        <link rel="stylesheet" href="assets/css/style.css">
-        
-        <!-- Flatpickr -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-        <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/material_orange.css">
 
-        <style>
-            .hotel-hero { height: 450px; border-radius: 20px; overflow: hidden; margin-bottom: 40px; }
-            .price-tag { background: #F7921E; color: white; padding: 15px 30px; border-radius: 50px; font-weight: 700; font-size: 24px; display: inline-block; }
-            .calendar-card { background: #fff; border: 1px solid #eee; border-radius: 15px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-            .booking-sidebar { background: #F8F9FA; border-radius: 15px; padding: 30px; position: sticky; top: 100px; }
-            .btn-book-now { background: #F7921E; color: white; border: none; padding: 18px; width: 100%; border-radius: 10px; font-weight: 700; font-size: 18px; transition: 0.3s; }
-            .btn-book-now:hover { background: #e6851b; transform: translateY(-2px); color: white; }
-            .hotel-desc { font-size: 16px; line-height: 1.8; color: #666; }
-            #inline-calendar .flatpickr-calendar { box-shadow: none; border: none; width: 100%; }
-        </style>
-    </head>
-    <body>
-<?php include 'navbar.php'; ?>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title><?php echo htmlspecialchars($hotel['name']); ?> | Hotel Details - Travelo</title>
+    <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="assets/fonts/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Slick Slider CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
+    <style>
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Prompt', sans-serif;
+            color: #333;
+        }
 
+        .hotel-header-section {
+            background: #fff;
+            padding: 25px 0;
+            border-bottom: 1px solid #e0e0e0;
+            margin-top: 10px;
+        }
 
-        <section class="page-banner overlay pt-170 pb-170 bg_cover" style="background-image: url(assets/images/abt-bg.jpg);">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-10">
-                        <div class="page-banner-content text-center text-white">
-                            <h1 class="page-title text-white"><?php echo $hotel['name']; ?></h1>
-                            <ul class="breadcrumb-link text-white">
-                                <li><a href="index.php">Home</a></li>
-                                <li><a href="hotel.php">Hotels</a></li>
-                                <li class="active"><?php echo $hotel['location']; ?></li>
-                            </ul>
+        .rating-stars {
+            color: #f7921e;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .hotel-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+
+        .hotel-loc {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .price-display {
+            text-align: right;
+        }
+
+        .price-val {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ef4323;
+            margin-bottom: 0;
+        }
+
+        .price-unit {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .search-summary-sticky {
+            background: #f1f8ff;
+            padding: 12px 0;
+            border-bottom: 1px solid #d5e8ff;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .back-link {
+            color: #2196f3;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Mosaic Grid + Slider */
+        .gallery-container {
+            margin-top: 25px;
+        }
+
+        .main-slider-box {
+            height: 500px;
+            border-radius: 15px 0 0 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .main-slider-item {
+            height: 500px;
+        }
+
+        .main-slider-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .side-img-box {
+            position: relative;
+            height: 246px;
+            border-radius: 0 15px 0 0;
+            overflow: hidden;
+        }
+
+        .side-img-box.bottom {
+            border-radius: 0 0 15px 0;
+            margin-top: 8px;
+        }
+
+        .img-fluid-full {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .img-overlay-more {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            pointer-events: none;
+        }
+
+        .details-tabs {
+            background: #fff;
+            position: sticky;
+            top: 75px;
+            z-index: 98;
+            border-bottom: 1px solid #ddd;
+            margin-top: 30px;
+        }
+
+        .details-tabs .nav-link {
+            color: #555;
+            font-weight: 600;
+            padding: 15px 25px;
+            border: none;
+            border-bottom: 3px solid transparent;
+        }
+
+        .details-tabs .nav-link.active {
+            color: #2196f3;
+            border-bottom-color: #2196f3;
+        }
+
+        .detail-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            border-left: 4px solid #f7921e;
+            padding-left: 15px;
+        }
+
+        .room-row {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .room-row:hover {
+            border-color: #f7921e;
+        }
+
+        .room-img-box {
+            width: 220px;
+        }
+
+        .room-content {
+            padding: 20px;
+            flex: 1;
+            border-right: 1px solid #eee;
+        }
+
+        .room-price-box {
+            width: 200px;
+            padding: 20px;
+            background: #fff9f2;
+            text-align: center;
+        }
+
+        .btn-select {
+            background: #F7921E;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            width: 100%;
+        }
+
+        .slick-prev,
+        .slick-next {
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.8) !important;
+            border-radius: 50% !important;
+        }
+
+        .slick-prev:before,
+        .slick-next:before {
+            color: #333 !important;
+            font-size: 20px;
+        }
+
+        .slick-prev {
+            left: 15px;
+        }
+
+        .slick-next {
+            right: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <?php include 'navbar.php'; ?>
+
+    <!-- Sticky Summary -->
+    <div class="search-summary-sticky">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div class="search-info">
+                    <a href="hotel.php" class="back-link me-3"><i class="fas fa-arrow-left me-1"></i> Back</a>
+                    <span class="search-text">
+                        <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                        <?php echo htmlspecialchars($hotel['location']); ?>,
+                        <strong><?php echo htmlspecialchars($_GET['checkin'] ?? date('d M Y')); ?></strong> to
+                        <strong><?php echo htmlspecialchars($_GET['checkout'] ?? date('d M Y', strtotime('+1 day'))); ?></strong>,
+                        <span
+                            class="text-muted"><?php echo htmlspecialchars($_GET['rooms'] ?? '1 Room, 2 Guests'); ?></span>
+                    </span>
+                </div>
+                <a href="hotel.php" class="btn btn-outline-primary btn-sm rounded-pill px-4">Modify</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <section class="hotel-header-section">
+        <div class="container">
+            <div class="row align-items-center mb-4">
+                <div class="col-sm-8">
+                    <div class="rating-stars mb-1"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <h1 class="hotel-title"><?php echo htmlspecialchars($hotel['name']); ?></h1>
+                    <p class="hotel-loc mb-0"><i class="fas fa-map-marker-alt text-danger"></i>
+                        <?php echo htmlspecialchars($hotel['location']); ?></p>
+                </div>
+                <div class="col-sm-4 price-display">
+                    <div class="price-val">₹<?php echo number_format($hotel['price']); ?></div>
+                    <div class="price-unit">per night</div>
+                    <a href="#room-selection" class="btn btn-primary mt-2 px-4 shadow-sm">Select Room</a>
+                </div>
+            </div>
+
+            <?php
+            // Always start with the main hotel image
+            $galleryLinks = [$hotel['image']];
+
+            // Add gallery images from hotel_images table
+            $galleryRes = $conn->query("SELECT image_path FROM hotel_images WHERE hotel_id = $id ORDER BY id ASC");
+            if ($galleryRes) {
+                while ($g = $galleryRes->fetch_assoc()) {
+                    $galleryLinks[] = $g['image_path'];
+                }
+            }
+            // Remove potential duplicates and re-index
+            $galleryLinks = array_values(array_unique($galleryLinks));
+            ?>
+            <div class="row g-2 gallery-container">
+                <div class="col-md-9">
+                    <div class="main-slider-box shadow-sm">
+                        <div class="hotel-main-slider">
+                            <?php foreach ($galleryLinks as $link): ?>
+                                <div class="main-slider-item">
+                                    <img src="<?php echo $link; ?>" class="img-fluid-full" alt="Hotel Photo">
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <section class="hotel-details-section pt-100 pb-100">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="hotel-hero shadow-lg">
-                            <img src="<?php echo $hotel['image']; ?>" alt="Hotel" style="width:100%; height:100%; object-fit:cover;">
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div>
-                                <span class="badge bg-green text-white px-3 py-2 mb-2"><?php echo $hotel['accommodations']; ?></span>
-                                <h2 class="fw-bold"><?php echo $hotel['name']; ?></h2>
-                                <p class="text-muted"><i class="fas fa-map-marker-alt text-warning me-2"></i><?php echo $hotel['location']; ?></p>
-                            </div>
-                            <div class="price-tag">₹<?php echo $hotel['price']; ?> <small style="font-size:14px; font-weight:400;">/ Night</small></div>
-                        </div>
-
-                        <div class="hotel-info-tabs mt-40">
-                            <h4 class="mb-3">Description</h4>
-                            <p class="hotel-desc"><?php echo nl2br($hotel['description']); ?></p>
-                        </div>
-
-                        <div class="calendar-card mt-50">
-                            <h4 class="mb-4"><i class="far fa-calendar-check text-warning me-2"></i>Availability Calendar</h4>
-                            <p class="text-muted mb-4">Dates shown in the calendar below are available for booking at this property.</p>
-                            <div id="inline-calendar"></div>
-                        </div>
+                <div class="col-md-3 d-none d-md-block">
+                    <div class="side-img-box shadow-sm">
+                        <img src="<?php echo $galleryLinks[1] ?? $galleryLinks[0]; ?>" class="img-fluid-full"
+                            alt="Snapshot">
                     </div>
-
-                    <div class="col-lg-4">
-                        <div class="booking-sidebar">
-                            <h4 class="mb-4">Book This Stay</h4>
-                            <ul class="list-unstyled mb-4">
-                                <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Free Cancellation</li>
-                                <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Best Price Guaranteed</li>
-                                <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Instant Confirmation</li>
-                            </ul>
-                            
-                            <button class="btn-book-now" data-bs-toggle="modal" data-bs-target="#bookingModal">
-                                Book Now <i class="far fa-paper-plane ms-2"></i>
-                            </button>
-                            
-                            <div class="contact-info mt-4 pt-4 border-top">
-                                <p class="mb-1 text-muted">Need help?</p>
-                                <h6 class="fw-bold"><i class="fas fa-phone-alt text-warning me-2"></i> +91-9910516644</h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Booking Modal -->
-        <div class="modal fade" id="bookingModal" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content border-0" style="border-radius: 15px;">
-                    <div class="modal-header bg-green text-white p-4">
-                        <h5 class="modal-title fw-bold text-white">Send Booking Inquiry</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <form id="bookingQueryForm">
-                            <input type="hidden" name="form_type" value="hotel">
-                            <input type="hidden" name="booking_type" value="Booking">
-                            <input type="hidden" name="hotel_id" value="<?php echo $hotel['id']; ?>">
-                            <input type="hidden" name="search" value="<?php echo $hotel['name']; ?>">
-                            <input type="hidden" name="accommodations" value="<?php echo $hotel['accommodations']; ?>">
-
-                            <div class="form_group mb-3">
-                                <label class="fw-bold small mb-1">Full Name</label>
-                                <input type="text" name="name" class="form-control" placeholder="Your Name" required>
-                            </div>
-                            <div class="form_group mb-3">
-                                <label class="fw-bold small mb-1">Email Address</label>
-                                <input type="email" name="email" class="form-control" placeholder="email@example.com" required>
-                            </div>
-                            <div class="form_group mb-3">
-                                <label class="fw-bold small mb-1">Phone Number</label>
-                                <input type="tel" name="phone" class="form-control" placeholder="+91" required>
-                            </div>
-                            <div class="form_group mb-4">
-                                <label class="fw-bold small mb-1">Check-in Date</label>
-                                <input type="text" name="check_in" id="modalDatePicker" class="form-control" placeholder="Select Date" required>
-                            </div>
-
-                            <button type="submit" class="btn-book-now py-3">Send Inquiry Now</button>
-                        </form>
+                    <div class="side-img-box bottom shadow-sm">
+                        <img src="<?php echo $galleryLinks[2] ?? $galleryLinks[0]; ?>" class="img-fluid-full"
+                            alt="Snapshot">
+                        <?php if (count($galleryLinks) > 3): ?>
+                            <div class="img-overlay-more">+<?php echo count($galleryLinks) - 3; ?></div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
 
-<?php include 'footer.php'; ?>
+    <!-- Tabs -->
+    <nav class="details-tabs shadow-sm">
+        <div class="container">
+            <div class="nav nav-tabs border-0" id="hotelTab">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-overview">Overview</button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-rooms">Rooms</button>
+            </div>
+        </div>
+    </nav>
 
-        
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <div class="tab-content mt-5 mb-5">
+        <div class="container tab-pane fade show active" id="tab-overview">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="detail-card">
+                        <h3 class="card-title">Property Overview</h3>
+                        <p style="white-space: pre-line; line-height: 1.8; color: #444;">
+                            <?php echo htmlspecialchars($hotel['description']); ?></p>
+                    </div>
+                    <div class="detail-card" id="room-selection">
+                        <h3 class="card-title">Available Rooms</h3>
+                        <?php
+                        $rooms = $conn->query("SELECT * FROM hotel_rooms WHERE hotel_id = $id ORDER BY room_price ASC");
+                        if ($rooms && $rooms->num_rows > 0):
+                            while ($room = $rooms->fetch_assoc()):
+                                $features = json_decode($room['features'], true) ?: [];
+                                ?>
+                                <div class="room-row d-flex flex-wrap flex-md-nowrap align-items-stretch">
+                                    <div class="room-img-box">
+                                        <img src="<?php echo $room['room_image'] ?: $hotel['image']; ?>" class="img-fluid-full"
+                                            style="height: 100%;">
+                                    </div>
+                                    <div class="room-content">
+                                        <h5 class="room-name"><?php echo htmlspecialchars($room['room_name']); ?></h5>
+                                        <div class="text-muted small mb-3"><i class="far fa-user"></i>
+                                            <?php echo htmlspecialchars($room['capacity']); ?> | <i class="far fa-bed"></i>
+                                            <?php echo htmlspecialchars($room['bed_type']); ?></div>
+                                        <?php foreach ($features as $f): ?>
+                                            <div class="small mb-1"><i
+                                                    class="fas fa-check text-success me-2"></i><?php echo htmlspecialchars($f); ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <div class="room-price-box d-flex flex-column justify-content-center align-items-center">
+                                        <div class="fw-bold fs-4">₹<?php echo number_format($room['room_price']); ?></div>
+                                        <div class="text-success small mb-3">+Taxes</div>
+                                        <button class="btn btn-warning w-100 fw-bold"
+                                            onclick="openBookingModal('<?php echo addslashes($room['room_name']); ?>', <?php echo $room['room_price']; ?>)">RESERVE</button>
+                                    </div>
+                                </div>
+                            <?php endwhile; else: ?>
+                            <div class="p-4 text-center border rounded bg-light">
+                                <i class="fas fa-bed fa-3x text-muted mb-3 d-block"></i>
+                                <p class="text-muted">No specific room types available. Please contact support for booking.
+                                </p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="detail-card bg-light p-4 sticky-top" style="top: 150px;">
+                        <h4 class="fw-bold mb-3">Support</h4>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary text-white rounded-circle p-2 me-3"><i class="fas fa-phone-alt"></i>
+                            </div>
+                            <div>
+                                <div class="small text-muted">Call</div>
+                                <div class="fw-bold">+91 8373996644</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success text-white rounded-circle p-2 me-3"><i class="fab fa-whatsapp"></i>
+                            </div>
+                            <div>
+                                <div class="small text-muted">WhatsApp</div>
+                                <div class="fw-bold">Contact Support</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <script>
-            $(document).ready(function() {
-                const availableDates = "<?php echo $hotel['available_dates']; ?>".split(', ');
+    <!-- Booking Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow overflow-hidden">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold text-white">Book Your Stay</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-4 p-3 bg-light rounded-3 border-start border-warning border-4">
+                        <div id="sumRoomName" class="fw-bold text-dark mb-1"></div>
+                        <div class="small text-muted">Base Price: ₹<span id="sumBasePrice"></span></div>
+                    </div>
+                    <form id="bookingQueryForm">
+                        <input type="hidden" name="form_type" value="hotel">
+                        <input type="hidden" name="hotel_id" value="<?php echo $hotel['id']; ?>">
+                        <input type="hidden" name="search" value="<?php echo htmlspecialchars($hotel['name']); ?>">
+                        <input type="hidden" name="room_type" id="inputRoomType">
+                        <input type="hidden" name="booking_type" value="Booking">
 
-                flatpickr("#inline-calendar", {
-                    inline: true,
-                    enable: availableDates,
-                    dateFormat: "Y-m-d",
+                        <div class="mb-3"><label class="small fw-bold">Full Name</label><input type="text" name="name"
+                                class="form-control rounded-3" required></div>
+                        <div class="row">
+                            <div class="col-6 mb-3"><label class="small fw-bold">Email</label><input type="email"
+                                    name="email" class="form-control rounded-3" required></div>
+                            <div class="col-6 mb-3"><label class="small fw-bold">Mobile</label><input type="tel"
+                                    name="phone" class="form-control rounded-3"
+                                    value="<?php echo htmlspecialchars($_GET['mobile'] ?? ''); ?>" required></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3"><label class="small fw-bold">Check-in</label><input type="date"
+                                    name="check_in" class="form-control rounded-3"
+                                    value="<?php echo date('Y-m-d', strtotime(!empty($_GET['checkin']) ? $_GET['checkin'] : 'today')); ?>"
+                                    required></div>
+                            <div class="col-6 mb-3"><label class="small fw-bold">Check-out</label><input type="date"
+                                    name="check_out" class="form-control rounded-3"
+                                    value="<?php echo date('Y-m-d', strtotime(!empty($_GET['checkout']) ? $_GET['checkout'] : 'tomorrow')); ?>"
+                                    required></div>
+                        </div>
+                        <button type="submit"
+                            class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm mt-2">CONFIRM BOOKING</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php include 'footer.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            if ($('.hotel-main-slider').length) {
+                $('.hotel-main-slider').slick({
+                    dots: true,
+                    infinite: true,
+                    fade: true,
+                    autoplay: true,
+                    autoplaySpeed: 3000,
+                    arrows: true
                 });
+            }
+        });
 
-                flatpickr("#modalDatePicker", {
-                    enable: availableDates,
-                    dateFormat: "Y-m-d",
+        function openBookingModal(name, price) {
+            document.getElementById('sumRoomName').innerText = name;
+            document.getElementById('sumBasePrice').innerText = price;
+            document.getElementById('inputRoomType').value = name;
+            new bootstrap.Modal(document.getElementById('bookingModal')).show();
+        }
+
+        document.getElementById('bookingQueryForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerText = 'Processing...';
+            btn.disabled = true;
+
+            fetch('submit.php', { method: 'POST', body: new FormData(this) })
+                .then(r => r.json()).then(data => {
+                    btn.innerText = 'CONFIRM BOOKING'; btn.disabled = false;
+                    if (data.status === 'success') {
+                        Swal.fire({ icon: 'success', title: 'Request Sent!' });
+                        bootstrap.Modal.getInstance(document.getElementById('bookingModal')).hide();
+                    } else Swal.fire({ icon: 'error', title: 'Error', text: data.message });
                 });
+        });
+    </script>
+</body>
 
-                $('#bookingQueryForm').on('submit', function(e) {
-                    e.preventDefault();
-                    const btn = $(this).find('button[type="submit"]');
-                    btn.prop('disabled', true).text('Sending...');
-
-                    const formData = new FormData(this);
-                    
-                    fetch('submit.php', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            Swal.fire({ icon: 'success', title: 'Query Sent!', text: 'Our team will contact you shortly.', confirmButtonColor: '#F7921E' });
-                            $('#bookingModal').modal('hide');
-                            this.reset();
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'Error', text: data.message });
-                        }
-                    })
-                    .catch(() => {
-                        Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong.' });
-                    })
-                    .finally(() => {
-                        btn.prop('disabled', false).text('Send Inquiry Now');
-                    });
-                });
-            });
-        </script>
-    </body>
 </html>

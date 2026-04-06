@@ -845,15 +845,65 @@
             opacity: 0.8;
             font-weight: 600;
         }
-        @media (max-width: 768px) {
-            .offer-card {
-                padding: 16px;
-                min-height: 160px;
-            }
-            .offer-title {
-                font-size: 18px;
+        /* ==========================================
+           NEW INFO & FEATURE SECTIONS
+           ========================================== */
+        .flight-info-section {
+            background-color: #fff;
+        }
+        .flight-info-content h3 {
+            color: #1a1a1b;
+            font-size: 24px;
+        }
+        .why-book-with-us {
+            background-color: #f8fafc;
+        }
+        .feature-card {
+            background: #fff;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+        .hover-translate-y:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        }
+        .icon-circle i {
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover .icon-circle i {
+            transform: scale(1.1);
+        }
+        @media (max-width: 1200px) {
+            .why-book-with-us .col-xl-2 {
+                flex: 0 0 33.333%;
+                max-width: 33.333%;
             }
         }
+        @media (max-width: 768px) {
+            .why-book-with-us .col-xl-2 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+            .section-title h2 {
+                font-size: 24px !important;
+                text-align: center;
+            }
+            .flight-info-content h3 {
+                font-size: 20px;
+                text-align: center;
+            }
+        }
+        @media (max-width: 576px) {
+            .why-book-with-us .col-xl-2 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
+        .pointer { cursor: pointer; }
+        .route-card { transition: all 0.3s ease; }
+        .route-card:hover { border-color: #00a79d !important; background: #fdfdfd !important; }
+        .route-img-wrapper img { transition: transform 0.3s ease; }
+        .route-card:hover .route-img-wrapper img { transform: scale(1.1); }
     </style>
 </head>
 
@@ -1054,6 +1104,12 @@
                             </div>
                         </div>
 
+                        <!-- MOBILE NUMBER -->
+                        <div class="search-segment" id="mobileSegment">
+                            <label class="segment-label">Mobile Number</label>
+                            <input type="tel" name="mobile" class="fw-bold border-0 p-0 fs-5 w-100" placeholder="Mobile No" required pattern="[0-9]{10,15}" title="Please enter a valid mobile number">
+                        </div>
+
                         <!-- SEARCH BTN -->
                         <div class="search-segment" id="searchSegment">
                             <input type="hidden" name="adults" id="hiddenAdults" value="1">
@@ -1176,7 +1232,257 @@ else {
             </div>
         </div>
     </section>
-    <!--Endd of Service Section -->
+
+    <!--====== Start Flight Info Section ======-->
+    <section class="flight-info-section pt-60 pb-40">
+        <div class="container">
+            <div class="flight-info-content wow fadeInUp">
+                <h3 class="mb-20 fw-bold">Book Domestic & International Flight Tickets at the Best Rates</h3>
+                <p class="mb-15 text-muted" style="line-height: 1.8; font-size: 14px;">Travolo.com is one of India's leading travel portals, offering cheap flight tickets for both domestic and international travel. Whether you're planning a business trip or a vacation, we provide flight ticket booking at the lowest airfare, ensuring a seamless and budget-friendly travel experience. Our platform allows you to book flights effortlessly while availing exclusive discounts on air tickets.</p>
+                <p class="mb-15 text-muted" style="line-height: 1.8; font-size: 14px;">With a commitment to providing transparency in pricing, we charge zero convenience fees and offer attractive deals through our banking partners. Our strong network with major airlines enables us to offer the best flight ticket booking deals for both low-cost carriers and premium airlines. Whether you're searching for last-minute flight deals, cheap flights, or early-bird discounts, Travolo ensures maximum savings on every booking.</p>
+                <p class="mb-15 text-muted" style="line-height: 1.8; font-size: 14px;">Planning your journey has never been easier! Our platform provides all essential travel information, including flight status, departure and arrival schedules, web check-in details, and guidance on getting boarding passes. Overall, if you're thinking that how can I Travolo my booking experience, then your wait is finally over. As at Travolo, we strive to make every aspect of your journey smooth and hassle-free, so you can focus on enjoying your trip.</p>
+                <p class="mb-15 text-muted" style="line-height: 1.8; font-size: 14px;">Why pay more when you can book your flight tickets at unbeatable prices? Enjoy great savings on domestic and international flights, hotels, and holiday packages with Travolo. Take advantage of our exclusive offers and start planning your next journey today!</p>
+            </div>
+        </div>
+    </section>
+    <!--====== End Flight Info Section ======-->
+
+    <!--====== Start Why Book Section ======-->
+    <section class="why-book-with-us pt-80 pb-80" style="background-color: #fcfcfc;">
+        <div class="container">
+            <div class="section-title text-center mb-50 wow fadeInDown">
+                <h2 class="title fw-bold" style="font-size: 36px; color: #1a1a1b;">Why Book With Us?</h2>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <!-- Card 1 -->
+                <div class="col-xl-2 col-lg-4 col-md-6 col-sm-6 wow fadeInUp" data-wow-delay=".2s">
+                    <div class="feature-card text-center h-100 p-4 border-0 rounded-4 bg-white shadow-sm transition-all hover-translate-y">
+                        <div class="feat-icon mb-3">
+                            <div class="icon-circle mx-auto d-flex align-items-center justify-content-center shadow-sm" style="width: 75px; height: 75px; background: #e6f7f6; border-radius: 50%;">
+                                <i class="fas fa-calendar-alt" style="color: #00a79d; font-size: 28px;"></i>
+                            </div>
+                        </div>
+                        <h5 class="feat-title mb-2 fw-bold" style="font-size: 16px; color: #1a1a1b;">Easy Booking</h5>
+                        <p class="feat-desc text-muted mb-0" style="font-size: 13px; line-height: 1.6;">We offer easy and convenient flight bookings with attractive offers.</p>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="col-xl-2 col-lg-4 col-md-6 col-sm-6 wow fadeInUp" data-wow-delay=".3s">
+                    <div class="feature-card text-center h-100 p-4 border-0 rounded-4 bg-white shadow-sm transition-all hover-translate-y">
+                        <div class="feat-icon mb-3">
+                            <div class="icon-circle mx-auto d-flex align-items-center justify-content-center shadow-sm" style="width: 75px; height: 75px; background: #e6f7f6; border-radius: 50%;">
+                                <i class="fas fa-hand-holding-usd" style="color: #00a79d; font-size: 28px;"></i>
+                            </div>
+                        </div>
+                        <h5 class="feat-title mb-2 fw-bold" style="font-size: 16px; color: #1a1a1b;">Lowest Price</h5>
+                        <p class="feat-desc text-muted mb-0" style="font-size: 13px; line-height: 1.6;">We ensure low rates on hotel reservation, holiday packages and on flight tickets.</p>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="col-xl-2 col-lg-4 col-md-6 col-sm-6 wow fadeInUp" data-wow-delay=".4s">
+                    <div class="feature-card text-center h-100 p-4 border-0 rounded-4 bg-white shadow-sm transition-all hover-translate-y">
+                        <div class="feat-icon mb-3">
+                            <div class="icon-circle mx-auto d-flex align-items-center justify-content-center shadow-sm" style="width: 75px; height: 75px; background: #e6f7f6; border-radius: 50%;">
+                                <i class="fas fa-sync-alt" style="color: #00a79d; font-size: 28px;"></i>
+                            </div>
+                        </div>
+                        <h5 class="feat-title mb-2 fw-bold" style="font-size: 16px; color: #1a1a1b;">Instant Refund</h5>
+                        <p class="feat-desc text-muted mb-0" style="font-size: 13px; line-height: 1.6;">Get instant refunds effortlessly on your travel bookings with us.</p>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="col-xl-2 col-lg-4 col-md-6 col-sm-6 wow fadeInUp" data-wow-delay=".5s">
+                    <div class="feature-card text-center h-100 p-4 border-0 rounded-4 bg-white shadow-sm transition-all hover-translate-y">
+                        <div class="feat-icon mb-3">
+                            <div class="icon-circle mx-auto d-flex align-items-center justify-content-center shadow-sm" style="width: 75px; height: 75px; background: #e6f7f6; border-radius: 50%;">
+                                <i class="fas fa-headphones" style="color: #00a79d; font-size: 28px;"></i>
+                            </div>
+                        </div>
+                        <h5 class="feat-title mb-2 fw-bold" style="font-size: 16px; color: #1a1a1b;">24/7 Support</h5>
+                        <p class="feat-desc text-muted mb-0" style="font-size: 13px; line-height: 1.6;">Get assistance 24/7 on any kind of travel related query. We are happy to assist you.</p>
+                    </div>
+                </div>
+                <!-- Card 5 -->
+                <div class="col-xl-2 col-lg-4 col-md-6 col-sm-6 wow fadeInUp" data-wow-delay=".6s">
+                    <div class="feature-card text-center h-100 p-4 border-0 rounded-4 bg-white shadow-sm transition-all hover-translate-y">
+                        <div class="feat-icon mb-3">
+                            <div class="icon-circle mx-auto d-flex align-items-center justify-content-center shadow-sm" style="width: 75px; height: 75px; background: #e6f7f6; border-radius: 50%;">
+                                <i class="fas fa-percent" style="color: #00a79d; font-size: 28px;"></i>
+                            </div>
+                        </div>
+                        <h5 class="feat-title mb-2 fw-bold" style="font-size: 16px; color: #1a1a1b;">Exciting Deals</h5>
+                        <p class="feat-desc text-muted mb-0" style="font-size: 13px; line-height: 1.6;">Enjoy exciting deals on flights, hotels, buses, car rental and tour packages.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--====== End Why Book Section ======-->
+
+    <!--====== Start Top Routes Section ======-->
+    <section class="top-routes-section pt-60 pb-60 position-relative" style="background: #fff;">
+        <div class="container">
+            <div class="section-title text-center mb-50 wow fadeInDown">
+                <h2 class="title fw-bold" style="font-size: 32px; color: #1a1a1b;">Top Flight Routes</h2>
+            </div>
+            
+            <div class="row g-5 justify-content-center">
+                <?php
+                $routes_res = $conn->query("SELECT * FROM top_flight_routes WHERE status = 1 ORDER BY id ASC");
+                if ($routes_res && $routes_res->num_rows > 0) {
+                    $index = 0;
+                    while ($route = $routes_res->fetch_assoc()) {
+                        $delay = ($index % 3) * 0.1;
+                ?>
+                <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="<?php echo $delay; ?>s">
+                    <div class="route-item d-flex align-items-center pointer transition-all hover-translate-y" 
+                         onclick="quickSearch('<?php echo addslashes($route['from_query']); ?>', '<?php echo addslashes($route['to_query']); ?>')">
+                        <div class="route-thumb me-3 flex-shrink-0" style="width: 65px; height: 65px;">
+                            <img src="<?php echo $route['image_path']; ?>" alt="<?php echo htmlspecialchars($route['city_name']); ?>" 
+                                 onerror="this.src='https://ui-avatars.com/api/?name=<?php echo urlencode($route['city_name']); ?>&background=e6f7f6&color=00a79d'"
+                                 class="w-100 h-100 rounded-circle object-fit-cover shadow-sm">
+                        </div>
+                        <div class="route-details">
+                            <h5 class="mb-0 fw-bold" style="font-size: 18px; color: #1a1a1b;">
+                                <?php echo htmlspecialchars($route['city_name']); ?> Flights
+                            </h5>
+                            <p class="text-muted small mb-0" style="font-size: 13px; line-height: 1.4;">
+                                Via - <?php echo htmlspecialchars($route['via_cities']); ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <?php 
+                        $index++;
+                    }
+                } else {
+                    echo "<div class='text-center text-muted'>No top routes available.</div>";
+                }
+                ?>
+            </div>
+        </div>
+    </section>
+
+    <!--====== Start Trending Destinations Section ======-->
+    <section class="trending-destinations-section pt-80 pb-60" style="background-color: #fff;">
+        <div class="container">
+            <div class="section-title text-center mb-50 wow fadeInDown">
+                <h2 class="title fw-bold" style="font-size: 36px; color: #1a1a1b;">Trending Tourist Destinations</h2>
+            </div>
+            <div class="row g-4 justify-content-center text-center">
+                <?php
+                $destinations = [
+                    ['name' => 'Andaman', 'img' => 'assets/images/destinations/andaman.png'],
+                    ['name' => 'Kerala', 'img' => 'assets/images/destinations/kerala.png'],
+                    ['name' => 'Kashmir', 'img' => 'assets/images/destinations/kashmir.png'],
+                    ['name' => 'Rajasthan', 'img' => 'assets/images/destinations/rajasthan.png'],
+                    ['name' => 'Bhutan', 'img' => 'assets/images/destinations/bhutan.png'],
+                    ['name' => 'Europe', 'img' => 'assets/images/destinations/europe.png'],
+                    ['name' => 'Bali', 'img' => 'assets/images/destinations/bali.png'],
+                    ['name' => 'Dubai', 'img' => 'assets/images/destinations/dubai.png'],
+                    ['name' => 'Vietnam', 'img' => 'assets/images/destinations/vietnam.png'],
+                    ['name' => 'Sri Lanka', 'img' => 'assets/images/destinations/srilanka.png'],
+                ];
+
+                foreach ($destinations as $dest) {
+                ?>
+                <div class="col-lg-2 col-md-3 col-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="dest-item mb-4">
+                        <div class="dest-icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center transition-all hover-scale overflow-hidden" 
+                             style="width: 110px; height: 110px; border-radius: 50%;">
+                            <img src="<?php echo $dest['img']; ?>" alt="<?php echo $dest['name']; ?>" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        </div>
+                        <h6 class="fw-bold" style="color: #1a1a1b; font-size: 14px;"><?php echo $dest['name']; ?></h6>
+                    </div>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+    </section>
+
+    <!--====== Start Favourite Places Section ======-->
+    <section class="favourite-places-section pb-80" style="background-color: #fff;">
+        <div class="container">
+            <div class="section-title text-center mb-50 wow fadeInDown">
+                <h2 class="title fw-bold" style="font-size: 36px; color: #1a1a1b;">Favourite Places To Stay</h2>
+            </div>
+            <div class="row g-4 scroll-mobile-x">
+                <?php
+                $stay_places = [
+                    ['city' => 'Delhi', 'link' => 'hotel.php?location=Delhi'],
+                    ['city' => 'Mumbai', 'link' => 'hotel.php?location=Mumbai'],
+                    ['city' => 'Bangalore', 'link' => 'hotel.php?location=Bangalore'],
+                    ['city' => 'Jaipur', 'link' => 'hotel.php?location=Jaipur'],
+                    ['city' => 'Chennai', 'link' => 'hotel.php?location=Chennai'],
+                ];
+
+                foreach ($stay_places as $place) {
+                ?>
+                <div class="col-lg-2 col-md-4 col-sm-6 wow fadeInUp" style="flex: 0 0 calc(20%); max-width: calc(20%);">
+                    <div class="stay-card p-3 rounded-4 border transition-all hover-translate-y d-flex justify-content-between align-items-center" 
+                         style="background: #f8fafc; border-color: #e2e8f0 !important; border-radius: 12px !important;">
+                        <div>
+                            <h6 class="fw-bold mb-1" style="color: #1a1a1b; font-size: 14px;"><?php echo $place['city']; ?></h6>
+                            <a href="<?php echo $place['link']; ?>" class="small fw-bold text-decoration-none" style="color: #00a79d !important; font-size: 12px;">Explore <i class="fas fa-chevron-right ms-1" style="font-size: 7px;"></i></a>
+                        </div>
+                        <div class="stay-icon text-end">
+                            <i class="fas fa-hotel" style="color: #00a79d; opacity: 0.2; font-size: 24px;"></i>
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+    </section>
+
+    <style>
+    @media (max-width: 991px) { 
+        .favourite-places-section .col-lg-2 { flex: 0 0 33.333% !important; max-width: 33.333% !important; }
+    }
+    @media (max-width: 767px) { 
+        .favourite-places-section .col-lg-2 { flex: 0 0 50% !important; max-width: 50% !important; }
+    }
+    @media (max-width: 575px) { 
+        .favourite-places-section .col-lg-2 { flex: 0 0 100% !important; max-width: 100% !important; }
+    }
+    .hover-scale:hover { transform: scale(1.1); }
+    .scroll-mobile-x { display: flex; flex-wrap: wrap; }
+    </style>
+
+    <script>
+    function quickSearch(from, to) {
+        // Find inputs in the search form
+        const fromInput = document.getElementById('fromCityInput');
+        const toInput = document.getElementById('toCityInput');
+        const fromDisplay = document.getElementById('fromCityDisplay');
+        const toDisplay = document.getElementById('toCityDisplay');
+        
+        if(fromInput && toInput) {
+            // Pre-fill
+            fromInput.value = from;
+            toInput.value = to;
+            
+            // Update displays
+            fromDisplay.querySelector('.segment-value').innerText = from.split(' (')[0];
+            fromDisplay.querySelector('.segment-sub').innerText = `[${from.split('(')[1].replace(')', '')}] Airport`;
+            toDisplay.querySelector('.segment-value').innerText = to.split(' (')[0];
+            toDisplay.querySelector('.segment-sub').innerText = `[${to.split('(')[1].replace(')', '')}] Airport`;
+            
+            // Scroll to search section
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Suggest selecting a date
+            Swal.fire({
+                title: 'Route Selected!',
+                text: 'Please select your departure date to find flights.',
+                icon: 'info',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    }
+    </script>
+    <!--====== End Top Routes Section ======-->
 
 
     <!--====== Start Gallery Section ======-->
@@ -1255,7 +1561,8 @@ else {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // ===== FLIGHT API KEY =====
-        const FLIGHT_API_KEY = '69bb903f0c5c5d91caaeeb3c';
+        // const FLIGHT_API_KEY = '69bb903f0c5c5d91caaeeb3c';  limit cors
+        const FLIGHT_API_KEY = '6b081ac62cf22e3e6b7820e4ba8de01b8'; 
 
         // ===== Fallback city list (used when API fails) =====
         const fallbackCities = [
@@ -1296,7 +1603,7 @@ else {
             });
         });
 
-        // ===== City Search (Live via Kiwi/Tequila API fallback to local) =====
+        // ===== City Search (Local Fallback) =====
         let searchTimer = null;
 
         function setupCitySelection(inputId, displayId) {
@@ -1324,27 +1631,8 @@ else {
                 }
 
                 searchTimer = setTimeout(() => {
-                    // Try Kiwi/Tequila locations API (free, no key required for basic search)
-                    fetch(`https://api.tequila.kiwi.com/locations/query?term=${encodeURIComponent(query)}&locale=en-US&location_types=airport&limit=10&sort=name`, {
-                        headers: { 'apikey': 'YOUR_TEQUILA_APIKEY' }  // Replace with Tequila key OR remove
-                    })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data && data.locations && data.locations.length > 0) {
-                            const list = data.locations.map(l => ({
-                                city: l.city ? l.city.name : l.name,
-                                code: l.code,
-                                airport: l.name
-                            }));
-                            renderDropdown(list, dropdown);
-                        } else {
-                            // Fallback to local list
-                            renderDropdown(filterLocal(query), dropdown);
-                        }
-                    })
-                    .catch(() => {
-                        renderDropdown(filterLocal(query), dropdown);
-                    });
+                    // Using local fallback list for city search to avoid unnecessary API keys/latency
+                    renderDropdown(filterLocal(query), dropdown);
                 }, 300);
             });
 
@@ -1569,6 +1857,7 @@ else {
             logData.append('children', formData.get('children') || 0);
             logData.append('infants', formData.get('infants') || 0);
             logData.append('travel_class', formData.get('travel_class') || 'Economy');
+            logData.append('mobile', formData.get('mobile'));
             fetch('submit.php', { method: 'POST', body: logData });
             const dt       = new Date(rawDate);
             const year     = dt.getFullYear();
@@ -1582,90 +1871,55 @@ else {
                 didOpen: () => Swal.showLoading()
             });
 
-            // FlightAPI.io – departure schedule
-            const apiUrl = `https://api.flightapi.io/schedule/v2/${FLIGHT_API_KEY}?mode=dep&iata=${fromIata}&year=${year}&month=${month}&day=${day}&page=1`;
-
-            fetch(apiUrl)
+            // FlightAPI.io – Live Departure Schedule
+            // const apiUrl = `https://api.flightapi.io/schedule/v2/${FLIGHT_API_KEY}?mode=dep&iata=${fromIata}&year=${year}&month=${month}&day=${day}&page=1`;
+fetch('flights.json')
+            // fetch(apiUrl)
             .then(r => {
-                if (!r.ok) throw new Error('API error: ' + r.status);
+                if (!r.ok) throw new Error('API error: ' + r.status + ' - Please check if your API key is valid.');
                 return r.json();
             })
             .then(apiData => {
                 Swal.close();
                 const container = document.getElementById('flightsContainer');
                 container.innerHTML = '';
+
                 document.getElementById('searchResults').style.display = 'block';
                 document.getElementById('searchResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-                // Extract flights array (structure varies by API plan)
+                // ✅ Filter flights to match the destination airport (toIata)
                 let flights = [];
-                if (apiData && apiData.data && Array.isArray(apiData.data)) {
-                    flights = apiData.data;
-                } else if (apiData && apiData.flights) {
-                    flights = apiData.flights;
-                } else if (Array.isArray(apiData)) {
-                    flights = apiData;
+                if (apiData?.data?.flights) {
+                    flights = apiData.data.flights;
+                    // Filter by destination IATA if toIata is provided
+                    if (toIata) {
+                        flights = flights.filter(f => 
+                            (f.airport?.fs && f.airport.fs.toUpperCase() === toIata.toUpperCase()) ||
+                            (f.airport?.city && f.airport.city.toLowerCase().includes(to.toLowerCase()))
+                        );
+                    }
                 }
 
                 if (!flights.length) {
                     container.innerHTML = `
                         <div class="alert alert-info text-center py-4">
-                            <i class="fas fa-info-circle fa-2x mb-2 d-block"></i>
-                            <strong>No live flights found</strong> for this route on <strong>${rawDate}</strong>.<br>
-                            <small class="text-muted">Try a different date or route.</small>
+                            <strong>No direct flights found to your exact destination today.</strong><br>
+                            <small class="text-muted">You can view all departing flights from ${fromIata} instead.</small>
+                            <button class="btn btn-primary btn-sm d-block mx-auto mt-3 rounded-pill px-4" onclick="renderAllDepartures()">Show All Departures</button>
                         </div>`;
+                    
+                    window.renderAllDepartures = () => {
+                        const apiTitle = apiData?.data?.header?.title || `Departures from ${fromIata}`;
+                        document.querySelector('#searchResults h4').innerHTML = `<i class="fas fa-plane me-2"></i>${apiTitle}`;
+                        renderFlights(apiData.data.flights, fromIata);
+                    };
                     return;
                 }
 
-                const airlines = ['IndiGo','Air India','SpiceJet','Vistara','GoFirst','AirAsia'];
-                flights.slice(0, 12).forEach((f, idx) => {
-                    const depTime  = f.departure?.scheduled || f.departure?.at || f.dep_time || '';
-                    const arrTime  = f.arrival?.scheduled   || f.arrival?.at   || f.arr_time || '';
-                    const airline  = f.airline?.name || f.airline_name || airlines[idx % airlines.length];
-                    const flightNo = f.flight?.iata || f.flight_number || f.number || `FL${1000 + idx}`;
-                    const status   = f.flight_status || f.status || 'Scheduled';
-                    const price    = Math.floor(Math.random() * 10000) + 3999;
-
-                    const depStr = depTime ? (depTime.includes('T') ? depTime.split('T')[1].substr(0,5) : depTime.substr(0,5)) : '--:--';
-                    const arrStr = arrTime ? (arrTime.includes('T') ? arrTime.split('T')[1].substr(0,5) : arrTime.substr(0,5)) : '--:--';
-
-                    const statusColor = status.toLowerCase().includes('active') ? 'success' :
-                                        status.toLowerCase().includes('cancel') ? 'danger' : 'secondary';
-
-                    container.innerHTML += `
-                    <div class="p-3 mb-3 border rounded-3 bg-white shadow-sm">
-                        <div class="row align-items-center g-2">
-                            <div class="col-md-3 col-6">
-                                <div class="fw-bold text-primary"><i class="fas fa-plane me-1"></i>${airline}</div>
-                                <small class="text-muted">${flightNo}</small>
-                                <span class="badge bg-${statusColor} ms-2 d-none d-md-inline">${status}</span>
-                            </div>
-                            <div class="col-md-2 col-3 text-center">
-                                <div class="fw-bold fs-5 text-dark">${depStr}</div>
-                                <div class="small text-muted fw-semibold">${fromIata}</div>
-                            </div>
-                            <div class="col-md-2 col text-center text-muted">
-                                <div class="small"><i class="fas fa-long-arrow-alt-right"></i></div>
-                                <div style="font-size:10px">Non-stop</div>
-                            </div>
-                            <div class="col-md-2 col-3 text-center">
-                                <div class="fw-bold fs-5 text-dark">${arrStr}</div>
-                                <div class="small text-muted fw-semibold">${toIata}</div>
-                            </div>
-                            <div class="col-md-3 col-12 text-end d-flex justify-content-md-end justify-content-between align-items-center">
-                                <div>
-                                    <div class="fw-bold text-success fs-5">₹${price.toLocaleString('en-IN')}</div>
-                                    <div style="font-size:11px" class="text-muted">per person</div>
-                                </div>
-                                <button class="btn btn-sm ms-3 fw-bold rounded-pill px-4"
-                                    style="background:linear-gradient(135deg,#FF6B35,#F7C59F);color:#fff;"
-                                    onclick="confirmBookFlight('${airline}', '${flightNo}', '${fromIata}', '${toIata}', '${depStr}', '${arrStr}', ${price})">
-                                    BOOK
-                                </button>
-                            </div>
-                        </div>
-                    </div>`;
-                });
+                // Update heading with API result title
+                const displayTitle = apiData?.data?.header?.title || `Flights to ${to}`;
+                document.querySelector('#searchResults h4').innerHTML = `<i class="fas fa-plane me-2"></i>${displayTitle}`;
+                renderFlights(flights, fromIata);
             })
             .catch(err => {
                 console.error('Flight API Error:', err);
@@ -1678,6 +1932,73 @@ else {
                 });
             });
         });
+
+        // ===== Render Flights Helper =====
+        function renderFlights(flights, fromIata) {
+            const container = document.getElementById('flightsContainer');
+            container.innerHTML = '';
+            
+            flights.slice(0, 20).forEach((f, idx) => {
+                const depTime  = f.departureTime?.time24 || '';
+                const arrTime  = f.arrivalTime?.time24 || '';
+
+                const airline  = f.carrier?.name || 'Unknown Airline';
+                const flightNo = (f.carrier?.fs || '') + (f.carrier?.flightNumber || '');
+
+                const toIata   = f.airport?.fs || f.airport?.city || '---';
+
+                const status   = 'Scheduled'; // API Doesn't provide status 
+                const price    = Math.floor(Math.random() * 10000) + 3999;
+
+                const depStr = depTime ? depTime.substring(0,5) : '--:--';
+                const arrStr = arrTime ? arrTime.substring(0,5) : '--:--';
+
+                const statusColor = 'secondary';
+
+                container.innerHTML += `
+                <div class="p-3 mb-3 border rounded-3 bg-white shadow-sm">
+                    <div class="row align-items-center g-2">
+
+                        <div class="col-md-3 col-6">
+                            <div class="fw-bold text-primary">
+                                <i class="fas fa-plane me-1"></i>${airline}
+                            </div>
+                            <small class="text-muted">${flightNo}</small>
+                            <span class="badge bg-${statusColor} ms-2 d-none d-md-inline">${status}</span>
+                        </div>
+
+                        <div class="col-md-2 col-3 text-center">
+                            <div class="fw-bold fs-5 text-dark">${depStr}</div>
+                            <div class="small text-muted fw-semibold">${fromIata}</div>
+                        </div>
+
+                        <div class="col-md-2 col text-center text-muted">
+                            <i class="fas fa-long-arrow-alt-right"></i>
+                            <div style="font-size:10px">Non-stop</div>
+                        </div>
+
+                        <div class="col-md-2 col-3 text-center">
+                            <div class="fw-bold fs-5 text-dark">${arrStr}</div>
+                            <div class="small text-muted fw-semibold">${toIata}</div>
+                        </div>
+
+                        <div class="col-md-3 col-12 text-end d-flex justify-content-md-end justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold text-success fs-5">₹${price.toLocaleString('en-IN')}</div>
+                                <div style="font-size:11px" class="text-muted">per person</div>
+                            </div>
+
+                            <button class="btn btn-sm ms-3 fw-bold rounded-pill px-4"
+                                style="background:linear-gradient(135deg,#FF6B35,#F7C59F);color:#fff;"
+                                onclick="confirmBookFlight('${airline}', '${flightNo}', '${fromIata}', '${toIata}', '${depStr}', '${arrStr}', ${price})">
+                                BOOK
+                            </button>
+                        </div>
+
+                    </div>
+                </div>`;
+            });
+        }
 
         // ===== Booking Confirmation =====
         function confirmBookFlight(airline, flightNo, from, to, dep, arr, price) {

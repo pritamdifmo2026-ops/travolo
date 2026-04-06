@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $children = intval($_POST['children'] ?? 0);
         $infants = intval($_POST['infants'] ?? 0);
         $tclass = $conn->real_escape_string($_POST['travel_class'] ?? 'Economy');
-        $phone = $conn->real_escape_string($_POST['phone'] ?? '');
+        $phone = $conn->real_escape_string($_POST['mobile'] ?? $_POST['phone'] ?? '');
         
         if ($from === $to && $from !== '') {
             $response = ['status' => 'error', 'message' => 'Origin and destination cannot be the same.'];
@@ -51,9 +51,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $children = intval($_POST['children'] ?? 0);
         $infants = intval($_POST['infants'] ?? 0);
         $tclass = $conn->real_escape_string($_POST['travel_class'] ?? 'Economy');
+        $mobile = $conn->real_escape_string($_POST['mobile'] ?? '');
 
-        $sql = "INSERT INTO flight_searches (from_city, to_city, depart_date, trip_type, adults, children, infants, travel_class) 
-                VALUES ('$from', '$to', '$depart_date', '$trip_type', $adults, $children, $infants, '$tclass')";
+        $sql = "INSERT INTO flight_searches (from_city, to_city, depart_date, trip_type, adults, children, infants, travel_class, mobile) 
+                VALUES ('$from', '$to', '$depart_date', '$trip_type', $adults, $children, $infants, '$tclass', '$mobile')";
         if ($conn->query($sql) === TRUE) {
             $response = ['status' => 'success', 'message' => 'Search Logged'];
         } else {
@@ -62,8 +63,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     else if ($type == "hotel") {
         $check_in = $conn->real_escape_string($_POST['check_in'] ?? '');
+        $check_out = $conn->real_escape_string($_POST['check_out'] ?? '');
         $search = $conn->real_escape_string($_POST['search'] ?? '');
-        $accom = $conn->real_escape_string($_POST['accommodations'] ?? '');
+        $room_type = $conn->real_escape_string($_POST['room_type'] ?? '');
+        $guests = $conn->real_escape_string($_POST['guests'] ?? '1 Room, 2 Guests');
+        $price = intval($_POST['price'] ?? 0);
         $phone = $conn->real_escape_string($_POST['phone'] ?? '');
         $hotel_id = intval($_POST['hotel_id'] ?? 0);
         $status = $conn->real_escape_string($_POST['status'] ?? 'Checked');
@@ -72,8 +76,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $email = $conn->real_escape_string($_POST['email'] ?? '');
         $b_type = $conn->real_escape_string($_POST['booking_type'] ?? 'Check');
         
-        $sql = "INSERT INTO hotels (check_in, hotel_search, accommodations, phone, hotel_id, status, user_name, email, booking_type) 
-                VALUES ('$check_in', '$search', '$accom', '$phone', $hotel_id, '$status', '$user_name', '$email', '$b_type')";
+        $sql = "INSERT INTO hotels (check_in, check_out, hotel_search, room_type, guests, price, phone, hotel_id, status, user_name, email, booking_type, booking_status) 
+                VALUES ('$check_in', '$check_out', '$search', '$room_type', '$guests', $price, '$phone', $hotel_id, '$status', '$user_name', '$email', '$b_type', 'Requested')";
                 
         if ($conn->query($sql) === TRUE) {
             $msg = ($b_type == 'Booking') ? "Booking Query Sent Successfully!" : "Hotel Availability Checked!";

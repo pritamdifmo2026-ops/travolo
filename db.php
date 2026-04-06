@@ -130,14 +130,14 @@ $conn->query($table_app_hotels);
 
 // Seed admin data (username: admin, password: password123)
 $admin_check = $conn->query("SELECT * FROM admins WHERE username='admin'");
-if ($admin_check->num_rows == 0) {
+if ($admin_check && $admin_check->num_rows == 0) {
     $hashed_password = password_hash('password123', PASSWORD_DEFAULT);
     $conn->query("INSERT INTO admins (username, password) VALUES ('admin', '$hashed_password')");
 }
 
 // Seed hotel data
 $hotel_check = $conn->query("SELECT * FROM app_hotels");
-if ($hotel_check->num_rows == 0) {
+if ($hotel_check && $hotel_check->num_rows == 0) {
     $seed_hotels = [
         "('Grand Luxury Resort', 'Mumbai', '5000', 'Classic Tent', 'assets/images/tour-3-550x590.jpg', 'Experience the best luxury tent stay.', 1)",
         "('Forest Retreat', 'Bangalore', '3000', 'Forest Camping', 'assets/images/tour-4-550x590.jpg', 'A wonderful retreat in the heart of the forest.', 1)",
@@ -161,6 +161,31 @@ $table_app_offers = "CREATE TABLE IF NOT EXISTS app_offers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )";
 $conn->query($table_app_offers);
+
+// Create hotel images gallery table
+$table_hotel_images = "CREATE TABLE IF NOT EXISTS hotel_images (
+    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    hotel_id INT(6) UNSIGNED,
+    image_path VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (hotel_id) REFERENCES app_hotels(id) ON DELETE CASCADE
+)";
+$conn->query($table_hotel_images);
+
+// Create hotel rooms table
+$table_hotel_rooms = "CREATE TABLE IF NOT EXISTS hotel_rooms (
+    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    hotel_id INT(6) UNSIGNED,
+    room_name VARCHAR(100) NOT NULL,
+    room_price INT(10) NOT NULL,
+    capacity VARCHAR(50),
+    bed_type VARCHAR(50),
+    features TEXT, -- JSON encoded list of features
+    room_image VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (hotel_id) REFERENCES app_hotels(id) ON DELETE CASCADE
+)";
+$conn->query($table_hotel_rooms);
 
 // Seed offer data
 $offer_check = $conn->query("SELECT * FROM app_offers");

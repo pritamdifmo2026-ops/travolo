@@ -1,0 +1,37 @@
+# IDEs and editors
+.vscode/
+.idea/
+.project
+.settings/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# PHP related
+vendor/
+composer.lock
+php_errors.log
+
+# Database
+db.php
+*.sql
+*.sqlite
+
+# Application specific
+ngrok.exe
+debug-details.php
+check_db.php
+check_routes.php
+check_schema.php
+report_routes.php
+routes_dump.txt
+routes_report.txt
+flights.json
+
+# Image uploads or temporary files
+assets/images/177*.jpg
+assets/images/177*.png
