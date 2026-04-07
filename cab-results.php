@@ -3,25 +3,36 @@ include_once 'db.php';
 include_once 'auth.php';
 
 // Get Search Parameters
-$from = isset($_GET['from']) ? $_GET['from'] : 'Delhi';
-$to = isset($_GET['to']) ? $_GET['to'] : 'Airport';
+$from = trim(isset($_GET['from']) ? $_GET['from'] : 'Delhi');
+$to = trim(isset($_GET['to']) ? $_GET['to'] : 'Airport');
 $date = isset($_GET['date']) ? $_GET['date'] : date('Y-m-d');
 $time = isset($_GET['time']) ? $_GET['time'] : '12:00 PM';
-$tripType = isset($_GET['tripType']) ? $_GET['tripType'] : 'Airport Transfer';
+$tripType = trim(isset($_GET['tripType']) ? $_GET['tripType'] : 'Transfer');
 $mobile = $_SESSION['user_phone'] ?? ($_GET['mobile'] ?? '');
 $pickup_type = isset($_GET['pickup']) ? $_GET['pickup'] : 'One Way';
 
 // Serviceability Check
 $serviceable = false;
 $city_pack = null;
-if ($tripType === 'Airport Transfer') {
-    $q = $conn->query("SELECT * FROM cab_transfers WHERE (city LIKE '%$from%' OR city LIKE '%$to%' OR airport LIKE '%$from%' OR airport LIKE '%$to%') AND status = 1 LIMIT 1");
+if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
+    $q = $conn->query("SELECT * FROM cab_transfers WHERE (
+        city LIKE '%$from%' OR '$from' LIKE CONCAT('%', city, '%') OR
+        city LIKE '%$to%' OR '$to' LIKE CONCAT('%', city, '%') OR
+        airport LIKE '%$from%' OR '$from' LIKE CONCAT('%', airport, '%') OR
+        airport LIKE '%$to%' OR '$to' LIKE CONCAT('%', airport, '%')
+    ) AND status = 1 LIMIT 1");
     if ($q && $q->num_rows > 0) { $serviceable = true; $city_pack = $q->fetch_assoc(); }
 } elseif ($tripType === 'Outstation') {
-    $q = $conn->query("SELECT * FROM cab_outstation WHERE (city LIKE '%$from%' OR destinations LIKE '%$to%') AND status = 1 LIMIT 1");
+    $q = $conn->query("SELECT * FROM cab_outstation WHERE (
+        city LIKE '%$from%' OR '$from' LIKE CONCAT('%', city, '%') OR
+        destinations LIKE '%$to%' OR '$to' LIKE CONCAT('%', destinations, '%')
+    ) AND status = 1 LIMIT 1");
     if ($q && $q->num_rows > 0) { $serviceable = true; $city_pack = $q->fetch_assoc(); }
 } elseif ($tripType === 'Hourly') {
-    $q = $conn->query("SELECT * FROM cab_hourly WHERE (city LIKE '%$from%' OR location_tag LIKE '%$from%') AND status = 1 LIMIT 1");
+    $q = $conn->query("SELECT * FROM cab_hourly WHERE (
+        city LIKE '%$from%' OR '$from' LIKE CONCAT('%', city, '%') OR
+        location_tag LIKE '%$from%' OR '$from' LIKE CONCAT('%', location_tag, '%')
+    ) AND status = 1 LIMIT 1");
     if ($q && $q->num_rows > 0) { $serviceable = true; $city_pack = $q->fetch_assoc(); }
 } else {
     // Basic city check if trip type is not specific

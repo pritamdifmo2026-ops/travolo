@@ -1442,6 +1442,9 @@ include_once 'auth.php';
                     </form>
                 </div>
 
+                <!-- DYNAMIC RESULTS CONTAINER -->
+                <div id="cabResultsContainer" class="container" style="margin-top:-30px; position:relative; z-index:5;"></div>
+
                 <!-- Exclusive Offers - DYNAMIC TRAVOLO SYSTEM -->
                 <div class="cab-offers-section">
                     <div class="container" style="position: relative;">
@@ -1979,40 +1982,6 @@ include_once 'auth.php';
                         ]
                     });
                 }
-
-                // ===== FORM SUBMIT =====
-                document.getElementById('cabSearchForm').addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    const formData = new FormData(this);
-                    const from = formData.get('from');
-                    const pDate = formData.get('pickup_date');
-                    const pTime = formData.get('pickup_time');
-
-                    if (!from || from.trim() === '') { Swal.fire({ icon: 'error', title: 'Missing Field', text: 'Please select a pickup location.' }); return; }
-                    if (!pDate || !pTime) { Swal.fire({ icon: 'error', title: 'Missing Field', text: 'Please select a pickup date and time.' }); return; }
-
-                    Swal.fire({ title: 'Processing...', text: 'Submitting your request.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-                    fetch('submit.php', { method: 'POST', body: formData })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.status === 'success') {
-                                Swal.fire({ icon: 'success', title: 'Success!', text: data.message, confirmButtonColor: '#133a25' }).then(() => {
-                                    this.reset();
-                                    document.querySelectorAll('.cab-display').forEach(d => d.style.display = 'none');
-                                    document.querySelectorAll('.cab-input').forEach(i => i.style.color = '#212529');
-                                    ['selectedPickupDate', 'selectedPickupTime', 'selectedReturnDate', 'selectedReturnTime'].forEach(id => {
-                                        const el = document.getElementById(id);
-                                        if (el) el.innerText = id.includes('Date') ? 'Select Date' : 'Select Time';
-                                    });
-                                    updateCabForm();
-                                });
-                            } else {
-                                if (data.redirect) window.location.href = data.redirect + (data.redirect.includes('?') ? '&' : '?') + "return_url=" + encodeURIComponent(window.location.href);
-                                else Swal.fire({ icon: 'error', title: 'Oops...', text: data.message });
-                            }
-                        }).catch(() => Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong.' }));
-                });
             });
         </script>
         <style>
@@ -2092,5 +2061,86 @@ include_once 'auth.php';
         </script>
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    </body>
+        <script>
+        // HANDLE CAB SEARCH AJAX
+        document.getElementById('cabSearchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const resultsContainer = document.getElementById('cabResultsContainer');
+            
+            // Show loading state
+            resultsContainer.innerHTML = '<div class="text-center py-5 bg-white rounded-4 shadow-sm"><div class="spinner-border text-teal mb-3"></div><h5 class="fw-bold">Searching the best cabs for you...</h5></div>';
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            const formData = new FormData(this);
+            
+            fetch('api/cab_search.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.text())
+            .then(html => {
+                resultsContainer.innerHTML = html;
+                // Add a badge for current search
+                const summaryPill = document.createElement('div');
+                summaryPill.className = 'badge bg-teal rounded-pill px-4 py-2 mb-3 shadow-sm';
+                summaryPill.style.fontSize = '12px';
+                summaryPill.innerHTML = '<i class="fas fa-search me-2"></i> SEARCH RESULTS GENERATED';
+                resultsContainer.prepend(summaryPill);
+            })
+            .catch(err => {
+                resultsContainer.innerHTML = '<div class="alert alert-danger">An error occurred during search. Please try again.</div>';
+            });
+        });
+
+        // HANDLE BOOKING FROM RESULTS
+        function bookCab(id) {
+            const isLoggedIn = <?php echo is_logged_in() ? 'true' : 'false'; ?>;
+            
+            if (!isLoggedIn) {
+                Swal.fire({
+                    title: 'Login Required',
+                    text: 'Please login to save your booking details.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#00a79d',
+                    confirmButtonText: 'Login Now'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'login-user.php?return_url=' + encodeURIComponent(window.location.href);
+                    }
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Confirm Booking?',
+                text: 'Your current search details and this cab will be saved.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#00a79d',
+                confirmButtonText: 'Yes, Book Now!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.getElementById('cabSearchForm');
+                    const formData = new FormData(form);
+                    
+                    // Create URL with params for quick booking via submit.php GET handler
+                    const params = new URLSearchParams();
+                    params.append('action', 'book_cab');
+                    params.append('cab_id', id);
+                    params.append('from', formData.get('from'));
+                    params.append('to', formData.get('to'));
+                    params.append('date', formData.get('pickup_date'));
+                    params.append('time', formData.get('pickup_time'));
+                    params.append('tripType', formData.get('tripType'));
+                    params.append('pickup', formData.get('pickupType'));
+                    params.append('mobile', formData.get('mobile'));
+                    params.append('email', formData.get('email'));
+
+                    window.location.href = 'submit.php?' + params.toString();
+                }
+            });
+        }
+    </script>
+</body>
 </html>
