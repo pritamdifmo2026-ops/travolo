@@ -183,4 +183,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo json_encode($response);
     exit;
 }
+
+// === GET REQUESTS HANDLER (FOR QUICK BOOKING CONFIRMATION) ===
+if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['action']) && $_GET['action'] === 'book_cab') {
+    $cab_id = intval($_GET['cab_id'] ?? 0);
+    $from = $conn->real_escape_string($_GET['from'] ?? '');
+    $to = $conn->real_escape_string($_GET['to'] ?? '');
+    $date = $conn->real_escape_string($_GET['date'] ?? '');
+    $time = $conn->real_escape_string($_GET['time'] ?? '');
+    $trip = $conn->real_escape_string($_GET['tripType'] ?? '');
+    $pickup = $conn->real_escape_string($_GET['pickup'] ?? 'One Way');
+    $mobile = $conn->real_escape_string($_GET['mobile'] ?? '');
+
+    $sql = "INSERT INTO cabs (cab_id, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, phone) 
+            VALUES ($cab_id, '$trip', '$pickup', '$from', '$to', '$date', '$time', '$mobile')";
+    
+    $success = false;
+    if ($conn->query($sql) === TRUE) {
+        $success = true;
+    }
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Booking Confirmation | TravoLo</title>
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <style>
+            body { font-family: 'Outfit', sans-serif; background: #f4f7f6; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        </style>
+    </head>
+    <body>
+        <script>
+            <?php if($success): ?>
+            Swal.fire({
+                title: 'Booking Confirmed!',
+                text: 'Your cab booking request has been sent successfully. Our team will contact you shortly.',
+                icon: 'success',
+                confirmButtonColor: '#00a79d',
+                confirmButtonText: 'Back to Home'
+            }).then(() => {
+                window.location.href = 'index.php';
+            });
+            <?php else: ?>
+            Swal.fire({
+                title: 'Booking Failed',
+                text: 'Error: <?php echo $conn->error; ?>',
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Try Again'
+            }).then(() => {
+                window.history.back();
+            });
+            <?php endif; ?>
+        </script>
+    </body>
+    </html>
+    <?php
+    exit;
+}
 ?>

@@ -253,6 +253,52 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_overseas' && isset
     exit;
 }
 
+// === CAB INVENTORY LOGIC ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_cab_inventory') {
+    $name = $conn->real_escape_string($_POST['car_name']);
+    $cat = $conn->real_escape_string($_POST['category']);
+    $cap = (int)$_POST['capacity'];
+    $lug = (int)$_POST['luggage'];
+    $base = (int)$_POST['base_price'];
+    $h_price = (int)$_POST['hourly_price'];
+    $a_price = (int)$_POST['airport_price'];
+    $o_price = (int)$_POST['outstation_price'];
+    $pkm = (float)$_POST['price_per_km'];
+    $feats = $conn->real_escape_string($_POST['features']);
+    $image = handleFileUpload('car_image') ?: 'assets/images/tour-3-550x590.jpg';
+
+    $conn->query("INSERT INTO cab_inventory (car_name, category, capacity, luggage, base_price, hourly_price, airport_price, outstation_price, price_per_km, features, image_path) VALUES ('$name', '$cat', $cap, $lug, $base, $h_price, $a_price, $o_price, $pkm, '$feats', '$image')");
+    header("Location: admin.php?tab=manage-cabs&success=Vehicle+Added");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_cab_inventory') {
+    $id = (int)$_POST['id'];
+    $name = $conn->real_escape_string($_POST['car_name']);
+    $cat = $conn->real_escape_string($_POST['category']);
+    $cap = (int)$_POST['capacity'];
+    $lug = (int)$_POST['luggage'];
+    $base = (int)$_POST['base_price'];
+    $h_price = (int)$_POST['hourly_price'];
+    $a_price = (int)$_POST['airport_price'];
+    $o_price = (int)$_POST['outstation_price'];
+    $pkm = (float)$_POST['price_per_km'];
+    $feats = $conn->real_escape_string($_POST['features']);
+    $image = $_POST['existing_image'];
+    if ($new = handleFileUpload('car_image')) $image = $new;
+
+    $conn->query("UPDATE cab_inventory SET car_name='$name', category='$cat', capacity=$cap, luggage=$lug, base_price=$base, hourly_price=$h_price, airport_price=$a_price, outstation_price=$o_price, price_per_km=$pkm, features='$feats', image_path='$image' WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Vehicle+Updated");
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_inventory' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $conn->query("DELETE FROM cab_inventory WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Vehicle+Deleted");
+    exit;
+}
+
 // === CAB OFFERS LOGIC (DYNAMIC TRAVOLO SYSTEM) ===
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_cab_offer') {
     $badge = $conn->real_escape_string($_POST['badge']);
@@ -336,6 +382,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     $conn->query("UPDATE $table SET status=$new_status WHERE id=$id");
     header("Location: admin.php?tab=manage-cabs&success=Status+Updated");
+    exit;
+}
+
+// === CAB SUGGESTIONS LOGIC ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_cab_suggestion') {
+    $name = $conn->real_escape_string($_POST['city_name']);
+    $code = $conn->real_escape_string($_POST['city_code']);
+    $airport = $conn->real_escape_string($_POST['airport_name']);
+    $conn->query("INSERT INTO cab_cities_suggestions (city_name, city_code, airport_name) VALUES ('$name', '$code', '$airport')");
+    header("Location: admin.php?tab=manage-cabs&success=Suggestion+Added");
+    exit;
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_cab_suggestion') {
+    $id = (int)$_POST['id'];
+    $name = $conn->real_escape_string($_POST['city_name']);
+    $code = $conn->real_escape_string($_POST['city_code']);
+    $airport = $conn->real_escape_string($_POST['airport_name']);
+    $conn->query("UPDATE cab_cities_suggestions SET city_name='$name', city_code='$code', airport_name='$airport' WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Suggestion+Updated");
+    exit;
+}
+if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_suggestion' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $conn->query("DELETE FROM cab_cities_suggestions WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Suggestion+Deleted");
+    exit;
+}
+
+// === CAB PACKAGES LOGIC ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_cab_package') {
+    $name = $conn->real_escape_string($_POST['package_name']);
+    $hrs = (int)$_POST['hours'];
+    $km = (int)$_POST['km'];
+    $conn->query("INSERT INTO cab_packages (package_name, hours, km) VALUES ('$name', $hrs, $km)");
+    header("Location: admin.php?tab=manage-cabs&success=Package+Added");
+    exit;
+}
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_cab_package') {
+    $id = (int)$_POST['id'];
+    $name = $conn->real_escape_string($_POST['package_name']);
+    $hrs = (int)$_POST['hours'];
+    $km = (int)$_POST['km'];
+    $conn->query("UPDATE cab_packages SET package_name='$name', hours=$hrs, km=$km WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Package+Updated");
+    exit;
+}
+if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_package' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $conn->query("DELETE FROM cab_packages WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Package+Deleted");
     exit;
 }
 
@@ -839,32 +935,91 @@ while ($row = $res->fetch_assoc()) {
 
         <!-- Cabs Card -->
         <div class="data-card" id="cabs-card">
+            <div class="p-4 bg-light border-bottom">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="fas fa-taxi me-2 text-warning"></i>Cab Booking Ledger
+                    </h5>
+                    <div class="d-flex gap-2" id="cab-filter-pills">
+                        <?php
+                        $active_filter = $_GET['cab_filter'] ?? 'All';
+                        $filters = ['All', 'Hourly', 'Airport Transfer', 'Outstation'];
+                        foreach($filters as $f) {
+                            $active_class = ($active_filter === $f) ? 'btn-warning text-white' : 'btn-outline-secondary';
+                            echo "<a href='admin.php?tab=cabs&cab_filter=$f' class='btn btn-sm rounded-pill px-3 fw-bold' style='font-size:11px;'>$f</a>";
+                        }
+                        ?>
+                    </div>
+                </div>
+            </div>
+
             <div class="table-responsive">
-                <table class="table">
-                    <thead>
+                <table class="table align-middle">
+                    <thead class="bg-light">
                         <tr>
-                            <th>Type</th>
-                            <th>Route/Details</th>
-                            <th>Pickup Time</th>
-                            <th>Return/Hours</th>
-                            <th>Phone</th>
-                            <th>Requested</th>
+                            <th>Trip Type</th>
+                            <th>Route / Details</th>
+                            <th>Pickup Date/Time</th>
+                            <th>Return / Duration</th>
+                            <th>Vehicle</th>
+                            <th>Contact</th>
+                            <th class="text-end">Requested</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-$res = $conn->query("SELECT * FROM cabs ORDER BY id DESC LIMIT 50");
-while ($row = $res->fetch_assoc()) {
-    echo "<tr>";
-    echo "<td><span class='pill'>{$row['trip_type']}</span><br><span style='font-size:12px; color:#7f8c8d;'>{$row['pickup_type']}</span></td>";
-    echo "<td><strong>{$row['from_city']}</strong><br>to <strong>{$row['to_city']}</strong></td>";
-    echo "<td>{$row['pickup_date']}<br>{$row['pickup_time']}</td>";
-    echo "<td>{$row['return_date']} {$row['return_time']}<br>{$row['hours']}</td>";
-    echo "<td><strong>{$row['phone']}</strong></td>";
-    echo "<td><span style='color:#95a5a6; font-size:12px;'>" . date('M j, Y g:i A', strtotime($row['booking_date'])) . "</span></td>";
-    echo "</tr>";
-}
-?>
+                        $where_clause = "";
+                        if($active_filter !== 'All') {
+                            $where_clause = " WHERE trip_type = '" . $conn->real_escape_string($active_filter) . "'";
+                        }
+                        
+                        $res = $conn->query("SELECT c.*, ci.car_name, ci.category FROM cabs c LEFT JOIN cab_inventory ci ON c.cab_id = ci.id $where_clause ORDER BY c.id DESC LIMIT 100");
+                        
+                        if ($res && $res->num_rows > 0) {
+                            while ($row = $res->fetch_assoc()) {
+                                $trip_badge = 'bg-light text-dark border';
+                                if($row['trip_type'] == 'Hourly') $trip_badge = 'bg-info text-white';
+                                elseif($row['trip_type'] == 'Airport Transfer') $trip_badge = 'bg-primary text-white';
+                                elseif($row['trip_type'] == 'Outstation') $trip_badge = 'bg-success text-white';
+
+                                echo "<tr>";
+                                echo "<td>
+                                        <span class='badge {$trip_badge} rounded-pill px-3' style='font-size:11px;'>{$row['trip_type']}</span><br>
+                                        <small class='text-muted' style='font-size:10px;'>{$row['pickup_type']}</small>
+                                      </td>";
+                                echo "<td>
+                                        <div class='fw-bold'>{$row['from_city']}</div>
+                                        <div class='small text-muted'><i class='fas fa-long-arrow-alt-right mx-1'></i> {$row['to_city']}</div>
+                                      </td>";
+                                echo "<td>
+                                        <div class='fw-bold text-dark' style='font-size:13px;'>{$row['pickup_date']}</div>
+                                        <div class='small text-muted'><i class='far fa-clock me-1'></i>{$row['pickup_time']}</div>
+                                      </td>";
+                                echo "<td>";
+                                if($row['trip_type'] == 'Hourly') {
+                                    echo "<span class='badge bg-light text-dark border'>{$row['hours']}</span>";
+                                } else {
+                                    echo "<div class='small text-dark'>{$row['return_date']}</div>";
+                                    echo "<div class='small text-muted'>{$row['return_time']}</div>";
+                                }
+                                echo "</td>";
+                                echo "<td>";
+                                if($row['car_name']) {
+                                    echo "<div class='fw-bold text-primary'>{$row['car_name']}</div><span class='badge bg-light text-muted border-0 small' style='font-size:10px;'>{$row['category']}</span>";
+                                } else {
+                                    echo "<span class='text-muted italic small'>Not Specified</span>";
+                                }
+                                echo "</td>";
+                                echo "<td>
+                                        <div class='fw-bold'><i class='fas fa-phone-alt text-success me-1 small'></i> {$row['phone']}</div>
+                                      </td>";
+                                echo "<td class='text-end'><span style='color:#95a5a6; font-size:12px; font-weight:500;'>" . date('M j, g:i A', strtotime($row['booking_date'])) . "</span></td>";
+                                echo "</tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='7' class='text-center py-5 text-muted'><i class='fas fa-folder-open fa-2x mb-3 d-block opacity-25'></i>No bookings found for this category.</td></tr>";
+                        }
+                        ?>
                     </tbody>
                 </table>
             </div>
@@ -1346,8 +1501,17 @@ while ($row = $res->fetch_assoc()) {
                     <li class="nav-item shadow-sm rounded-pill me-2">
                         <button class="nav-link rounded-pill px-4" id="offers-tab" data-bs-toggle="tab" data-bs-target="#cab-offers" type="button" role="tab">Promotional Offers</button>
                     </li>
-                    <li class="nav-item shadow-sm rounded-pill">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill px-4" id="fleet-tab" data-bs-toggle="tab" data-bs-target="#cab-fleet" type="button" role="tab">Cab Fleet (Inventory)</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link rounded-pill px-4" id="outstation-tab" data-bs-toggle="tab" data-bs-target="#outstation-cabs" type="button" role="tab">Outstation Cabs</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill px-4" id="suggestions-tab" data-bs-toggle="tab" data-bs-target="#cab-suggestions" type="button" role="tab">Search Suggestions</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill px-4" id="packages-tab" data-bs-toggle="tab" data-bs-target="#cab-packages" type="button" role="tab">Rental Packages</button>
                     </li>
                 </ul>
 
@@ -1424,6 +1588,133 @@ while ($row = $res->fetch_assoc()) {
                                                 </div>
                                             </div>
                                         </div>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- CAB FLEET (INVENTORY) TAB -->
+                    <div class="tab-pane fade" id="cab-fleet" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 mb-4 p-4 shadow-sm">
+                            <h6 class="fw-bold mb-4 text-secondary"><i class="fas fa-plus-circle me-2"></i>Add Vehicle to Fleet</h6>
+                            <form action="admin.php" method="POST" enctype="multipart/form-data" class="row g-3">
+                                <input type="hidden" name="action" value="add_cab_inventory">
+                                <div class="col-md-3">
+                                    <label class="small fw-bold text-muted">Car Name</label>
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="car_name" placeholder="E.g. Toyota Etios" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="small fw-bold text-muted">Category</label>
+                                    <select class="form-select rounded-pill border-0 shadow-sm" name="category" required>
+                                        <option value="Hatchback">Hatchback</option>
+                                        <option value="Sedan" selected>Sedan</option>
+                                        <option value="SUV">SUV</option>
+                                        <option value="Luxury">Luxury</option>
+                                        <option value="Tempo Traveller">Tempo Traveller</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="small fw-bold text-muted">Capacity (Pax)</label>
+                                    <input type="number" class="form-control rounded-pill border-0 shadow-sm" name="capacity" value="4" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="small fw-bold text-muted">Airport Rate (₹)</label>
+                                    <input type="number" class="form-control rounded-pill border-0 shadow-sm" name="airport_price" placeholder="940" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="small fw-bold text-muted">Hourly Rate (₹)</label>
+                                    <input type="number" class="form-control rounded-pill border-0 shadow-sm" name="hourly_price" placeholder="1200" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="small fw-bold text-muted">Outstation/km (₹)</label>
+                                    <input type="number" class="form-control rounded-pill border-0 shadow-sm" name="outstation_price" placeholder="12" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="small fw-bold text-muted">Base Price (₹)</label>
+                                    <input type="number" class="form-control rounded-pill border-0 shadow-sm" name="base_price" placeholder="2000" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="small fw-bold text-muted">Car Image</label>
+                                    <input type="file" class="form-control rounded-pill border-0 shadow-sm px-3" name="car_image" accept="image/*" required>
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                    <label class="small fw-bold text-muted">Features (Comma separated)</label>
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="features" placeholder="AC, Music System, GPS, 7 Seater">
+                                </div>
+                                <div class="col-md-12 mt-4 text-end">
+                                    <button type="submit" class="btn btn-secondary px-5 rounded-pill fw-bold py-2 shadow-sm">Save Vehicle</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="bg-light"><tr><th>Car</th><th>Category</th><th>Capacity/Features</th><th>Base Price</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                                <tbody>
+                                    <?php
+                                    $res = $conn->query("SELECT * FROM cab_inventory ORDER BY id DESC");
+                                    if ($res && $res->num_rows > 0) {
+                                        while($row = $res->fetch_assoc()){
+                                            $s_badge = $row['status'] ? 'bg-success' : 'bg-secondary';
+                                            $s_text = $row['status'] ? 'Active' : 'Offline';
+                                            echo "<tr>";
+                                            echo "<td><div class='fw-bold text-dark'>{$row['car_name']}</div></td>";
+                                            echo "<td><span class='badge bg-light text-dark border px-3 rounded-pill'>{$row['category']}</span></td>";
+                                            echo "<td><div class='small'><i class='fas fa-users me-1'></i>{$row['capacity']} Pax | <span class='text-muted'>{$row['features']}</span></div></td>";
+                                            echo "<td><strong>₹" . number_format($row['base_price']) . "</strong></td>";
+                                            echo "<td><span class='badge {$s_badge} rounded-pill'>{$s_text}</span></td>";
+                                            echo "<td class='text-end'>
+                                                    <form action='admin.php' method='POST' style='display:inline;'>
+                                                        <input type='hidden' name='action' value='toggle_cab_status'>
+                                                        <input type='hidden' name='table' value='cab_inventory'>
+                                                        <input type='hidden' name='id' value='{$row['id']}'>
+                                                        <input type='hidden' name='current_status' value='{$row['status']}'>
+                                                        <button type='submit' class='btn btn-sm btn-link text-decoration-none fw-bold small me-2' style='color:" . ($row['status'] ? '#e74c3c' : '#27ae60') . ";'>".($row['status'] ? 'Deactivate' : 'Activate')."</button>
+                                                    </form>
+                                                    <button class='btn btn-sm btn-outline-dark rounded-pill px-3 me-2' style='font-size:12px;' data-bs-toggle='modal' data-bs-target='#editCarModal{$row['id']}'>Edit</button>
+                                                    <a href='admin.php?action=delete_cab_inventory&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' style='font-size:12px;' onclick='return confirm(\"Permanently remove from fleet?\")'>Delete</a>
+                                                  </td>";
+                                            echo "</tr>";
+
+                                            $offer_modals_html .= "
+                                            <div class='modal fade' id='editCarModal{$row['id']}' tabindex='-1' aria-hidden='true'>
+                                                <div class='modal-dialog modal-lg modal-dialog-centered'>
+                                                    <div class='modal-content border-0 shadow-lg rounded-4'>
+                                                        <div class='modal-header border-0 pb-0'>
+                                                            <h5 class='modal-title fw-bold' style='padding:15px;'><i class='fas fa-car me-2'></i>Edit Fleet Vehicle</h5>
+                                                            <button type='button' class='btn-close me-2' data-bs-dismiss='modal'></button>
+                                                        </div>
+                                                        <div class='modal-body p-4'>
+                                                            <form action='admin.php' method='POST' enctype='multipart/form-data' class='row g-3'>
+                                                                <input type='hidden' name='action' value='edit_cab_inventory'>
+                                                                <input type='hidden' name='id' value='{$row['id']}'>
+                                                                <input type='hidden' name='existing_image' value='{$row['image_path']}'>
+                                                                
+                                                                <div class='col-md-6'><label class='small fw-bold'>Car Name</label><input type='text' class='form-control rounded-pill' name='car_name' value='".htmlspecialchars($row['car_name'])."' required></div>
+                                                                <div class='col-md-6'><label class='small fw-bold'>Category</label>
+                                                                    <select class='form-select rounded-pill' name='category' required>
+                                                                        <option ".($row['category']=='Hatchback'?'selected':'')." value='Hatchback'>Hatchback</option>
+                                                                        <option ".($row['category']=='Sedan'?'selected':'')." value='Sedan'>Sedan</option>
+                                                                        <option ".($row['category']=='SUV'?'selected':'')." value='SUV'>SUV</option>
+                                                                        <option ".($row['category']=='Luxury'?'selected':'')." value='Luxury'>Luxury</option>
+                                                                        <option ".($row['category']=='Tempo Traveller'?'selected':'')." value='Tempo Traveller'>Tempo Traveller</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class='col-md-3'><label class='small fw-bold'>Capacity</label><input type='number' class='form-control rounded-pill' name='capacity' value='{$row['capacity']}' required></div>
+                                                                <div class='col-md-3'><label class='small fw-bold'>Airport Rate</label><input type='number' class='form-control rounded-pill' name='airport_price' value='{$row['airport_price']}' required></div>
+                                                                <div class='col-md-3'><label class='small fw-bold'>Hourly Rate</label><input type='number' class='form-control rounded-pill' name='hourly_price' value='{$row['hourly_price']}' required></div>
+                                                                <div class='col-md-3'><label class='small fw-bold'>Outstation/km</label><input type='number' class='form-control rounded-pill' name='outstation_price' value='{$row['outstation_price']}' required></div>
+                                                                <div class='col-md-3'><label class='small fw-bold'>Base Price</label><input type='number' class='form-control rounded-pill' name='base_price' value='{$row['base_price']}' required></div>
+                                                                <div class='col-md-12'><label class='small fw-bold'>Features</label><input type='text' class='form-control rounded-pill' name='features' value='{$row['features']}'></div>
+                                                                <div class='col-12'><label class='small fw-bold'>Replace Image (Optional)</label><input type='file' class='form-control' name='car_image' accept='image/*'></div>
+                                                                <div class='col-12 mt-4'><button type='submit' class='btn btn-secondary w-100 rounded-pill fw-bold py-2 text-white shadow-sm'>Update Vehicle</button></div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>";
+                                        }
                                     }
                                     ?>
                                 </tbody>
@@ -1772,6 +2063,90 @@ while ($row = $res->fetch_assoc()) {
                             </table>
                         </div>
                     </div>
+
+                    <!-- CAB SUGGESTIONS TAB -->
+                    <div class="tab-pane fade" id="cab-suggestions" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 mb-4 p-4 shadow-sm">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle me-2 text-info"></i>Add Search Suggestion</h6>
+                            <form action="admin.php" method="POST" class="row g-3">
+                                <input type="hidden" name="action" value="add_cab_suggestion">
+                                <div class="col-md-3"><input type="text" class="form-control rounded-pill border-0 shadow-sm" name="city_name" placeholder="City Name (e.g. Pune)" required></div>
+                                <div class="col-md-2"><input type="text" class="form-control rounded-pill border-0 shadow-sm" name="city_code" placeholder="Code (PNQ)" required></div>
+                                <div class="col-md-5"><input type="text" class="form-control rounded-pill border-0 shadow-sm" name="airport_name" placeholder="Airport Name" required></div>
+                                <div class="col-md-2"><button type="submit" class="btn btn-info text-white w-100 rounded-pill fw-bold">Add</button></div>
+                            </form>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="bg-light"><tr><th>City</th><th>Code</th><th>Airport</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                                <tbody>
+                                    <?php
+                                    $s_res = $conn->query("SELECT * FROM cab_cities_suggestions ORDER BY city_name ASC");
+                                    if ($s_res && $s_res->num_rows > 0) {
+                                        while($s = $s_res->fetch_assoc()){
+                                            $sb = $s['status'] ? 'bg-success' : 'bg-secondary';
+                                            echo "<tr>";
+                                            echo "<td><span class='fw-bold'>{$s['city_name']}</span></td>";
+                                            echo "<td><code>{$s['city_code']}</code></td>";
+                                            echo "<td><span class='small'>{$s['airport_name']}</span></td>";
+                                            echo "<td><span class='badge {$sb} rounded-pill'>".($s['status']?'Active':'Inactive')."</span></td>";
+                                            echo "<td class='text-end'>
+                                                    <form action='admin.php' method='POST' style='display:inline;'>
+                                                        <input type='hidden' name='action' value='toggle_cab_status'><input type='hidden' name='table' value='cab_cities_suggestions'><input type='hidden' name='id' value='{$s['id']}'><input type='hidden' name='current_status' value='{$s['status']}'>
+                                                        <button type='submit' class='btn btn-sm btn-link text-decoration-none fw-bold small me-2' style='color:".($s['status']?'#e74c3c':'#27ae60').";'>".($s['status']?'Deactivate':'Activate')."</button>
+                                                    </form>
+                                                    <a href='admin.php?action=delete_cab_suggestion&id={$s['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' onclick='return confirm(\"Delete suggestion?\")'>Delete</a>
+                                                  </td>";
+                                            echo "</tr>";
+                                        }
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- CAB PACKAGES TAB -->
+                    <div class="tab-pane fade" id="cab-packages" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 mb-4 p-4 shadow-sm">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle me-2 text-warning"></i>Add Hourly Package</h6>
+                            <form action="admin.php" method="POST" class="row g-3">
+                                <input type="hidden" name="action" value="add_cab_package">
+                                <div class="col-md-4"><input type="text" class="form-control rounded-pill border-0 shadow-sm" name="package_name" placeholder="Package Name (e.g. 6hrs / 60km)" required></div>
+                                <div class="col-md-3"><input type="number" class="form-control rounded-pill border-0 shadow-sm" name="hours" placeholder="Hours" required></div>
+                                <div class="col-md-3"><input type="number" class="form-control rounded-pill border-0 shadow-sm" name="km" placeholder="KMs" required></div>
+                                <div class="col-md-2"><button type="submit" class="btn btn-warning text-white w-100 rounded-pill fw-bold">Add</button></div>
+                            </form>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="bg-light"><tr><th>Package Name</th><th>Hours</th><th>KMs</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                                <tbody>
+                                    <?php
+                                    $p_res = $conn->query("SELECT * FROM cab_packages ORDER BY hours ASC");
+                                    if ($p_res && $p_res->num_rows > 0) {
+                                        while($p = $p_res->fetch_assoc()){
+                                            $pb = $p['status'] ? 'bg-success' : 'bg-secondary';
+                                            echo "<tr>";
+                                            echo "<td><span class='fw-bold'>{$p['package_name']}</span></td>";
+                                            echo "<td>{$p['hours']} hrs</td>";
+                                            echo "<td>{$p['km']} km</td>";
+                                            echo "<td><span class='badge {$pb} rounded-pill'>".($p['status']?'Active':'Inactive')."</span></td>";
+                                            echo "<td class='text-end'>
+                                                    <form action='admin.php' method='POST' style='display:inline;'>
+                                                        <input type='hidden' name='action' value='toggle_cab_status'><input type='hidden' name='table' value='cab_packages'><input type='hidden' name='id' value='{$p['id']}'><input type='hidden' name='current_status' value='{$p['status']}'>
+                                                        <button type='submit' class='btn btn-sm btn-link text-decoration-none fw-bold small me-2' style='color:".($s['status']?'#e74c3c':'#27ae60').";'>".($p['status']?'Deactivate':'Activate')."</button>
+                                                    </form>
+                                                    <a href='admin.php?action=delete_cab_package&id={$p['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' onclick='return confirm(\"Delete package?\")'>Delete</a>
+                                                  </td>";
+                                            echo "</tr>";
+                                        }
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1955,9 +2330,14 @@ while ($row = $res->fetch_assoc()) {
             });
         });
 
-        // On page load, restore tab from localStorage immediately
+        // On page load, restore tab from URL or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlTab = urlParams.get('tab');
         const savedTab = localStorage.getItem('activeAdminTab');
-        if (savedTab) {
+        
+        if (urlTab) {
+            switchTab(urlTab);
+        } else if (savedTab) {
             switchTab(savedTab);
         }
 

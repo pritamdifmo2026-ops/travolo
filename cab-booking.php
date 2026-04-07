@@ -165,11 +165,11 @@ include_once 'auth.php';
         .cab-display {
             position: absolute;
             inset: 0;
-            padding: 10px 14px 10px 50px;
+            padding: 8px 14px 8px 50px;
             pointer-events: none;
             background: #fff;
             border: 1.5px solid #eee;
-            border-radius: 14px;
+            border-radius: 12px;
             display: none;
             z-index: 5;
             flex-direction: column;
@@ -222,7 +222,7 @@ include_once 'auth.php';
         .booking-form-wrapper {
             background: #fff;
             border-radius: 24px;
-            padding: 40px;
+            padding: 25px 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.08);
             border: 1px solid rgba(0,0,0,0.05);
         }
@@ -231,9 +231,9 @@ include_once 'auth.php';
         .trip-type-container {
             display: flex;
             background: #f8f9fa;
-            padding: 6px;
-            border-radius: 14px;
-            margin-bottom: 30px;
+            padding: 5px;
+            border-radius: 12px;
+            margin-bottom: 20px;
             width: fit-content;
         }
 
@@ -273,18 +273,18 @@ include_once 'auth.php';
 
         .form-group-custom label {
             display: block;
-            font-size: 12px;
-            font-weight: 800;
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: #999;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             padding-left: 2px;
         }
 
         .input-with-icon {
             position: relative;
-            height: 60px;
+            height: 52px;
             display: block;
         }
 
@@ -301,12 +301,12 @@ include_once 'auth.php';
         .input-with-icon .form-control,
         .input-with-icon .nice-select {
             padding-left: 50px !important;
-            height: 60px;
+            height: 52px;
             border: 1.5px solid #eee !important;
-            border-radius: 14px !important;
+            border-radius: 12px !important;
             font-weight: 600;
             color: #1a1a1a;
-            font-size: 15px;
+            font-size: 14px;
             transition: all 0.3s ease;
             background: #fff;
         }
@@ -350,17 +350,17 @@ include_once 'auth.php';
             background: linear-gradient(135deg, #00a79d 0%, #00796b 100%);
             color: #fff;
             border: none;
-            height: 60px;
-            border-radius: 14px;
-            font-weight: 800;
-            font-size: 16px;
+            height: 52px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             box-shadow: none;
             margin-top: 5px;
         }
@@ -375,6 +375,21 @@ include_once 'auth.php';
         .airport-transfer-section {
             padding: 100px 0 20px; /* Reduced bottom padding from 60px to 20px */
             background: #fff;
+        }
+
+        .sub-title {
+            display: inline-block !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            letter-spacing: 1px !important;
+            padding: 5px 18px !important;
+            background: rgba(0, 167, 157, 0.1) !important;
+            color: #00a79d !important;
+            border-radius: 8px !important;
+            margin-bottom: 20px !important;
+            text-transform: uppercase !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         .transfer-grid {
@@ -441,6 +456,44 @@ include_once 'auth.php';
             .trip-type-container { width: 100%; overflow-x: auto; }
             .trip-type-item label { white-space: nowrap; }
             .transfer-grid { grid-template-columns: 1fr; }
+        }
+
+        /* View More Button Styles */
+        .view-more-transfers-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .view-more-transfers-btn {
+            background: #fff;
+            border: 1.5px solid #00a79d;
+            color: #00a79d;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .view-more-transfers-btn:hover {
+            background: #00a79d;
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(0, 167, 157, 0.2);
+        }
+
+        .view-more-transfers-btn i {
+            transition: transform 0.4s ease;
+        }
+
+        .view-more-transfers-btn.active i {
+            transform: rotate(180deg);
         }
 
         /* Global Overseas Section Spacing */
@@ -1198,7 +1251,7 @@ include_once 'auth.php';
         <section class="services-seciton">
             <div class="container">
                 <div class="booking-form-wrapper">
-                    <form id="cabSearchForm" action="submit.php" method="POST">
+                    <form id="cabSearchForm" action="cab-results.php" method="GET">
                         <input type="hidden" name="form_type" value="cab">
                         
                         <!-- Trip Type Switcher -->
@@ -1336,10 +1389,16 @@ include_once 'auth.php';
                                     <div class="input-with-icon">
                                         <i class="fas fa-clock"></i>
                                         <select name="duration" class="nice-select">
-                                            <option value="2hrs / 40km">2hrs / 40km</option>
-                                            <option value="4hrs / 80km">4hrs / 80km</option>
-                                            <option value="8hrs / 120km">8hrs / 120km</option>
-                                            <option value="12hrs / 200km">12hrs / 200km</option>
+                                            <?php
+                                            $p_res = $conn->query("SELECT * FROM cab_packages WHERE status=1 ORDER BY hours ASC");
+                                            if ($p_res && $p_res->num_rows > 0) {
+                                                while($p = $p_res->fetch_assoc()){
+                                                    echo "<option value='{$p['package_name']}'>{$p['package_name']}</option>";
+                                                }
+                                            } else {
+                                                echo "<option value='8hrs / 80km'>8hrs / 80km (Default)</option>";
+                                            }
+                                            ?>
                                         </select>
                                     </div>
                                 </div>
@@ -1414,7 +1473,7 @@ include_once 'auth.php';
 
                         <!-- View All Button -->
                         <div class="view-all-container">
-                            <a href="#" class="view-all-btn">Discover All Offers</a>
+                            <a href="offers.php" class="view-all-btn">Discover All Offers</a>
                         </div>
                     </div>
                 </div>
@@ -1427,24 +1486,34 @@ include_once 'auth.php';
                 <div class="row align-items-end mb-40">
                     <div class="col-lg-8">
                         <div class="section-title">
-                            <span class="sub-title" style="color: #00a79d; font-weight: 800;">ELITE TRANSFERS</span>
+                            <span class="sub-title">ELITE TRANSFERS</span>
                             <h2 class="title" style="font-weight: 800;">Quick Airport Pickup & Drop</h2>
                         </div>
                     </div>
                 </div>
 
-                <div class="transfer-grid">
+                <div class="transfer-grid" id="transferGrid">
                     <?php
                     $transfers_res = $conn->query("SELECT * FROM cab_transfers WHERE status = 1 ORDER BY id ASC");
                     if ($transfers_res && $transfers_res->num_rows > 0) {
+                        $counter = 0;
                         while ($t = $transfers_res->fetch_assoc()) {
+                            $counter++;
+                            $hiddenClass = ($counter > 6) ? 'd-none' : '';
                             ?>
-                            <div class="transfer-card">
+                            <div class="transfer-card extra-transfer <?php echo $hiddenClass; ?>" data-id="<?php echo $counter; ?>" onclick="window.location.href='cab-results.php?from=<?php echo urlencode($t['city']); ?>&to=Airport'">
                                 <img src="<?php echo htmlspecialchars($t['image_path']); ?>" alt="<?php echo htmlspecialchars($t['city']); ?>" loading="lazy">
                                 <div class="badge-discount"><?php echo htmlspecialchars($t['badge_text'] ?: 'FIXED FARE'); ?></div>
                                 <div class="transfer-overlay">
-                                    <div class="city-name"><?php echo htmlspecialchars($t['city']); ?></div>
-                                    <div class="transfer-label"><?php echo htmlspecialchars($t['airport']); ?></div>
+                                    <div class="d-flex justify-content-between align-items-end w-100">
+                                        <div>
+                                            <div class="city-name text-white"><?php echo htmlspecialchars($t['city']); ?></div>
+                                            <div class="transfer-label text-white-50" style="font-size: 11px;"><?php echo htmlspecialchars($t['airport']); ?></div>
+                                        </div>
+                                        <div class="book-arrow" style="color: var(--travolo-teal); font-weight: 800; font-size: 13px;">
+                                            Book <i class="fas fa-arrow-right"></i>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <?php
@@ -1454,6 +1523,15 @@ include_once 'auth.php';
                     }
                     ?>
                 </div>
+
+                <?php if (isset($counter) && $counter > 6): ?>
+                    <div class="view-more-transfers-container">
+                        <button class="view-more-transfers-btn" onclick="toggleTransfers(this)">
+                            <span>View All Transfers</span>
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Premium Overseas Transfers -->
                 <div class="row align-items-end mb-40 mt-60">
@@ -1528,7 +1606,7 @@ include_once 'auth.php';
                                                     <span class="hourly-price-from">From</span>
                                                     <span class="hourly-price-val">₹<?php echo number_format($h['price_per_hr']); ?></span>
                                                 </div>
-                                                <a href="#cabSearchForm" class="hourly-btn">Book <i class="fas fa-arrow-right"></i></a>
+                                                <a href="cab-results.php?tripType=Hourly&from=<?php echo urlencode($h['city']); ?>&to=Local" class="hourly-btn">Book <i class="fas fa-arrow-right"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -1713,11 +1791,14 @@ include_once 'auth.php';
                 }
 
                 // ===== CAB CITY DROPDOWN =====
-                const cabCities = [
-                    { city: "Delhi", code: "DEL", airport: "Indira Gandhi International Airport" },
-                    { city: "Mumbai", code: "BOM", airport: "Chhatrapati Shivaji International Airport" },
-                    { city: "Bangalore", code: "BLR", airport: "Kempegowda International Airport" }
-                ];
+                const cabCities = <?php 
+                    $s_res = $conn->query("SELECT city_name as city, city_code as code, airport_name as airport FROM cab_cities_suggestions WHERE status=1");
+                    $s_data = [];
+                    if ($s_res) {
+                        while($s = $s_res->fetch_assoc()) $s_data[] = $s;
+                    }
+                    echo json_encode($s_data);
+                ?>;
 
                 function closeAllCabDropdowns() {
                     document.querySelectorAll(".cab-dropdown").forEach(d => d.classList.remove("show"));
@@ -1923,6 +2004,82 @@ include_once 'auth.php';
                 });
             });
         </script>
+        <style>
+            .modal-all-offers .modal-content { border-radius: 30px; border: none; overflow: hidden; }
+            .modal-all-offers .modal-header { background: #133a25; color: #fff; padding: 25px; border: none; }
+            .modal-all-offers .btn-close { filter: invert(1); opacity: 1; }
+            .modal-all-offers .offer-grid-item { margin-bottom: 30px; height: 100%; }
+            .modal-all-offers .offer-card { transform: scale(1) !important; box-shadow: 0 10px 20px rgba(0,0,0,0.05); height: 100%; }
+            .modal-all-offers .offer-card:hover { transform: translateY(-5px) !important; box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+        </style>
+
+        <!-- All Offers Modal -->
+        <div class="modal fade modal-all-offers" id="allOffersModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" style="font-size: 24px;">TravoLo Exclusive Offers - All Active Deals</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-5 bg-light">
+                        <div class="row">
+                            <?php
+                            $all_offers = $conn->query("SELECT * FROM cab_offers WHERE status=1 ORDER BY id DESC");
+                            if ($all_offers && $all_offers->num_rows > 0) {
+                                while ($offer = $all_offers->fetch_assoc()) {
+                                    ?>
+                                    <div class="col-xl-4 col-lg-6 col-md-6 offer-grid-item">
+                                        <a href="#" class="offer-card d-block text-decoration-none">
+                                            <div class="travolo-badge"><?php echo htmlspecialchars($offer['badge']); ?></div>
+                                            <div class="offer-split-banner">
+                                                <div class="banner-info" style="background: <?php echo htmlspecialchars($offer['theme_color']); ?>;">
+                                                    <div class="discount-text"><?php echo htmlspecialchars($offer['header_small']); ?></div>
+                                                    <div class="service-name"><?php echo htmlspecialchars($offer['header_main']); ?></div>
+                                                    <div class="banner-use-code">CODE: <b><?php echo htmlspecialchars($offer['promo_code']); ?></b></div>
+                                                </div>
+                                                <div class="banner-img"><img src="<?php echo htmlspecialchars($offer['image_path']); ?>" alt="Offer"></div>
+                                            </div>
+                                            <div class="offer-body">
+                                                <h4 class="text-dark"><?php echo htmlspecialchars($offer['main_title']); ?></h4>
+                                                <div class="validity-text"><?php echo htmlspecialchars($offer['validity_text']); ?></div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <?php
+                                }
+                            }
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function toggleTransfers(btn) {
+                const extras = document.querySelectorAll('.extra-transfer');
+                const btnLabel = btn.querySelector('span');
+                
+                if (btn.classList.contains('active')) {
+                    // Hide
+                    extras.forEach(item => {
+                        if (parseInt(item.getAttribute('data-id')) > 6) {
+                            item.classList.add('d-none');
+                        }
+                    });
+                    btnLabel.innerText = "View All Transfers";
+                    btn.classList.remove('active');
+                } else {
+                    // Show
+                    extras.forEach(item => {
+                        item.classList.remove('d-none');
+                    });
+                    btnLabel.innerText = "Show Less";
+                    btn.classList.add('active');
+                }
+            }
+        </script>
+
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </body>
 </html>
