@@ -1,3 +1,4 @@
+<?php include_once 'auth.php'; ?>
 <!DOCTYPE html>
 <html lang="zxx">
 

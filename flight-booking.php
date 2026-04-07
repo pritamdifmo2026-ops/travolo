@@ -1,4 +1,4 @@
-<?php include 'db.php'; ?>
+<?php include_once 'auth.php'; include 'db.php'; ?>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -1107,7 +1107,7 @@
                         <!-- MOBILE NUMBER -->
                         <div class="search-segment" id="mobileSegment">
                             <label class="segment-label">Mobile Number</label>
-                            <input type="tel" name="mobile" class="fw-bold border-0 p-0 fs-5 w-100" placeholder="Mobile No" required pattern="[0-9]{10,15}" title="Please enter a valid mobile number">
+                            <input type="tel" name="mobile" class="fw-bold border-0 p-0 fs-5 w-100" placeholder="Enter Mobile No" value="<?php echo htmlspecialchars($_SESSION['user_phone'] ?? ''); ?>" required pattern="[6-9][0-9]{9}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" title="Please enter a valid 10-digit mobile number">
                         </div>
 
                         <!-- SEARCH BTN -->
@@ -1858,7 +1858,19 @@ else {
             logData.append('infants', formData.get('infants') || 0);
             logData.append('travel_class', formData.get('travel_class') || 'Economy');
             logData.append('mobile', formData.get('mobile'));
-            fetch('submit.php', { method: 'POST', body: logData });
+            fetch('submit.php', { method: 'POST', body: logData })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'error' && data.redirect) {
+                        Swal.close();
+                        Swal.fire({ icon: 'warning', title: 'Login Required', text: data.message, confirmButtonColor: '#F7921E' })
+                            .then(() => { 
+                                const sep = data.redirect.includes('?') ? '&' : '?';
+                                window.location.href = data.redirect + sep + "return_url=" + encodeURIComponent(window.location.href); 
+                            });
+                        throw new Error('Redirecting...');
+                    }
+                });
             const dt       = new Date(rawDate);
             const year     = dt.getFullYear();
             const month    = dt.getMonth() + 1;
@@ -2027,14 +2039,26 @@ fetch('flights.json')
                     fetch('submit.php', { method: 'POST', body: fd })
                     .then(r => r.json())
                     .then(data => {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Booking Request Sent!',
-                            html: `Your request for <b>${airline} ${flightNo}</b> has been submitted.<br><small>Our team will contact you shortly.</small>`,
-                            confirmButtonColor: '#FF6B35'
-                        });
-                    }).catch(() => {
-                        Swal.fire('Booked!', 'Your request has been submitted.', 'success');
+                        if (data.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Booking Request Sent!',
+                                html: `Your request for <b>${airline} ${flightNo}</b> has been submitted.<br><small>Our team will contact you shortly.</small>`,
+                                confirmButtonColor: '#FF6B35'
+                            });
+                        } else if (data.redirect) {
+                            Swal.fire({ icon: 'warning', title: 'Login Required', text: data.message, confirmButtonColor: '#F7921E' })
+                                .then(() => { 
+                                    const sep = data.redirect.includes('?') ? '&' : '?';
+                                    window.location.href = data.redirect + sep + "return_url=" + encodeURIComponent(window.location.href); 
+                                });
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Oops...', text: data.message });
+                        }
+                    }).catch((error) => {
+                        if (error.message !== 'Redirecting...') {
+                            Swal.fire('Error', 'Selection failed', 'error');
+                        }
                     });
                 }
             });

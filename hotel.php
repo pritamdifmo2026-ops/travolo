@@ -1,3 +1,4 @@
+<?php include_once 'auth.php'; ?>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -66,6 +67,102 @@
 
         .emt-search-item-large { flex: 2 !important; }
         .emt-search-item-medium { flex: 1.5 !important; }
+
+        #hotelResultsContainer {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            margin-right: -15px !important;
+            margin-left: -15px !important;
+        }
+
+        .places-column {
+            display: flex !important;
+            flex-direction: column !important;
+            padding: 15px !important;
+        }
+
+        .single-place-item {
+            display: flex !important;
+            flex-direction: column !important;
+            height: 100% !important;
+            margin-bottom: 0 !important;
+            border: 1.5px solid #eee !important;
+            border-radius: 18px !important;
+            background: #fff !important;
+            overflow: hidden !important;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important; /* Very Light Shadow */
+        }
+        
+        .single-place-item:hover {
+            transform: translateY(-8px) !important;
+            border-color: #00a79d !important; /* Teal Hover */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important; /* Slightly more on hover */
+        }
+
+        .place-content {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            padding: 25px !important;
+        }
+
+        .place-content .info {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        /* Aggressive Truncation with Ellipsis (...) */
+        .place-content h4.title a {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 1 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            height: 1.4em !important;
+            font-size: 20px !important;
+            font-weight: 800 !important;
+            margin-bottom: 0 !important;
+            color: #1a1a1a !important;
+        }
+
+        .place-content p.location {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            min-height: 2.8em !important;
+            height: 2.8em !important;
+            margin-bottom: 15px !important;
+            font-size: 14px !important;
+            line-height: 1.4 !important;
+            color: #777 !important;
+        }
+
+        .place-content p.description {
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important; /* Truncate to 2 Rows */
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            min-height: 3.2em !important;
+            height: 3.2em !important; 
+            margin-bottom: 20px !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            color: #555 !important;
+            flex: none !important;
+        }
+
+        .place-content .meta {
+            margin-top: auto !important;
+            padding-top: 15px !important;
+            border-top: 1px solid #f0f0f0 !important;
+        }
+        
+        .single-place-item .place-img img {
+            height: 220px !important;
+            object-fit: cover !important;
+        }
 
         .emt-label {
             font-size: 12px !important;
@@ -320,7 +417,7 @@
 
                     <div class="emt-search-item emt-search-item-medium">
                         <span class="emt-label">Mobile Number</span>
-                        <input type="tel" class="emt-input" name="phone" placeholder="+91 1234567890" required>
+                        <input type="tel" class="emt-input" name="phone" placeholder="+91 1234567890" value="<?php echo htmlspecialchars($_SESSION['user_phone'] ?? ''); ?>" required>
                     </div>
 
                     <div class="emt-search-item emt-search-item-large" id="roomsGuestsTrigger" style="cursor:pointer;">
@@ -615,7 +712,15 @@
                                 updateRoomsUI();
                             });
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Oops...', text: data.message });
+                        if (data.redirect) {
+                            Swal.fire({ icon: 'warning', title: 'Login Required', text: data.message, confirmButtonColor: '#F7921E' })
+                                .then(() => { 
+                                    const sep = data.redirect.includes('?') ? '&' : '?';
+                                    window.location.href = data.redirect + sep + "return_url=" + encodeURIComponent(window.location.href); 
+                                });
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Oops...', text: data.message });
+                        }
                     }
                 })
                 .catch(error => {
@@ -643,6 +748,13 @@
                         }
                     }
                 });
+                // Initialize defaults
+                const todayStr = new Date().toISOString().split('T')[0];
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                $('#check_in').datepicker('setDate', todayStr);
+                $('#check_out').datepicker('setDate', tomorrowStr);
             }
 
             fetch('get_hotels.php')

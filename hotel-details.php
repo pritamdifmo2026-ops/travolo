@@ -1,7 +1,4 @@
-<?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-include 'db.php';
+<?php include_once 'auth.php';error_reporting(E_ALL);ini_set('display_errors', 1);include 'db.php';
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 // Fetching details if available
@@ -441,22 +438,28 @@ if (!$hotel) {
                         <input type="hidden" name="booking_type" value="Booking">
 
                         <div class="mb-3"><label class="small fw-bold">Full Name</label><input type="text" name="name"
-                                class="form-control rounded-3" required></div>
+                                 class="form-control rounded-3" value="<?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>" placeholder="Enter Full Name" required></div>
                         <div class="row">
                             <div class="col-6 mb-3"><label class="small fw-bold">Email</label><input type="email"
-                                    name="email" class="form-control rounded-3" required></div>
-                            <div class="col-6 mb-3"><label class="small fw-bold">Mobile</label><input type="tel"
-                                    name="phone" class="form-control rounded-3"
-                                    value="<?php echo htmlspecialchars($_GET['mobile'] ?? ''); ?>" required></div>
+                                    name="email" class="form-control rounded-3" value="<?php echo htmlspecialchars($_SESSION['user_email'] ?? ''); ?>" placeholder="example@mail.com" required></div>
+                            <div class="col-6 mb-3"><label class="small fw-bold">Mobile</label><input type="tel" name="phone" class="form-control rounded-3" value="<?php echo htmlspecialchars($_GET['mobile'] ?? $_SESSION['user_phone'] ?? ''); ?>" placeholder="10 Digit Mobile" required pattern="[6-9][0-9]{9}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" title="Please enter a valid 10-digit mobile number starting with 6-9"></div>
                         </div>
                         <div class="row">
                             <div class="col-6 mb-3"><label class="small fw-bold">Check-in</label><input type="date"
                                     name="check_in" class="form-control rounded-3"
-                                    value="<?php echo date('Y-m-d', strtotime(!empty($_GET['checkin']) ? $_GET['checkin'] : 'today')); ?>"
+                                    min="<?php echo date('Y-m-d'); ?>"
+                                    value="<?php 
+                                        $ci = !empty($_GET['checkin']) ? $_GET['checkin'] : 'today';
+                                        echo date('Y-m-d', strtotime($ci)); 
+                                    ?>"
                                     required></div>
                             <div class="col-6 mb-3"><label class="small fw-bold">Check-out</label><input type="date"
                                     name="check_out" class="form-control rounded-3"
-                                    value="<?php echo date('Y-m-d', strtotime(!empty($_GET['checkout']) ? $_GET['checkout'] : 'tomorrow')); ?>"
+                                    min="<?php echo date('Y-m-d'); ?>"
+                                    value="<?php 
+                                        $co = !empty($_GET['checkout']) ? $_GET['checkout'] : 'tomorrow';
+                                        echo date('Y-m-d', strtotime($co)); 
+                                    ?>"
                                     required></div>
                         </div>
                         <button type="submit"

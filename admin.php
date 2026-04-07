@@ -157,6 +157,188 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_route' && isset($_GET[
     exit;
 }
 
+// === CAB DOMESTIC TRANSFERS LOGIC ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_cab_transfer') {
+    $city = $conn->real_escape_string($_POST['city']);
+    $airport = $conn->real_escape_string($_POST['airport']);
+    $badge = $conn->real_escape_string($_POST['badge_text']);
+    $image = handleFileUpload('cab_image') ?: 'assets/images/tour-3-550x590.jpg';
+
+    $conn->query("INSERT INTO cab_transfers (city, airport, image_path, badge_text) VALUES ('$city', '$airport', '$image', '$badge')");
+    header("Location: admin.php?tab=manage-cabs&success=Transfer+Added");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_cab_transfer') {
+    $id = (int)$_POST['id'];
+    $city = $conn->real_escape_string($_POST['city']);
+    $airport = $conn->real_escape_string($_POST['airport']);
+    $badge = $conn->real_escape_string($_POST['badge_text']);
+    $image = $_POST['existing_image'];
+    if ($new = handleFileUpload('cab_image')) $image = $new;
+
+    $conn->query("UPDATE cab_transfers SET city='$city', airport='$airport', image_path='$image', badge_text='$badge' WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Transfer+Updated");
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_transfer' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $conn->query("DELETE FROM cab_transfers WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Transfer+Deleted");
+    exit;
+}
+
+// === CAB HOURLY RENTALS LOGIC ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_cab_hourly') {
+    $city = $conn->real_escape_string($_POST['city']);
+    $tag = $conn->real_escape_string($_POST['location_tag']);
+    $price = (int)$_POST['price_per_hr'];
+    $image = handleFileUpload('cab_image') ?: 'assets/images/tour-3-550x590.jpg';
+
+    $conn->query("INSERT INTO cab_hourly (city, location_tag, image_path, price_per_hr) VALUES ('$city', '$tag', '$image', $price)");
+    header("Location: admin.php?tab=manage-cabs&success=Hourly+Rental+Added");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_cab_hourly') {
+    $id = (int)$_POST['id'];
+    $city = $conn->real_escape_string($_POST['city']);
+    $tag = $conn->real_escape_string($_POST['location_tag']);
+    $price = (int)$_POST['price_per_hr'];
+    $image = $_POST['existing_image'];
+    if ($new = handleFileUpload('cab_image')) $image = $new;
+
+    $conn->query("UPDATE cab_hourly SET city='$city', location_tag='$tag', image_path='$image', price_per_hr=$price WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Hourly+Rental+Updated");
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_hourly' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $conn->query("DELETE FROM cab_hourly WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Hourly+Rental+Deleted");
+    exit;
+}
+
+// === CAB OVERSEAS TRANSFERS LOGIC ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_cab_overseas') {
+    $city = $conn->real_escape_string($_POST['city']);
+    $desc = $conn->real_escape_string($_POST['description']);
+    $price = $conn->real_escape_string($_POST['price_starts']);
+    $image = handleFileUpload('cab_image') ?: 'assets/images/tour-3-550x590.jpg';
+
+    $conn->query("INSERT INTO cab_overseas (city, description, image_path, price_starts) VALUES ('$city', '$desc', '$image', '$price')");
+    header("Location: admin.php?tab=manage-cabs&success=Overseas+Added");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_cab_overseas') {
+    $id = (int)$_POST['id'];
+    $city = $conn->real_escape_string($_POST['city']);
+    $desc = $conn->real_escape_string($_POST['description']);
+    $price = $conn->real_escape_string($_POST['price_starts']);
+    $image = $_POST['existing_image'];
+    if ($new = handleFileUpload('cab_image')) $image = $new;
+
+    $conn->query("UPDATE cab_overseas SET city='$city', description='$desc', image_path='$image', price_starts='$price' WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Overseas+Updated");
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_overseas' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $conn->query("DELETE FROM cab_overseas WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Overseas+Deleted");
+    exit;
+}
+
+// === CAB OFFERS LOGIC (DYNAMIC TRAVOLO SYSTEM) ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_cab_offer') {
+    $badge = $conn->real_escape_string($_POST['badge']);
+    $h_small = $conn->real_escape_string($_POST['header_small']);
+    $h_main = $conn->real_escape_string($_POST['header_main']);
+    $code = $conn->real_escape_string($_POST['promo_code']);
+    $color = $conn->real_escape_string($_POST['theme_color']);
+    $title = $conn->real_escape_string($_POST['main_title']);
+    $validity = $conn->real_escape_string($_POST['validity_text']);
+    
+    $image = handleFileUpload('offer_image') ?: 'assets/images/image-01.jpg';
+
+    $conn->query("INSERT INTO cab_offers (badge, header_small, header_main, promo_code, theme_color, main_title, validity_text, image_path) 
+                  VALUES ('$badge', '$h_small', '$h_main', '$code', '$color', '$title', '$validity', '$image')");
+    header("Location: admin.php?tab=manage-cabs&success=Travolo+Offer+Added");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_cab_offer') {
+    $id = (int)$_POST['id'];
+    $badge = $conn->real_escape_string($_POST['badge']);
+    $h_small = $conn->real_escape_string($_POST['header_small']);
+    $h_main = $conn->real_escape_string($_POST['header_main']);
+    $code = $conn->real_escape_string($_POST['promo_code']);
+    $color = $conn->real_escape_string($_POST['theme_color']);
+    $title = $conn->real_escape_string($_POST['main_title']);
+    $validity = $conn->real_escape_string($_POST['validity_text']);
+    
+    $image = $_POST['existing_image'];
+    if ($new = handleFileUpload('offer_image')) $image = $new;
+
+    $conn->query("UPDATE cab_offers SET badge='$badge', header_small='$h_small', header_main='$h_main', promo_code='$code', 
+                  theme_color='$color', main_title='$title', validity_text='$validity', image_path='$image' WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Travolo+Offer+Updated");
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_offer' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $conn->query("DELETE FROM cab_offers WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Offer+Deleted");
+    exit;
+}
+
+// === CAB OUTSTATION LOGIC ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_cab_outstation') {
+    $city = $conn->real_escape_string($_POST['city']);
+    $destinations = $conn->real_escape_string($_POST['destinations']);
+    $thumbnail = handleFileUpload('thumbnail', 'assets/images/outstation/') ?: 'assets/images/outstation/delhi.jpg';
+
+    $conn->query("INSERT INTO cab_outstation (city, destinations, thumbnail) VALUES ('$city', '$destinations', '$thumbnail')");
+    header("Location: admin.php?tab=manage-cabs&success=Outstation+City+Added");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit_cab_outstation') {
+    $id = (int)$_POST['id'];
+    $city = $conn->real_escape_string($_POST['city']);
+    $destinations = $conn->real_escape_string($_POST['destinations']);
+    $thumbnail = $_POST['existing_image'];
+    if ($new = handleFileUpload('thumbnail', 'assets/images/outstation/')) $thumbnail = $new;
+
+    $conn->query("UPDATE cab_outstation SET city='$city', destinations='$destinations', thumbnail='$thumbnail' WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Outstation+City+Updated");
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_outstation' && isset($_GET['id'])) {
+    $id = (int)$_GET['id'];
+    $conn->query("DELETE FROM cab_outstation WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Outstation+City+Deleted");
+    exit;
+}
+
+// === CAB STATUS TOGGLE LOGIC ===
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_cab_status') {
+    $table = $conn->real_escape_string($_POST['table']);
+    $id = (int)$_POST['id'];
+    $current_status = (int)$_POST['current_status'];
+    $new_status = $current_status ? 0 : 1;
+    
+    $conn->query("UPDATE $table SET status=$new_status WHERE id=$id");
+    header("Location: admin.php?tab=manage-cabs&success=Status+Updated");
+    exit;
+}
+
 // Delete Hotel Logic
 if (isset($_GET['action']) && $_GET['action'] === 'delete_hotel' && isset($_GET['id'])) {
     $hotel_id = (int)$_GET['id'];
@@ -364,37 +546,6 @@ $offer_modals_html = '';
             min-height: 100vh;
         }
 
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-            background: #fff;
-            padding: 20px 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-        }
-
-        .page-header h2 {
-            margin: 0;
-            font-weight: 700;
-            font-size: 24px;
-            color: #2c3e50;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            color: #7f8c8d;
-            font-weight: 500;
-        }
-
-        .user-info i {
-            margin-right: 8px;
-            font-size: 20px;
-            color: #133a25;
-        }
-
         /* Cards */
         .data-card {
             background: #fff;
@@ -535,6 +686,7 @@ $offer_modals_html = '';
                 <li><a href="#" class="nav-link" data-target="hotels"><i class="fas fa-hotel"></i> Hotel Bookings</a></li>
                 <li><a href="#" class="nav-link" data-target="manage-hotels"><i class="fas fa-building"></i> Manage Hotels</a></li>
                 <li><a href="#" class="nav-link" data-target="manage-offers"><i class="fas fa-tags"></i> Manage Offers</a></li>
+                <li><a href="#" class="nav-link" data-target="manage-cabs"><i class="fas fa-taxi"></i> Manage Cabs</a></li>
                 <li><a href="#" class="nav-link" data-target="manage-routes"><i class="fas fa-route"></i> Manage Routes</a></li>
                 <li><a href="#" class="nav-link" data-target="flight-searches"><i class="fas fa-search-location"></i> Flight Searches</a></li>
                 <li><a href="#" class="nav-link" data-target="contacts"><i class="fas fa-envelope-open-text"></i>
@@ -593,15 +745,7 @@ $offer_modals_html = '';
         }
     </style>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <div class="page-header">
-            <h2 id="page-title">Flight Bookings</h2>
-            <div class="user-info">
-                <i class="fas fa-user-circle"></i>
-                <span>Welcome, <?php echo htmlspecialchars($_SESSION['admin_username']); ?>!</span>
-            </div>
-        </div>
 
         <?php if (isset($_GET['success'])): ?>
             <div class="alert alert-success alert-dismissible fade show mx-4 mt-2 mb-0" role="alert" id="success-alert">
@@ -612,9 +756,6 @@ $offer_modals_html = '';
 
         <!-- Flights Card -->
         <div class="data-card active" id="flights-card">
-            <div class="card-header">
-                <h4><i class="fas fa-plane"></i> Recent Flight Bookings</h4>
-            </div>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -652,10 +793,9 @@ while ($row = $res->fetch_assoc()) {
 
         <!-- Flight Searches Card -->
         <div class="data-card" id="flight-searches-card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4><i class="fas fa-search-location"></i> Flight Search Logs</h4>
-                <a href="admin.php?action=clear_searches" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete ALL search history?')">
-                    <i class="fas fa-trash-sweep"></i> Clear All History
+            <div class="px-4 mt-4 d-flex justify-content-end">
+                <a href="admin.php?action=clear_searches" class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="return confirm('Are you sure you want to delete ALL search history?')">
+                    <i class="fas fa-trash-alt me-1"></i> Clear All History
                 </a>
             </div>
             <div class="table-responsive">
@@ -699,9 +839,6 @@ while ($row = $res->fetch_assoc()) {
 
         <!-- Cabs Card -->
         <div class="data-card" id="cabs-card">
-            <div class="card-header">
-                <h4><i class="fas fa-car"></i> Recent Cab Bookings</h4>
-            </div>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -735,9 +872,6 @@ while ($row = $res->fetch_assoc()) {
 
         <!-- Hotels Card -->
         <div class="data-card" id="hotels-card">
-            <div class="card-header">
-                <h4><i class="fas fa-hotel"></i> Hotel Interest & Bookings</h4>
-            </div>
 
             <div class="px-4 pt-3">
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
@@ -857,9 +991,6 @@ while ($row = $res->fetch_assoc()) {
 
         <!-- Contacts Card -->
         <div class="data-card" id="contacts-card">
-            <div class="card-header">
-                <h4><i class="fas fa-envelope"></i> Contact Messages</h4>
-            </div>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -889,9 +1020,6 @@ while ($row = $res->fetch_assoc()) {
 
         <!-- Manage Hotels Card -->
         <div class="data-card" id="manage-hotels-card">
-            <div class="card-header">
-                <h4><i class="fas fa-building"></i> Manage Hotels Data</h4>
-            </div>
             
             <div class="p-4">
                 <!-- Add New Hotel Card -->
@@ -1020,9 +1148,6 @@ while ($row = $res->fetch_assoc()) {
         </div>
         <!-- Manage Offers Card -->
         <div class="data-card" id="manage-offers-card">
-            <div class="card-header">
-                <h4><i class="fas fa-tags"></i> Manage Exclusive Offers</h4>
-            </div>
             <div class="p-4">
                 <!-- Add New Offer Card -->
                 <div class="card border-0 bg-light rounded-4 mb-5 shadow-sm p-4">
@@ -1200,11 +1325,459 @@ while ($row = $res->fetch_assoc()) {
             </div>
         </div>
         </div>
+        <!-- Manage Cabs Card -->
+        <div class="data-card" id="manage-cabs-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4><i class="fas fa-taxi"></i>Manage Cab Sections</h4>
+                <div class="text-muted small">Configure dynamic portal content</div>
+            </div>
+            
+            <div class="px-4 pb-4 mt-4">
+                <ul class="nav nav-tabs border-bottom mb-4" id="cabTabs" role="tablist">
+                    <li class="nav-item shadow-sm rounded-pill me-2">
+                        <button class="nav-link active rounded-pill px-4" id="domestic-tab" data-bs-toggle="tab" data-bs-target="#domestic-transfers" type="button" role="tab">Domestic Transfers</button>
+                    </li>
+                    <li class="nav-item shadow-sm rounded-pill me-2">
+                        <button class="nav-link rounded-pill px-4" id="hourly-tab" data-bs-toggle="tab" data-bs-target="#hourly-rentals" type="button" role="tab">Hourly Rentals</button>
+                    </li>
+                    <li class="nav-item shadow-sm rounded-pill me-2">
+                        <button class="nav-link rounded-pill px-4" id="overseas-tab" data-bs-toggle="tab" data-bs-target="#overseas-transfers" type="button" role="tab">Overseas Transfers</button>
+                    </li>
+                    <li class="nav-item shadow-sm rounded-pill me-2">
+                        <button class="nav-link rounded-pill px-4" id="offers-tab" data-bs-toggle="tab" data-bs-target="#cab-offers" type="button" role="tab">Promotional Offers</button>
+                    </li>
+                    <li class="nav-item shadow-sm rounded-pill">
+                        <button class="nav-link rounded-pill px-4" id="outstation-tab" data-bs-toggle="tab" data-bs-target="#outstation-cabs" type="button" role="tab">Outstation Cabs</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="cabTabsContent">
+                    <!-- DOMESTIC TRANSFERS TAB -->
+                    <div class="tab-pane fade show active" id="domestic-transfers" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 mb-4 p-4 shadow-sm">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle me-2 text-primary"></i>Add Domestic Transfer</h6>
+                            <form action="admin.php" method="POST" enctype="multipart/form-data" class="row g-3">
+                                <input type="hidden" name="action" value="add_cab_transfer">
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="city" placeholder="City Name" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="airport" placeholder="Airport Name" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="badge_text" placeholder="Badge (Optional)">
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="file" class="form-control rounded-pill border-0 shadow-sm" name="cab_image" accept="image/*" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="bg-light"><tr><th>City/Airport</th><th>Badge</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <?php
+                                    $res = $conn->query("SELECT * FROM cab_transfers ORDER BY id DESC");
+                                    while($row = $res->fetch_assoc()){
+                                        $s_badge = $row['status'] ? 'bg-success' : 'bg-secondary';
+                                        $s_text = $row['status'] ? 'Live' : 'Hidden';
+                                        echo "<tr>";
+                                        echo "<td><div class='fw-bold'>{$row['city']}</div><div class='small text-muted'>{$row['airport']}</div></td>";
+                                        echo "<td><span class='badge bg-warning text-white rounded-pill'>{$row['badge_text']}</span></td>";
+                                        echo "<td><span class='badge {$s_badge} rounded-pill'>{$s_text}</span></td>";
+                                        echo "<td class='text-end'>
+                                                <form action='admin.php' method='POST' style='display:inline;'>
+                                                    <input type='hidden' name='action' value='toggle_cab_status'>
+                                                    <input type='hidden' name='table' value='cab_transfers'>
+                                                    <input type='hidden' name='id' value='{$row['id']}'>
+                                                    <input type='hidden' name='current_status' value='{$row['status']}'>
+                                                    <button type='submit' class='btn btn-sm btn-link text-decoration-none fw-bold small me-2' style='color:" . ($row['status'] ? '#e74c3c' : '#27ae60') . ";'>".($row['status'] ? 'Hide' : 'Show')."</button>
+                                                </form>
+                                                <button class='btn btn-sm btn-outline-primary rounded-pill px-3 me-2' data-bs-toggle='modal' data-bs-target='#editTransferModal{$row['id']}'>Edit</button>
+                                                <a href='admin.php?action=delete_cab_transfer&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' onclick='return confirm(\"Delete this item?\")'>Delete</a>
+                                              </td>";
+                                        echo "</tr>";
+
+                                        $offer_modals_html .= "
+                                        <div class='modal fade' id='editTransferModal{$row['id']}' tabindex='-1' aria-hidden='true'>
+                                            <div class='modal-dialog modal-dialog-centered'>
+                                                <div class='modal-content border-0 shadow-lg rounded-4'>
+                                                    <div class='modal-header border-0 pb-0'>
+                                                        <h5 class='modal-title fw-bold'>Edit Domestic Transfer</h5>
+                                                        <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+                                                    </div>
+                                                    <div class='modal-body p-4'>
+                                                        <form action='admin.php' method='POST' enctype='multipart/form-data' class='row g-3'>
+                                                            <input type='hidden' name='action' value='edit_cab_transfer'>
+                                                            <input type='hidden' name='id' value='{$row['id']}'>
+                                                            <input type='hidden' name='existing_image' value='{$row['image_path']}'>
+                                                            <div class='col-12'><label class='small fw-bold'>City Name</label><input type='text' class='form-control rounded-pill' name='city' value='{$row['city']}' required></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Airport Name</label><input type='text' class='form-control rounded-pill' name='airport' value='{$row['airport']}' required></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Badge Text</label><input type='text' class='form-control rounded-pill' name='badge_text' value='{$row['badge_text']}'></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Replace Image (Optional)</label><input type='file' class='form-control' name='cab_image' accept='image/*'></div>
+                                                            <div class='col-12 mt-4'><button type='submit' class='btn btn-primary w-100 rounded-pill fw-bold py-2'>Update</button></div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- HOURLY RENTALS TAB -->
+                    <div class="tab-pane fade" id="hourly-rentals" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 mb-4 p-4 shadow-sm">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle me-2 text-success"></i>Add Hourly Rental</h6>
+                            <form action="admin.php" method="POST" enctype="multipart/form-data" class="row g-3">
+                                <input type="hidden" name="action" value="add_cab_hourly">
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="city" placeholder="City Name" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="location_tag" placeholder="Location Tag (e.g. IT Hub)" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="number" class="form-control rounded-pill border-0 shadow-sm" name="price_per_hr" placeholder="Price/hr" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="file" class="form-control rounded-pill border-0 shadow-sm" name="cab_image" accept="image/*" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="bg-light"><tr><th>City/Tag</th><th>Price/hr</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <?php
+                                    $res = $conn->query("SELECT * FROM cab_hourly ORDER BY id DESC");
+                                    while($row = $res->fetch_assoc()){
+                                        $s_badge = $row['status'] ? 'bg-success' : 'bg-secondary';
+                                        $s_text = $row['status'] ? 'Live' : 'Hidden';
+                                        echo "<tr>";
+                                        echo "<td><div class='fw-bold'>{$row['city']}</div><div class='small text-muted'>{$row['location_tag']}</div></td>";
+                                        echo "<td><strong>₹{$row['price_per_hr']}</strong></td>";
+                                        echo "<td><span class='badge {$s_badge} rounded-pill'>{$s_text}</span></td>";
+                                        echo "<td class='text-end'>
+                                                <form action='admin.php' method='POST' style='display:inline;'>
+                                                    <input type='hidden' name='action' value='toggle_cab_status'>
+                                                    <input type='hidden' name='table' value='cab_hourly'>
+                                                    <input type='hidden' name='id' value='{$row['id']}'>
+                                                    <input type='hidden' name='current_status' value='{$row['status']}'>
+                                                    <button type='submit' class='btn btn-sm btn-link text-decoration-none fw-bold small me-2' style='color:" . ($row['status'] ? '#e74c3c' : '#27ae60') . ";'>".($row['status'] ? 'Hide' : 'Show')."</button>
+                                                </form>
+                                                <button class='btn btn-sm btn-outline-success rounded-pill px-3 me-2' data-bs-toggle='modal' data-bs-target='#editHourlyModal{$row['id']}'>Edit</button>
+                                                <a href='admin.php?action=delete_cab_hourly&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' onclick='return confirm(\"Delete this item?\")'>Delete</a>
+                                              </td>";
+                                        echo "</tr>";
+
+                                        $offer_modals_html .= "
+                                        <div class='modal fade' id='editHourlyModal{$row['id']}' tabindex='-1' aria-hidden='true'>
+                                            <div class='modal-dialog modal-dialog-centered'>
+                                                <div class='modal-content border-0 shadow-lg rounded-4'>
+                                                    <div class='modal-header border-0 pb-0'>
+                                                        <h5 class='modal-title fw-bold'>Edit Hourly Rental</h5>
+                                                        <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+                                                    </div>
+                                                    <div class='modal-body p-4'>
+                                                        <form action='admin.php' method='POST' enctype='multipart/form-data' class='row g-3'>
+                                                            <input type='hidden' name='action' value='edit_cab_hourly'>
+                                                            <input type='hidden' name='id' value='{$row['id']}'>
+                                                            <input type='hidden' name='existing_image' value='{$row['image_path']}'>
+                                                            <div class='col-12'><label class='small fw-bold'>City Name</label><input type='text' class='form-control rounded-pill' name='city' value='{$row['city']}' required></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Location Tag</label><input type='text' class='form-control rounded-pill' name='location_tag' value='{$row['location_tag']}' required></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Price per Hour</label><input type='number' class='form-control rounded-pill' name='price_per_hr' value='{$row['price_per_hr']}' required></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Replace Image (Optional)</label><input type='file' class='form-control' name='cab_image' accept='image/*'></div>
+                                                            <div class='col-12 mt-4'><button type='submit' class='btn btn-success w-100 rounded-pill fw-bold py-2 text-white'>Update</button></div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- OVERSEAS TRANSFERS TAB -->
+                    <div class="tab-pane fade" id="overseas-transfers" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 mb-4 p-4 shadow-sm">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle me-2 text-info"></i>Add Overseas Transfer</h6>
+                            <form action="admin.php" method="POST" enctype="multipart/form-data" class="row g-3">
+                                <input type="hidden" name="action" value="add_cab_overseas">
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="city" placeholder="City Name" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="description" placeholder="Short Description" required>
+                                </div>
+                                <div class="col-md-1">
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="price_starts" placeholder="Starts AED 120" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="file" class="form-control rounded-pill border-0 shadow-sm" name="cab_image" accept="image/*" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-info w-100 rounded-pill fw-bold text-white">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="bg-light"><tr><th>City/Info</th><th>Price Starts</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    <?php
+                                    $res = $conn->query("SELECT * FROM cab_overseas ORDER BY id DESC");
+                                    while($row = $res->fetch_assoc()){
+                                        $s_badge = $row['status'] ? 'bg-success' : 'bg-secondary';
+                                        $s_text = $row['status'] ? 'Live' : 'Hidden';
+                                        echo "<tr>";
+                                        echo "<td><div class='fw-bold'>{$row['city']}</div><div class='small text-muted'>{$row['description']}</div></td>";
+                                        echo "<td><strong>{$row['price_starts']}</strong></td>";
+                                        echo "<td><span class='badge {$s_badge} rounded-pill'>{$s_text}</span></td>";
+                                        echo "<td class='text-end'>
+                                                <form action='admin.php' method='POST' style='display:inline;'>
+                                                    <input type='hidden' name='action' value='toggle_cab_status'>
+                                                    <input type='hidden' name='table' value='cab_overseas'>
+                                                    <input type='hidden' name='id' value='{$row['id']}'>
+                                                    <input type='hidden' name='current_status' value='{$row['status']}'>
+                                                    <button type='submit' class='btn btn-sm btn-link text-decoration-none fw-bold small me-2' style='color:" . ($row['status'] ? '#e74c3c' : '#27ae60') . ";'>".($row['status'] ? 'Hide' : 'Show')."</button>
+                                                </form>
+                                                <button class='btn btn-sm btn-outline-info rounded-pill px-3 me-2' data-bs-toggle='modal' data-bs-target='#editOverseasModal{$row['id']}'>Edit</button>
+                                                <a href='admin.php?action=delete_cab_overseas&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' onclick='return confirm(\"Delete this item?\")'>Delete</a>
+                                              </td>";
+                                        echo "</tr>";
+
+                                        $offer_modals_html .= "
+                                        <div class='modal fade' id='editOverseasModal{$row['id']}' tabindex='-1' aria-hidden='true'>
+                                            <div class='modal-dialog modal-dialog-centered'>
+                                                <div class='modal-content border-0 shadow-lg rounded-4'>
+                                                    <div class='modal-header border-0 pb-0'>
+                                                        <h5 class='modal-title fw-bold'>Edit Overseas Transfer</h5>
+                                                        <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+                                                    </div>
+                                                    <div class='modal-body p-4'>
+                                                        <form action='admin.php' method='POST' enctype='multipart/form-data' class='row g-3'>
+                                                            <input type='hidden' name='action' value='edit_cab_overseas'>
+                                                            <input type='hidden' name='id' value='{$row['id']}'>
+                                                            <input type='hidden' name='existing_image' value='{$row['image_path']}'>
+                                                            <div class='col-12'><label class='small fw-bold'>City Name</label><input type='text' class='form-control rounded-pill' name='city' value='{$row['city']}' required></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Description</label><input type='text' class='form-control rounded-pill' name='description' value='{$row['description']}' required></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Starting Price</label><input type='text' class='form-control rounded-pill' name='price_starts' value='{$row['price_starts']}' required></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Replace Image (Optional)</label><input type='file' class='form-control' name='cab_image' accept='image/*'></div>
+                                                            <div class='col-12 mt-4'><button type='submit' class='btn btn-info w-100 rounded-pill fw-bold py-2 text-white'>Update</button></div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PROMOTIONAL OFFERS TAB (DYNAMIC TRAVOLO SYSTEM) -->
+                    <div class="tab-pane fade" id="cab-offers" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 mb-4 p-4 shadow-sm">
+                            <h6 class="fw-bold mb-4"><i class="fas fa-plus-circle me-2 text-dark"></i>Add Exclusive Travolo Offer</h6>
+                            <form action="admin.php" method="POST" enctype="multipart/form-data" class="row g-3">
+                                <input type="hidden" name="action" value="add_cab_offer">
+                                <div class="col-md-3">
+                                    <label class="small fw-bold text-muted">Promo Code</label>
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="promo_code" placeholder="E.g. TRAVOLO10" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="small fw-bold text-muted">Badge Text</label>
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="badge" placeholder="E.g. NEW LAUNCH" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="small fw-bold text-muted">Header (Small)</label>
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="header_small" placeholder="E.g. Luxury / Special Offer on" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="small fw-bold text-muted">Highlight (Main)</label>
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="header_main" placeholder="E.g. Premium Fleet" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="small fw-bold text-muted">Theme Color (HEX)</label>
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="theme_color" placeholder="E.g. #00a79d" value="#00a79d" required>
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="small fw-bold text-muted">Main Body Title</label>
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="main_title" placeholder="E.g. Upgrade Your Travel with Travolo Elite Fleet" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="small fw-bold text-muted">Validity Text</label>
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="validity_text" placeholder="E.g. Valid till: 30th Jun, 2026" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="small fw-bold text-muted">Banner Image</label>
+                                    <input type="file" class="form-control rounded-pill border-0 shadow-sm px-3" name="offer_image" accept="image/*" required>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-dark w-100 rounded-pill fw-bold py-2 shadow-sm">Launch Offer</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="bg-light"><tr><th>Preview</th><th>Promo Code</th><th>Badge</th><th>Headers</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                                <tbody>
+                                    <?php
+                                    $res = $conn->query("SELECT * FROM cab_offers ORDER BY id DESC");
+                                    while($row = $res->fetch_assoc()){
+                                        $s_badge = $row['status'] ? 'bg-success' : 'bg-secondary';
+                                        $s_text = $row['status'] ? 'Live' : 'Hidden';
+                                        echo "<tr>";
+                                        echo "<td><img src='{$row['image_path']}' class='rounded-3 shadow-sm' style='width:60px; height:45px; object-fit:cover; border:2px solid #fff;'></td>";
+                                        echo "<td><span class='badge bg-light text-primary border px-3 rounded-pill'>{$row['promo_code']}</span></td>";
+                                        echo "<td><span class='badge rounded-pill px-3' style='background: {$row['theme_color']}'>{$row['badge']}</span></td>";
+                                        echo "<td><div class='small fw-bold text-dark'>{$row['header_main']}</div><div class='small text-muted'>{$row['header_small']}</div></td>";
+                                        echo "<td><span class='badge {$s_badge} rounded-pill'>{$s_text}</span></td>";
+                                        echo "<td class='text-end'>
+                                                <form action='admin.php' method='POST' style='display:inline;'>
+                                                    <input type='hidden' name='action' value='toggle_cab_status'>
+                                                    <input type='hidden' name='table' value='cab_offers'>
+                                                    <input type='hidden' name='id' value='{$row['id']}'>
+                                                    <input type='hidden' name='current_status' value='{$row['status']}'>
+                                                    <button type='submit' class='btn btn-sm btn-link text-decoration-none fw-bold small me-2' style='color:" . ($row['status'] ? '#e74c3c' : '#27ae60') . ";'>".($row['status'] ? 'Hide' : 'Show')."</button>
+                                                </form>
+                                                <button class='btn btn-sm btn-outline-dark rounded-pill px-3 me-2' style='font-size:12px;' data-bs-toggle='modal' data-bs-target='#editCabOfferModal{$row['id']}'>Edit</button>
+                                                <a href='admin.php?action=delete_cab_offer&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' style='font-size:12px;' onclick='return confirm(\"Permanently delete this Travolo offer?\")'>Delete</a>
+                                              </td>";
+                                        echo "</tr>";
+  
+                                        $offer_modals_html .= "
+                                        <div class='modal fade' id='editCabOfferModal{$row['id']}' tabindex='-1' aria-hidden='true'>
+                                            <div class='modal-dialog modal-lg modal-dialog-centered'>
+                                                <div class='modal-content border-0 shadow-lg rounded-4'>
+                                                    <div class='modal-header border-0 pb-0'>
+                                                        <h5 class='modal-title fw-bold' style='padding: 20px 25px;'><i class='fas fa-edit me-2'></i>Edit Travolo Offer</h5>
+                                                        <button type='button' class='btn-close me-3' data-bs-dismiss='modal'></button>
+                                                    </div>
+                                                    <div class='modal-body p-4'>
+                                                        <form action='admin.php' method='POST' enctype='multipart/form-data' class='row g-3'>
+                                                            <input type='hidden' name='action' value='edit_cab_offer'>
+                                                            <input type='hidden' name='id' value='{$row['id']}'>
+                                                            <input type='hidden' name='existing_image' value='{$row['image_path']}'>
+                                                            
+                                                            <div class='col-md-3'><label class='small fw-bold text-muted'>Promo Code</label><input type='text' class='form-control rounded-pill' name='promo_code' value='".htmlspecialchars($row['promo_code'])."' required></div>
+                                                            <div class='col-md-3'><label class='small fw-bold text-muted'>Badge Text</label><input type='text' class='form-control rounded-pill' name='badge' value='".htmlspecialchars($row['badge'])."' required></div>
+                                                            <div class='col-md-3'><label class='small fw-bold text-muted'>Header (Small)</label><input type='text' class='form-control rounded-pill' name='header_small' value='".htmlspecialchars($row['header_small'])."' required></div>
+                                                            <div class='col-md-3'><label class='small fw-bold text-muted'>Highlight (Main)</label><input type='text' class='form-control rounded-pill' name='header_main' value='".htmlspecialchars($row['header_main'])."' required></div>
+                                                            
+                                                            <div class='col-md-4'><label class='small fw-bold text-muted'>Theme Color (HEX)</label><input type='text' class='form-control rounded-pill' name='theme_color' value='".htmlspecialchars($row['theme_color'])."' required></div>
+                                                            <div class='col-md-8'><label class='small fw-bold text-muted'>Main Body Title</label><input type='text' class='form-control rounded-pill' name='main_title' value='".htmlspecialchars($row['main_title'])."' required></div>
+                                                            <div class='col-md-6'><label class='small fw-bold text-muted'>Validity Text</label><input type='text' class='form-control rounded-pill' name='validity_text' value='".htmlspecialchars($row['validity_text'])."' required></div>
+                                                            
+                                                            <div class='col-md-6'><label class='small fw-bold text-muted'>Replace Image (Optional)</label><input type='file' class='form-control rounded-pill' name='offer_image' accept='image/*'></div>
+                                                            <div class='col-12 mt-4 text-end'><button type='submit' class='btn btn-dark px-5 rounded-pill fw-bold py-2 shadow-sm'>Update Offer</button></div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- OUTSTATION CABS TAB -->
+                    <div class="tab-pane fade" id="outstation-cabs" role="tabpanel">
+                        <div class="card border-0 bg-light rounded-4 mb-4 p-4 shadow-sm">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle me-2 text-warning"></i>Add Outstation City Route</h6>
+                            <form action="admin.php" method="POST" enctype="multipart/form-data" class="row g-3">
+                                <input type="hidden" name="action" value="add_cab_outstation">
+                                <div class="col-md-3">
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="city" placeholder="Source City (e.g. Delhi)" required>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control rounded-pill border-0 shadow-sm" name="destinations" placeholder="Destinations (e.g. Agra, Bareilly, Dehradun)" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="file" class="form-control rounded-pill border-0 shadow-sm px-3" name="thumbnail" accept="image/*" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-warning w-100 rounded-pill fw-bold text-white shadow-sm">Save Route</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="bg-light"><tr><th>Thumbnail</th><th>City</th><th>Destinations</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                                <tbody>
+                                    <?php
+                                    $res = $conn->query("SELECT * FROM cab_outstation ORDER BY id DESC");
+                                    while($row = $res->fetch_assoc()){
+                                        $s_badge = $row['status'] ? 'bg-success' : 'bg-secondary';
+                                        $s_text = $row['status'] ? 'Live' : 'Hidden';
+                                        echo "<tr>";
+                                        echo "<td><img src='{$row['thumbnail']}' class='rounded-3 shadow-sm' style='width:60px; height:40px; object-fit:cover; border:2px solid #fff;'></td>";
+                                        echo "<td><div class='fw-bold text-dark'>{$row['city']}</div></td>";
+                                        echo "<td><div class='small text-muted' style='max-width:250px;'>{$row['destinations']}</div></td>";
+                                        echo "<td><span class='badge {$s_badge} rounded-pill'>{$s_text}</span></td>";
+                                        echo "<td class='text-end'>
+                                                <form action='admin.php' method='POST' style='display:inline;'>
+                                                    <input type='hidden' name='action' value='toggle_cab_status'>
+                                                    <input type='hidden' name='table' value='cab_outstation'>
+                                                    <input type='hidden' name='id' value='{$row['id']}'>
+                                                    <input type='hidden' name='current_status' value='{$row['status']}'>
+                                                    <button type='submit' class='btn btn-sm btn-link text-decoration-none fw-bold small me-2' style='color:" . ($row['status'] ? '#e74c3c' : '#27ae60') . ";'>".($row['status'] ? 'Hide' : 'Show')."</button>
+                                                </form>
+                                                <button class='btn btn-sm btn-outline-primary rounded-pill px-3 me-2' style='font-size:12px;' data-bs-toggle='modal' data-bs-target='#editOutstationModal{$row['id']}'>Edit</button>
+                                                <a href='admin.php?action=delete_cab_outstation&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' style='font-size:12px;' onclick='return confirm(\"Delete this outstation city?\")'>Delete</a>
+                                              </td>";
+                                        echo "</tr>";
+
+                                        $offer_modals_html .= "
+                                        <div class='modal fade' id='editOutstationModal{$row['id']}' tabindex='-1' aria-hidden='true'>
+                                            <div class='modal-dialog modal-dialog-centered'>
+                                                <div class='modal-content border-0 shadow-lg rounded-4'>
+                                                    <div class='modal-header border-0 pb-0'>
+                                                        <h5 class='modal-title fw-bold' style='padding:15px;'><i class='fas fa-edit me-2'></i>Edit Outstation City</h5>
+                                                        <button type='button' class='btn-close me-2' data-bs-dismiss='modal'></button>
+                                                    </div>
+                                                    <div class='modal-body p-4'>
+                                                        <form action='admin.php' method='POST' enctype='multipart/form-data' class='row g-3'>
+                                                            <input type='hidden' name='action' value='edit_cab_outstation'>
+                                                            <input type='hidden' name='id' value='{$row['id']}'>
+                                                            <input type='hidden' name='existing_image' value='{$row['thumbnail']}'>
+                                                            <div class='col-12'><label class='small fw-bold'>Source City</label><input type='text' class='form-control rounded-pill' name='city' value='".htmlspecialchars($row['city'])."' required></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Destinations</label><input type='text' class='form-control rounded-pill' name='destinations' value='".htmlspecialchars($row['destinations'])."' required></div>
+                                                            <div class='col-12'><label class='small fw-bold'>Replace Image (Optional)</label><input type='file' class='form-control' name='thumbnail' accept='image/*'></div>
+                                                            <div class='col-12 mt-4'><button type='submit' class='btn btn-warning w-100 rounded-pill fw-bold text-white py-2'>Update Outstation</button></div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Manage Routes Card -->
         <div class="data-card" id="manage-routes-card">
-            <div class="card-header">
-                <h4><i class="fas fa-route"></i> Manage Top Flight Routes</h4>
-            </div>
             <div class="p-4">
                 <!-- Add New Route Form -->
                 <div class="card border-0 bg-light rounded-4 mb-5 shadow-sm p-4">
@@ -1355,7 +1928,6 @@ while ($row = $res->fetch_assoc()) {
 
         const navLinks = document.querySelectorAll('.nav-link');
         const dataCards = document.querySelectorAll('.data-card');
-        const pageTitle = document.getElementById('page-title');
 
         function switchTab(target) {
             const link = document.querySelector(`.nav-link[data-target="${target}"]`);
@@ -1363,9 +1935,6 @@ while ($row = $res->fetch_assoc()) {
                 // Update active link
                 navLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
-
-                // Update Page Title
-                pageTitle.textContent = link.textContent.trim();
 
                 // Hide all cards, show target
                 const targetId = target + '-card';

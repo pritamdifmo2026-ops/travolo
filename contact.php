@@ -147,8 +147,8 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form_group">
-                                        <input type="text" placeholder="Phone Number" class="form_control" name="number"
-                                            required>
+                                        <input type="tel" placeholder="10 Digit Mobile" class="form_control" name="number"
+                                            required pattern="[6-9][0-9]{9}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" title="Please enter a valid 10-digit mobile number">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
@@ -159,14 +159,13 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form_group">
-                                        <input type="url" placeholder="Website" class="form_control" name="website"
-                                            required>
+                                        <input type="url" placeholder="Website (e.g. https://google.com)" class="form_control" name="website">
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
                                     <div class="form_group">
                                         <textarea name="message" placeholder="Write Message" class="form_control"
-                                            rows="6"></textarea>
+                                            rows="6" required></textarea>
                                     </div>
                                 </div>
                                 <div class="col-lg-12">

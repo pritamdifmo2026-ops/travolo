@@ -114,6 +114,17 @@ $table_admin = "CREATE TABLE IF NOT EXISTS admins (
 )";
 $conn->query($table_admin);
 
+$table_users = "CREATE TABLE IF NOT EXISTS users (
+    id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    otp VARCHAR(10),
+    otp_expiry DATETIME,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)";
+$conn->query($table_users);
+
 $table_app_hotels = "CREATE TABLE IF NOT EXISTS app_hotels (
     id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
