@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+include 'includes/db.php';
 
 // Drop table if exists for fresh start
 $conn->query("DROP TABLE IF EXISTS cab_offers");

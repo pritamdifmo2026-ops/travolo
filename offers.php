@@ -1,6 +1,6 @@
 <?php
-include_once 'db.php';
-include_once 'auth.php';
+include_once 'includes/db.php';
+include_once 'includes/auth.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -266,7 +266,7 @@ include_once 'auth.php';
 </head>
 <body>
 
-    <?php include_once 'navbar.php'; ?>
+    <?php include_once 'includes/navbar.php'; ?>
 
     <section class="offers-banner">
         <div class="container">
@@ -359,7 +359,7 @@ include_once 'auth.php';
         </div>
     </div>
 
-    <?php include_once 'footer.php'; ?>
+    <?php include_once 'includes/footer.php'; ?>
 
     <script>
         function showTab(cat, btn) {

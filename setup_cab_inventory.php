@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+include 'includes/db.php';
 
 // Cab Inventory Table for detailed results
 $conn->query("CREATE TABLE IF NOT EXISTS cab_inventory (

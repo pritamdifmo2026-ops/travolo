@@ -1,4 +1,4 @@
-<?php include_once 'auth.php'; include 'db.php'; ?>
+<?php include_once 'includes/auth.php'; include 'includes/db.php'; ?>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -908,7 +908,7 @@
 </head>
 
 <body>
-<?php include 'navbar.php'; ?>
+<?php include 'includes/navbar.php'; ?>
     
     <!--====== Start Hero Section ======-->
     <section class="hero-section">
@@ -1560,7 +1560,7 @@ else {
     </section><!--====== End Gallery Section ======-->
 
 
-<?php include 'footer.php'; ?>
+<?php include 'includes/footer.php'; ?>
     
 
 

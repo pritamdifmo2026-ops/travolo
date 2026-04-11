@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include 'db.php';
+include 'includes/db.php';
 
 $query = isset($_GET['q']) ? $conn->real_escape_string($_GET['q']) : '';
 $type = isset($_GET['type']) ? $_GET['type'] : 'Transfer';

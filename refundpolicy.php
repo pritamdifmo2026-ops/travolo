@@ -34,7 +34,7 @@
         <link rel="stylesheet" href="assets/css/style.css">
     </head>
     <body>
-<?php include 'navbar.php'; ?>
+<?php include 'includes/navbar.php'; ?>
 
       
         <!--====== Start Breadcrumb Section ======-->
@@ -182,7 +182,7 @@
             </div>
         </section>
 		<!--====== End Gallery Section ======-->
-	<?php include 'footer.php'; ?>
+	<?php include 'includes/footer.php'; ?>
 
     </body>
 </html>

@@ -1,6 +1,6 @@
 <?php
-include 'db.php';
-include 'auth.php';
+include 'includes/db.php';
+include 'includes/auth.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type = $_POST['form_type'] ?? '';

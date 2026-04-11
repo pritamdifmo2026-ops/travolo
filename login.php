@@ -1,9 +1,9 @@
 <?php
 session_start();
-include 'db.php';
+include 'includes/db.php';
 
 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-    header('Location: admin.php');
+    header('Location: admin/admin.php');
     exit;
 }
 
@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (password_verify($password, $row['password'])) {
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_username'] = $username;
-            header('Location: admin.php');
+            header('Location: admin/admin.php');
             exit;
         } else {
             $error = "Invalid password.";

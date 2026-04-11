@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+include 'includes/db.php';
 
 echo "<h2>Database Reset & Seeding Started...</h2>";
 

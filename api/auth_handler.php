@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include '../db.php';
+include '../includes/db.php';
 session_start();
 
 $action = $_POST['action'] ?? '';

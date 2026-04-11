@@ -1,6 +1,6 @@
 <?php 
-include_once 'db.php';
-include_once 'auth.php'; 
+include_once 'includes/db.php';
+include_once 'includes/auth.php'; 
 ?>
 <!DOCTYPE html>
 <html lang="zxx">
@@ -1183,7 +1183,7 @@ include_once 'auth.php';
 
 <body>
     
-<?php include 'navbar.php'; ?>
+<?php include 'includes/navbar.php'; ?>
 
         <!--====== Start Hero Section ======-->
         <section class="hero-section">
@@ -1794,7 +1794,7 @@ include_once 'auth.php';
             </div>
         </section>
 
-        <?php include 'footer.php'; ?>
+        <?php include 'includes/footer.php'; ?>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {

@@ -1,4 +1,4 @@
-<?php include_once 'auth.php';error_reporting(E_ALL);ini_set('display_errors', 1);include 'db.php';
+<?php include_once 'includes/auth.php';error_reporting(E_ALL);ini_set('display_errors', 1);include 'includes/db.php';
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 // Fetching details if available
@@ -250,7 +250,7 @@ if (!$hotel) {
 </head>
 
 <body>
-    <?php include 'navbar.php'; ?>
+    <?php include 'includes/navbar.php'; ?>
 
     <!-- Sticky Summary -->
     <div class="search-summary-sticky">
@@ -540,7 +540,7 @@ if (!$hotel) {
         </div>
     </div>
 
-    <?php include 'footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const isLoggedIn = <?php echo is_logged_in() ? 'true' : 'false'; ?>;

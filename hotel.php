@@ -1,4 +1,4 @@
-<?php include_once 'auth.php'; ?>
+<?php include_once 'includes/auth.php'; ?>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -380,7 +380,7 @@
 </head>
 
 <body>
-    <?php include 'navbar.php'; ?>
+    <?php include 'includes/navbar.php'; ?>
 
 
 
@@ -560,7 +560,7 @@
 
 
 
-    <?php include 'footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

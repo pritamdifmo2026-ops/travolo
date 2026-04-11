@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include 'db.php';
+include 'includes/db.php';
 
 $sql = "SELECT * FROM app_hotels WHERE availability = 1 ORDER BY id DESC";
 $result = $conn->query($sql);

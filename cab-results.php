@@ -1,6 +1,6 @@
 <?php
-include_once 'db.php';
-include_once 'auth.php';
+include_once 'includes/db.php';
+include_once 'includes/auth.php';
 
 // Get Search Parameters
 $from = trim(isset($_GET['from']) ? $_GET['from'] : 'Delhi');
@@ -235,7 +235,7 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
 </head>
 <body>
 
-    <?php include_once 'navbar.php'; ?>
+    <?php include_once 'includes/navbar.php'; ?>
 
     <!-- Results Selection Control -->
     <div class="results-header-box">
@@ -337,7 +337,7 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
         </div>
     </div>
 
-    <?php include_once 'footer.php'; ?>
+    <?php include_once 'includes/footer.php'; ?>
 
     <script>
         function bookCab(id) {

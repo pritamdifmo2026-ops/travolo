@@ -1,5 +1,5 @@
 <?php
-include 'db.php';
+include 'includes/db.php';
 $sql = "CREATE TABLE IF NOT EXISTS flight_searches (
     id INT AUTO_INCREMENT PRIMARY KEY,
     from_city VARCHAR(100),
