@@ -8,6 +8,21 @@ if ($check_cabs && $check_cabs->num_rows == 0) { $conn->query("ALTER TABLE cabs 
 $check_flights = $conn->query("SHOW COLUMNS FROM flights LIKE 'user_name'");
 if ($check_flights && $check_flights->num_rows == 0) { $conn->query("ALTER TABLE flights ADD user_name VARCHAR(100) AFTER id"); }
 
+// Auto-fix: Ensure hotel_offers table exists
+$conn->query("CREATE TABLE IF NOT EXISTS hotel_offers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    badge VARCHAR(50),
+    header_small VARCHAR(100),
+    header_main VARCHAR(100),
+    promo_code VARCHAR(50),
+    main_title VARCHAR(255),
+    validity_text VARCHAR(100),
+    image_path VARCHAR(255),
+    theme_color VARCHAR(20),
+    status INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
+
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header('Location: ../login.php');
     exit;
@@ -17,10 +32,19 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 function handleFileUpload($fileInputName, $targetDir = "../assets/images/")
 {
     if (isset($_FILES[$fileInputName]) && $_FILES[$fileInputName]['error'] === UPLOAD_ERR_OK) {
+        // Ensure directory exists
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0777, true);
+        }
+        
         $name = basename($_FILES[$fileInputName]["name"]);
-        $targetFile = $targetDir . time() . "_" . $name;
+        $fileName = time() . "_" . preg_replace("/[^a-zA-Z0-9.]/", "_", $name);
+        $targetFile = $targetDir . $fileName;
+        
         if (move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFile)) {
-            return str_replace('../', '', $targetFile); // Store relative to root in DB
+            // Clean up the path for DB (ensure it starts with assets/...)
+            $dbPath = str_replace('../', '', $targetFile);
+            return $dbPath;
         }
     }
     return null;
@@ -129,6 +153,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     $conn->query("INSERT INTO top_flight_routes (city_name, via_cities, image_path, from_query, to_query) VALUES ('$city', '$via', '$image', '$from', '$to')");
     header("Location: admin.php?success=Flight+Route+Added");
+    exit;
+}
+
+// HOTEL OFFERS LOGIC
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_hotel_offer') {
+    $offer_id = intval($_POST['offer_id'] ?? 0);
+    $badge = $conn->real_escape_string($_POST['badge']);
+    $h_small = $conn->real_escape_string($_POST['header_small']);
+    $h_main = $conn->real_escape_string($_POST['header_main']);
+    $promo = $conn->real_escape_string($_POST['promo_code']);
+    $title = $conn->real_escape_string($_POST['main_title']);
+    $validity = $conn->real_escape_string($_POST['validity_text']);
+    $color = $conn->real_escape_string($_POST['theme_color']);
+    
+    $image_path = "";
+    if (isset($_FILES['offer_image']) && $_FILES['offer_image']['error'] === UPLOAD_ERR_OK) {
+        $image_path = handleFileUpload('offer_image', '../assets/images/offers/');
+    } elseif ($offer_id > 0) {
+        $img_res = $conn->query("SELECT image_path FROM hotel_offers WHERE id = $offer_id");
+        if ($img_row = $img_res->fetch_assoc()) $image_path = $img_row['image_path'];
+    }
+
+    if ($offer_id > 0) {
+        $sql = "UPDATE hotel_offers SET badge='$badge', header_small='$h_small', header_main='$h_main', promo_code='$promo', main_title='$title', validity_text='$validity', image_path='$image_path', theme_color='$color' WHERE id=$offer_id";
+    } else {
+        $sql = "INSERT INTO hotel_offers (badge, header_small, header_main, promo_code, main_title, validity_text, image_path, theme_color) VALUES ('$badge', '$h_small', '$h_main', '$promo', '$title', '$validity', '$image_path', '$color')";
+    }
+    
+    $conn->query($sql);
+    header('Location: admin.php?tab=hotel_offers&success=Hotel+Offer+Saved');
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'delete_hotel_offer' && isset($_GET['id'])) {
+    $conn->query("DELETE FROM hotel_offers WHERE id=" . (int)$_GET['id']);
+    header('Location: admin.php?tab=hotel_offers&success=Hotel+Offer+Deleted');
     exit;
 }
 
@@ -819,6 +879,7 @@ $offer_modals_html = '';
                 </li>
                 <li><a href="#" class="nav-link" data-target="manage-hotels"><i class="fas fa-building"></i> Manage
                         Hotels</a></li>
+                <li><a href="#" class="nav-link" data-target="hotel-offers"><i class="fas fa-percent text-warning"></i> Hotel Offers</a></li>
 
                 <li><a href="#" class="nav-link" data-target="contacts"><i class="fas fa-envelope-open-text"></i>
                         Messages</a></li>
@@ -2288,6 +2349,162 @@ $offer_modals_html = '';
                                         </div>
                                       </td>";
                                 echo "</tr>";
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Manage Hotel Offers Card -->
+        <div class="data-card" id="hotel-offers-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4><i class="fas fa-percent"></i> Manage Hotel Offers</h4>
+                <div class="text-muted small">Dynamic EaseMyTrip Style Offers</div>
+            </div>
+
+            <div class="p-4">
+                <!-- Add New Offer Form -->
+                <div class="card border-0 bg-light rounded-4 mb-5 shadow-sm p-4">
+                    <h5 class="fw-bold mb-4 text-dark"><i class="fas fa-plus-circle me-2 text-primary"></i>Add New Hotel Offer</h5>
+                    <form action="admin.php" method="POST" enctype="multipart/form-data" class="row g-4">
+                        <input type="hidden" name="action" value="save_hotel_offer">
+                        <input type="hidden" name="offer_id" value="0">
+
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Badge Text (e.g. NEW USER)</label>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="badge" placeholder="NEW USER" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Promo Code</label>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="promo_code" placeholder="HOTEL100" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Header (Small)</label>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="header_small" placeholder="Exclusive Offer on" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Header (Main Line)</label>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="header_main" placeholder="Grab Up to 40% OFF*" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small fw-bold text-muted">Main Body Title</label>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="main_title" placeholder="Book Your Favorite Hotels Now" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">Validity Text</label>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="validity_text" placeholder="Valid till: 30th Apr 2026" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted">Theme (HEX Color)</label>
+                            <input type="color" class="form-control border-0 p-1" name="theme_color" value="#00a79d" style="height:38px; width:100%; cursor:pointer;">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted">Banner Image</label>
+                            <input type="file" class="form-control rounded-pill border-0 shadow-sm bg-white py-1" name="offer_image" required>
+                        </div>
+
+                        <div class="col-md-12 text-end">
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold py-2 shadow-sm">Save Hotel Offer</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Offers List -->
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Banner</th>
+                                <th>Promo / Badge</th>
+                                <th>Offer Details</th>
+                                <th>Validity</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $h_res = $conn->query("SELECT * FROM hotel_offers ORDER BY id DESC");
+                            if ($h_res && $h_res->num_rows > 0) {
+                                while ($h = $h_res->fetch_assoc()) {
+                                    $imgUrl = "../" . $h['image_path'];
+                                    echo "<tr>";
+                                    echo "<td><img src='{$imgUrl}' class='rounded-3' style='width:120px; height:80px; object-fit:cover; border:1px solid #eee;'></td>";
+                                    echo "<td>
+                                            <span class='badge bg-light text-primary border rounded-pill px-3'>{$h['promo_code']}</span><br>
+                                            <span class='badge rounded-pill small mt-1' style='background:{$h['theme_color']}'>{$h['badge']}</span>
+                                          </td>";
+                                    echo "<td>
+                                            <div class='fw-bold text-dark'>{$h['header_main']}</div>
+                                            <div class='small text-muted' style='max-width:250px;'>{$h['main_title']}</div>
+                                          </td>";
+                                    echo "<td><span class='small text-muted'>{$h['validity_text']}</span></td>";
+                                    echo "<td class='text-end'>
+                                            <button type='button' class='btn btn-sm btn-outline-primary rounded-pill px-3 me-2' data-bs-toggle='modal' data-bs-target='#editHotelOfferModal{$h['id']}'><i class='fas fa-edit me-1'></i>Edit</button>
+                                            <a href='admin.php?action=delete_hotel_offer&id={$h['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' onclick='return confirm(\"Delete this hotel offer?\")'><i class='fas fa-trash me-1'></i>Delete</a>
+                                          </td>";
+                                    echo "</tr>";
+
+                                    // Edit Modal for each offer
+                                    echo "
+                                    <div class='modal fade' id='editHotelOfferModal{$h['id']}' tabindex='-1' aria-hidden='true'>
+                                        <div class='modal-dialog modal-lg modal-dialog-centered'>
+                                            <div class='modal-content border-0 shadow-lg' style='border-radius: 20px;'>
+                                                <div class='modal-header border-0 pb-0'>
+                                                    <h5 class='modal-title fw-bold'><i class='fas fa-edit me-2 text-primary'></i>Edit Hotel Offer</h5>
+                                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                                </div>
+                                                <form action='admin.php' method='POST' enctype='multipart/form-data'>
+                                                    <div class='modal-body p-4'>
+                                                        <input type='hidden' name='action' value='save_hotel_offer'>
+                                                        <input type='hidden' name='offer_id' value='{$h['id']}'>
+                                                        <div class='row g-3'>
+                                                            <div class='col-md-6'>
+                                                                <label class='form-label small fw-bold mb-1'>Badge Text</label>
+                                                                <input type='text' class='form-control rounded-pill' name='badge' value='" . htmlspecialchars($h['badge']) . "' required>
+                                                            </div>
+                                                            <div class='col-md-6'>
+                                                                <label class='form-label small fw-bold mb-1'>Promo Code</label>
+                                                                <input type='text' class='form-control rounded-pill' name='promo_code' value='" . htmlspecialchars($h['promo_code']) . "' required>
+                                                            </div>
+                                                            <div class='col-md-6'>
+                                                                <label class='form-label small fw-bold mb-1'>Header Small</label>
+                                                                <input type='text' class='form-control rounded-pill' name='header_small' value='" . htmlspecialchars($h['header_small']) . "' required>
+                                                            </div>
+                                                            <div class='col-md-6'>
+                                                                <label class='form-label small fw-bold mb-1'>Header Main</label>
+                                                                <input type='text' class='form-control rounded-pill' name='header_main' value='" . htmlspecialchars($h['header_main']) . "' required>
+                                                            </div>
+                                                            <div class='col-md-12'>
+                                                                <label class='form-label small fw-bold mb-1'>Main Body Title</label>
+                                                                <input type='text' class='form-control rounded-pill' name='main_title' value='" . htmlspecialchars($h['main_title']) . "' required>
+                                                            </div>
+                                                            <div class='col-md-6'>
+                                                                <label class='form-label small fw-bold mb-1'>Validity Text</label>
+                                                                <input type='text' class='form-control rounded-pill' name='validity_text' value='" . htmlspecialchars($h['validity_text']) . "' required>
+                                                            </div>
+                                                            <div class='col-md-3'>
+                                                                <label class='form-label small fw-bold mb-1'>Theme Color</label>
+                                                                <input type='color' class='form-control p-1' name='theme_color' value='{$h['theme_color']}' style='height:38px;'>
+                                                            </div>
+                                                            <div class='col-md-3'>
+                                                                <label class='form-label small fw-bold mb-1'>New Banner (Optional)</label>
+                                                                <input type='file' class='form-control rounded-pill py-1' name='offer_image'>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class='modal-footer border-0 pt-0'>
+                                                        <button type='button' class='btn btn-light rounded-pill px-4 fw-bold' data-bs-dismiss='modal'>Cancel</button>
+                                                        <button type='submit' class='btn btn-primary rounded-pill px-5 fw-bold'>Save Changes</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='5' class='text-center py-5 text-muted'>No hotel offers found</td></tr>";
                             }
                             ?>
                         </tbody>

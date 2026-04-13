@@ -1,4 +1,7 @@
-<?php include_once 'includes/auth.php'; ?>
+<?php
+include_once 'includes/auth.php';
+include_once 'includes/db.php';
+?>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -355,25 +358,266 @@
             border: none !important;
         }
 
-        @media (max-width: 991px) {
-            .emt-search-container {
-                flex-direction: column !important;
-                margin-top: 0 !important;
+        }
+
+        /* --- EXCLUSIVE OFFERS SECTION CSS --- */
+        .exclusive-offers-section {
+            padding: 20px 0;
+            background: #fff;
+        }
+
+        .offers-grid {
+            padding: 10px 5px 25px;
+            visibility: hidden;
+            /* Prevent flash before slick init */
+        }
+
+        .offers-grid.slick-initialized {
+            visibility: visible;
+        }
+
+        .offer-card-new {
+            margin: 0 10px;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.02);
+            position: relative;
+        }
+
+        /* View All Mode Styling */
+        .view-all-container {
+            background: #f4f6f9;
+            padding: 60px 0;
+            min-height: 80vh;
+        }
+
+        .view-all-header {
+            background: #fff;
+            padding: 30px 0;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 40px;
+        }
+
+        .offer-search-wrapper {
+            position: relative;
+            max-width: 500px;
+            margin: 20px 0 0;
+        }
+
+        .offer-search-wrapper input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border-radius: 30px;
+            border: 1.5px solid #ddd;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .offer-search-wrapper input:focus {
+            border-color: #00a79d;
+            box-shadow: 0 0 10px rgba(0, 167, 157, 0.1);
+            outline: none;
+        }
+
+        .offer-search-wrapper i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .view-all-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .view-all-grid .offer-card-new {
+            margin: 0;
+        }
+
+        /* Slick Arrow Styling */
+        .slick-offers {
+            position: relative;
+            padding: 0 40px !important;
+        }
+
+        @media (max-width: 768px) {
+            .slick-offers {
+                padding: 0 5px !important;
             }
 
-            .emt-search-item {
-                border-right: none !important;
-                border-bottom: 1px solid #efefef !important;
+            .slick-prev,
+            .slick-next {
+                display: none !important;
             }
 
-            .emt-search-btn-wrapper {
-                border-radius: 0 0 10px 10px !important;
-                padding: 15px !important;
-            }
+            /* Hide arrows on small mobile */
+        }
 
-            .emt-rooms-guests-popover {
-                width: 100% !important;
-                right: 0 !important;
+        .slick-prev,
+        .slick-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            background: #fff !important;
+            border-radius: 50%;
+            border: 1px solid #eee !important;
+            color: #333 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .slick-prev {
+            left: -10px !important;
+        }
+
+        .slick-next {
+            right: -10px !important;
+        }
+
+        .slick-prev:hover,
+        .slick-next:hover {
+            background: #00a79d !important;
+            color: #fff !important;
+            border-color: #00a79d !important;
+        }
+
+        .slick-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slick-dots {
+            display: none !important;
+        }
+
+        .offer-card-new:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            border-color: #eee;
+        }
+
+        .offer-banner {
+            height: 130px;
+            position: relative;
+            background: #f8f9fa;
+            /* Fallback gray */
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .offer-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .offer-card-new:hover .offer-banner img {
+            transform: scale(1.1);
+        }
+
+        .offer-badge-new {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            padding: 3px 12px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .promo-pill {
+            position: absolute;
+            left: 15px;
+            bottom: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px dashed #ccc;
+            font-size: 11px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .offer-details-new {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .offer-details-new h4 {
+            font-size: 14px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 2.6em;
+            /* Exactly 2 lines */
+        }
+
+        .offer-details-new p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 2.8em;
+            /* Exactly 2 lines */
+        }
+
+        .offer-validity {
+            font-size: 10px;
+            color: #999;
+            font-weight: 500;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .view-all-btn {
+            background: #00a79d;
+            color: #fff !important;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-block;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .view-all-btn:hover {
+            background: #008f87;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .offer-card-new {
+                flex: 0 0 300px;
             }
         }
     </style>
@@ -466,9 +710,125 @@
             </div>
         </div>
     </section><!--====== End Booking Section ======-->
+
+    <!--====== Start Exclusive Offers Section ======-->
+    <?php if (isset($_GET['view_all_offers'])) { ?>
+        <div class="view-all-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <h2 class="fw-bold mb-1" style="color: #1a1a1a;">Explore Hotel Booking Offers</h2>
+                        <p class="text-muted mb-0">Book your favorite hotels with unbeatable deals & coupons</p>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="offer-search-wrapper">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="offerSearch" placeholder="Search for offers, cities or promo codes...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="view-all-container">
+            <div class="container">
+                <div class="view-all-grid" id="allOffersGrid">
+                    <?php
+                    $offers_query = $conn->query("SELECT * FROM hotel_offers WHERE status = 1 ORDER BY id DESC");
+                    while ($offer = $offers_query->fetch_assoc()) {
+                        ?>
+                        <div class="offer-card-new offer-searchable-item">
+                            <div class="offer-banner">
+                                <img src="<?php echo htmlspecialchars($offer['image_path']); ?>" alt="Hotel Offer"
+                                    onerror="this.src='assets/images/tour-3-550x590.jpg'">
+                                <span class="offer-badge-new"
+                                    style="background: <?php echo htmlspecialchars($offer['theme_color']); ?>;">
+                                    <?php echo htmlspecialchars($offer['badge']); ?>
+                                </span>
+                                <div class="promo-pill">
+                                    <i class="fas fa-ticket-alt me-1 text-warning"></i>
+                                    Code: <span
+                                        class="text-dark fw-800 promo-text"><?php echo htmlspecialchars($offer['promo_code']); ?></span>
+                                </div>
+                            </div>
+                            <div class="offer-details-new">
+                                <div class="small fw-bold mb-1"
+                                    style="color: <?php echo htmlspecialchars($offer['theme_color']); ?>;">
+                                    <?php echo htmlspecialchars($offer['header_small']); ?>
+                                </div>
+                                <h4 class="mb-2 title-text"><?php echo htmlspecialchars($offer['header_main']); ?></h4>
+                                <p><?php echo htmlspecialchars($offer['main_title']); ?></p>
+                                <div class="offer-validity d-flex justify-content-between align-items-center">
+                                    <span><i class="far fa-calendar-alt me-2"></i>
+                                        <?php echo htmlspecialchars($offer['validity_text']); ?></span>
+                                    <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold"
+                                        style="font-size: 11px;">BOOK NOW</a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+                <div class="text-center mt-5">
+                    <a href="hotel.php" class="btn btn-dark rounded-pill px-5 py-2 fw-bold shadow-sm">Back to Search</a>
+                </div>
+            </div>
+        </section>
+    <?php } else { ?>
+        <section class="exclusive-offers-section" id="offers-area">
+            <div class="container">
+                <div class="text-center mb-5 wow fadeInDown">
+                    <h2 class="fw-bold mb-2" style="font-size: 36px; color: #1a1a1a;">Exclusive Offers</h2>
+                    <p class="text-muted mb-3" style="font-size: 16px;">Best deals and discounts for your next stay</p>
+                    <a href="?view_all_offers=true" class="view-all-btn">View All <i class="fas fa-chevron-right ms-2"
+                            style="font-size: 10px;"></i></a>
+                </div>
+
+                <div class="offers-grid slick-offers">
+                    <?php
+                    $offers_query = $conn->query("SELECT * FROM hotel_offers WHERE status = 1 ORDER BY id DESC LIMIT 10");
+                    while ($offer = $offers_query->fetch_assoc()) {
+                        ?>
+                        <div class="offer-card-new">
+                            <div class="offer-banner">
+                                <img src="<?php echo htmlspecialchars($offer['image_path']); ?>" alt="Hotel Offer"
+                                    onerror="this.src='assets/images/tour-3-550x590.jpg'">
+                                <span class="offer-badge-new"
+                                    style="background: <?php echo htmlspecialchars($offer['theme_color']); ?>;">
+                                    <?php echo htmlspecialchars($offer['badge']); ?>
+                                </span>
+                                <div class="promo-pill">
+                                    <i class="fas fa-ticket-alt me-1 text-warning"></i>
+                                    Code: <span
+                                        class="text-dark fw-800"><?php echo htmlspecialchars($offer['promo_code']); ?></span>
+                                </div>
+                            </div>
+                            <div class="offer-details-new">
+                                <div class="small fw-bold mb-1"
+                                    style="color: <?php echo htmlspecialchars($offer['theme_color']); ?>;">
+                                    <?php echo htmlspecialchars($offer['header_small']); ?>
+                                </div>
+                                <h4 class="mb-2"><?php echo htmlspecialchars($offer['header_main']); ?></h4>
+                                <p><?php echo htmlspecialchars($offer['main_title']); ?></p>
+                                <div class="offer-validity">
+                                    <i class="far fa-calendar-alt me-2"></i>
+                                    <?php echo htmlspecialchars($offer['validity_text']); ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+            </div>
+        </section>
+    <?php } ?>
     <!--====== Start Places Section ======-->
     <section class="places-section pb-100">
         <div class="container">
+            <div class="text-center mb-5 wow fadeInUp">
+                <h2 class="fw-bold mb-2 mt-30" style="font-size: 36px; color: #1a1a1a;">Our Hotels</h2>
+                <div class="text-muted">Explore our curated collection of luxury and affordable stays</div>
+                <div class="mt-2 mx-auto" style="width: 80px; height: 3px; background: #00a79d; border-radius: 2px;">
+                </div>
+            </div>
             <div class="row justify-content-center" id="hotelResultsContainer">
                 <!-- Dynamic Hotel Items will be injected here -->
                 <div class="col-12 text-center my-5">
@@ -563,8 +923,61 @@
     <?php include 'includes/footer.php'; ?>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Init Slick Slider for Offers
+        $(document).ready(function () {
+            if ($('.slick-offers').length) {
+                $('.slick-offers').slick({
+                    dots: false,
+                    infinite: true,
+                    speed: 500,
+                    slidesToShow: 4,
+                    slidesToScroll: 1,
+                    autoplay: true,
+                    autoplaySpeed: 4000,
+                    arrows: true,
+                    prevArrow: '<button type="button" class="slick-prev shadow-sm"><i class="fas fa-chevron-left"></i></button>',
+                    nextArrow: '<button type="button" class="slick-next shadow-sm"><i class="fas fa-chevron-right"></i></button>',
+                    responsive: [
+                        {
+                            breakpoint: 1200,
+                            settings: {
+                                slidesToShow: 3,
+                                slidesToScroll: 1
+                            }
+                        },
+                        {
+                            breakpoint: 991,
+                            settings: {
+                                slidesToShow: 2,
+                                slidesToScroll: 1
+                            }
+                        },
+                        {
+                            breakpoint: 575,
+                            settings: {
+                                slidesToShow: 1,
+                                slidesToScroll: 1,
+                                arrows: false,
+                                centerMode: true,
+                                centerPadding: '20px'
+                            }
+                        }
+                    ]
+                });
+            }
+
+            // Client-side search for View All mode
+            $('#offerSearch').on('keyup', function () {
+                var value = $(this).val().toLowerCase();
+                $('.offer-searchable-item').filter(function () {
+                    var title = $(this).find('.title-text').text().toLowerCase();
+                    var promo = $(this).find('.promo-text').text().toLowerCase();
+                    $(this).toggle(title.indexOf(value) > -1 || promo.indexOf(value) > -1);
+                });
+            });
+        });
+
         // Room and Guest Management
         let rooms = [
             { id: 1, adults: 2, children: 0 }
@@ -773,12 +1186,12 @@
                         }
                     }
                 });
-                
+
                 // Initialize Today & Tomorrow
                 let today = new Date();
                 let tomorrow = new Date();
                 tomorrow.setDate(today.getDate() + 1);
-                
+
                 $('#check_in').datepicker('setDate', today);
                 $('#check_out').datepicker('setDate', tomorrow);
             }
