@@ -2161,6 +2161,7 @@ include_once 'includes/auth.php';
                     params.append('pickup', formData.get('pickupType'));
                     params.append('mobile', formData.get('mobile'));
                     params.append('email', formData.get('email'));
+                    params.append('name', formData.get('name'));
 
                     window.location.href = 'submit.php?' + params.toString();
                 }

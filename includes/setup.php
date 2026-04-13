@@ -12,6 +12,7 @@ if (!isset($conn)) {
 // Create tables
 $table_flight = "CREATE TABLE IF NOT EXISTS flights (
     id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(6) UNSIGNED DEFAULT 0,
     trip_type VARCHAR(30),
     from_city VARCHAR(50),
     to_city VARCHAR(50),
@@ -22,13 +23,17 @@ $table_flight = "CREATE TABLE IF NOT EXISTS flights (
     infants INT,
     travel_class VARCHAR(30),
     phone VARCHAR(20),
+    email VARCHAR(100),
+    booking_status VARCHAR(30) DEFAULT 'Requested',
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)";
+) engine=InnoDB DEFAULT CHARSET=utf8;";
 $conn->query($table_flight);
 
 $table_hotel = "CREATE TABLE IF NOT EXISTS hotels (
     id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(6) UNSIGNED DEFAULT 0,
     check_in VARCHAR(30),
+    check_out VARCHAR(30),
     hotel_search VARCHAR(100),
     accommodations VARCHAR(50),
     phone VARCHAR(20),
@@ -37,12 +42,14 @@ $table_hotel = "CREATE TABLE IF NOT EXISTS hotels (
     user_name VARCHAR(50),
     email VARCHAR(50),
     booking_type ENUM('Check', 'Booking') DEFAULT 'Check',
+    booking_status VARCHAR(30) DEFAULT 'Requested',
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) engine=InnoDB DEFAULT CHARSET=utf8;";
 $conn->query($table_hotel);
 
 $table_cab = "CREATE TABLE IF NOT EXISTS cabs (
     id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(6) UNSIGNED DEFAULT 0,
     trip_type VARCHAR(30),
     pickup_type VARCHAR(50),
     from_city VARCHAR(100),
@@ -53,30 +60,32 @@ $table_cab = "CREATE TABLE IF NOT EXISTS cabs (
     return_time VARCHAR(20),
     hours VARCHAR(20),
     phone VARCHAR(20),
+    email VARCHAR(100),
+    booking_status VARCHAR(30) DEFAULT 'Requested',
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)";
+) engine=InnoDB DEFAULT CHARSET=utf8;";
 $conn->query($table_cab);
 
 // Add columns if they don't exist (Migration)
 $tables_to_check = ['flights', 'hotels', 'cabs'];
 foreach ($tables_to_check as $table) {
+    $cols = [
+        'user_id' => 'INT(6) UNSIGNED DEFAULT 0 AFTER id',
+        'email' => 'VARCHAR(100) AFTER phone',
+        'booking_status' => "VARCHAR(30) DEFAULT 'Requested' AFTER " . ($table == 'hotels' ? 'booking_type' : ($table == 'flights' ? 'phone' : 'phone'))
+    ];
     if ($table == 'hotels') {
-        $cols = [
-            'phone' => 'VARCHAR(20) AFTER accommodations', 
-            'user_name' => 'VARCHAR(50) AFTER status',
-            'email' => 'VARCHAR(50) AFTER user_name',
-            'booking_type' => "ENUM('Check', 'Booking') DEFAULT 'Check' AFTER email"
-        ];
-        foreach ($cols as $col => $def) {
-            $check = $conn->query("SHOW COLUMNS FROM `$table` LIKE '$col'");
-            if ($check->num_rows == 0) {
-                $conn->query("ALTER TABLE `$table` ADD `$col` $def");
-            }
-        }
+        $cols['phone'] = 'VARCHAR(20) AFTER accommodations';
+        $cols['user_name'] = 'VARCHAR(50) AFTER status';
+        $cols['check_out'] = 'VARCHAR(30) AFTER check_in';
     } else {
-        $result = $conn->query("SHOW COLUMNS FROM `$table` LIKE 'phone'");
-        if ($result->num_rows == 0) {
-            $conn->query("ALTER TABLE `$table` ADD `phone` VARCHAR(20) AFTER " . ($table == 'flights' ? 'travel_class' : 'hours'));
+        $cols['user_name'] = 'VARCHAR(50) AFTER id';
+    }
+    
+    foreach ($cols as $col => $def) {
+        $check = $conn->query("SHOW COLUMNS FROM `$table` LIKE '$col'");
+        if ($check && $check->num_rows == 0) {
+            $conn->query("ALTER TABLE `$table` ADD `$col` $def");
         }
     }
 }
@@ -197,4 +206,10 @@ if ($offer_check->num_rows == 0) {
         $conn->query("INSERT INTO app_offers (image_url, badge_text, badge_color, title, description, footer_text, status) VALUES $offer_values");
     }
 }
+
+echo "<div style='font-family: sans-serif; padding: 20px; color: green;'>
+        <h2>✅ Migration Successful!</h2>
+        <p>Database tables have been updated with <b>booking_status</b> and <b>user_id</b> columns.</p>
+        <a href='../admin/admin.php' style='background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Back to Admin</a>
+      </div>";
 ?>

@@ -75,9 +75,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $tclass = $conn->real_escape_string($_POST['travel_class'] ?? 'Economy');
             $uid = $_SESSION['user_id'] ?? 0;
             $email = $_SESSION['user_email'] ?? $_POST['email'] ?? '';
+            $user_name = $_SESSION['user_name'] ?? $_POST['name'] ?? 'User';
             
-            $sql = "INSERT INTO flights (user_id, trip_type, from_city, to_city, depart_date, return_date, adults, children, infants, travel_class, phone, email) 
-                    VALUES ($uid, '$trip_type', '$from', '$to', '$depart_date', '$return_date', $adults, $children, $infants, '$tclass', '$phone', '$email')";
+            $sql = "INSERT INTO flights (user_id, user_name, trip_type, from_city, to_city, depart_date, return_date, adults, children, infants, travel_class, phone, email) 
+                    VALUES ($uid, '$user_name', '$trip_type', '$from', '$to', '$depart_date', '$return_date', $adults, $children, $infants, '$tclass', '$phone', '$email')";
             if ($conn->query($sql) === TRUE) {
                 $response = ['status' => 'success', 'message' => 'Flight Booking Request Sent!'];
             } else {
@@ -179,9 +180,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $response = ['status' => 'error', 'message' => 'Pickup and drop cities cannot be the same.'];
             } else {
                 $uid = $_SESSION['user_id'] ?? 0;
-                $email = $_SESSION['user_email'] ?? '';
-                $sql = "INSERT INTO cabs (user_id, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, return_date, return_time, hours, phone, email) 
-                        VALUES ($uid, '$trip_type', '$pickup', '$from', '$to', '$pickup_date', '$pickup_time', '$return_date', '$return_time', '$hours', '$phone', '$email')";
+                $email = $_SESSION['user_email'] ?? $_POST['email'] ?? '';
+                $user_name = $_SESSION['user_name'] ?? $_POST['name'] ?? 'User';
+
+                $sql = "INSERT INTO cabs (user_id, user_name, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, return_date, return_time, hours, phone, email) 
+                        VALUES ($uid, '$user_name', '$trip_type', '$pickup', '$from', '$to', '$pickup_date', '$pickup_time', '$return_date', '$return_time', '$hours', '$phone', '$email')";
                 
                 if ($conn->query($sql) === TRUE) {
                     $response = ['status' => 'success', 'message' => 'Cab Booking Request Sent!'];
@@ -210,10 +213,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['action']) && $_GET['acti
     $mobile = $conn->real_escape_string($_GET['mobile'] ?? '');
     if (empty($mobile)) $mobile = $_SESSION['user_phone'] ?? '';
     $uid = $_SESSION['user_id'] ?? 0;
-    $email = $_SESSION['user_email'] ?? '';
+    $email = $_SESSION['user_email'] ?? $_GET['email'] ?? '';
+    $user_name = $conn->real_escape_string($_SESSION['user_name'] ?? $_GET['name'] ?? 'User');
 
-    $sql = "INSERT INTO cabs (user_id, cab_id, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, phone, email) 
-            VALUES ($uid, $cab_id, '$trip', '$pickup', '$from', '$to', '$date', '$time', '$mobile', '$email')";
+    $sql = "INSERT INTO cabs (user_id, user_name, cab_id, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, phone, email) 
+            VALUES ($uid, '$user_name', $cab_id, '$trip', '$pickup', '$from', '$to', '$date', '$time', '$mobile', '$email')";
     
     $success = false;
     if ($conn->query($sql) === TRUE) {

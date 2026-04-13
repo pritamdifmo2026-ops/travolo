@@ -88,6 +88,7 @@
                             <li class="menu-item has-children"><a href="cab-booking.php">Cab</a></li>
                             <li class="menu-item has-children"><a href="contact.php">Contact</a></li>
                             <?php if (is_logged_in()): ?>
+                                <li class="menu-item"><a href="user-dashboard.php" class="text-success"><i class="fas fa-th-large"></i> Dashboard</a></li>
                                 <li class="menu-item"><a href="logout.php" class="text-danger"><i
                                              class="fas fa-sign-out-alt"></i> Logout</a></li>
                             <?php else: ?>
