@@ -14,18 +14,24 @@ $user_email = $conn->real_escape_string($_SESSION['user_email'] ?? '');
 $user_phone = $conn->real_escape_string($_SESSION['user_phone'] ?? '');
 $user_name = $_SESSION['user_name'] ?? 'Guest';
 
-// Fetch User Bookings (Hardened Query for case-insensitivity and spaces)
+// Fetch User Bookings (Hardened Query with JOINS for Images)
 $f_sql = "SELECT * FROM flights WHERE (user_id > 0 AND user_id = $user_id) 
           OR (email != '' AND TRIM(LOWER(email)) = TRIM(LOWER('$user_email'))) 
           OR (phone != '' AND TRIM(phone) = TRIM('$user_phone')) ORDER BY id DESC";
 
-$h_sql = "SELECT * FROM hotels WHERE (user_id > 0 AND user_id = $user_id) 
-          OR (email != '' AND TRIM(LOWER(email)) = TRIM(LOWER('$user_email'))) 
-          OR (phone != '' AND TRIM(phone) = TRIM('$user_phone')) ORDER BY id DESC";
+$h_sql = "SELECT h.*, ah.image as hotel_img, ah.id as original_hotel_id 
+          FROM hotels h 
+          LEFT JOIN app_hotels ah ON h.hotel_id = ah.id 
+          WHERE (h.user_id > 0 AND h.user_id = $user_id) 
+          OR (h.email != '' AND TRIM(LOWER(h.email)) = TRIM(LOWER('$user_email'))) 
+          OR (h.phone != '' AND TRIM(h.phone) = TRIM('$user_phone')) ORDER BY h.id DESC";
 
-$c_sql = "SELECT * FROM cabs WHERE (user_id > 0 AND user_id = $user_id) 
-          OR (email != '' AND TRIM(LOWER(email)) = TRIM(LOWER('$user_email'))) 
-          OR (phone != '' AND TRIM(phone) = TRIM('$user_phone')) ORDER BY id DESC";
+$c_sql = "SELECT c.*, ci.image_path as cab_img, ci.id as original_cab_id 
+          FROM cabs c 
+          LEFT JOIN cab_inventory ci ON c.cab_id = ci.id 
+          WHERE (c.user_id > 0 AND c.user_id = $user_id) 
+          OR (c.email != '' AND TRIM(LOWER(c.email)) = TRIM(LOWER('$user_email'))) 
+          OR (c.phone != '' AND TRIM(c.phone) = TRIM('$user_phone')) ORDER BY c.id DESC";
 
 $flights = $conn->query($f_sql);
 $hotels = $conn->query($h_sql);
@@ -140,116 +146,154 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
 
         .booking-card {
             background: white;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            padding: 25px;
-            border-left: 5px solid var(--primary-dashboard);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-            transition: 0.3s;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            padding: 12px 18px;
+            border: 1px solid #edf2f7;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease;
         }
 
         .booking-card:hover {
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+            border-color: var(--primary-dashboard);
+        }
+
+        .card-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .booking-preview-container {
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f7fafc;
+        }
+
+        .booking-preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .booking-main-info {
+            flex: 2;
+            min-width: 150px;
+        }
+
+        .booking-main-info h5 {
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 0px;
+            color: var(--primary-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .booking-type-badge {
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 8px;
+            font-weight: 800;
             text-transform: uppercase;
-            padding: 5px 12px;
-            border-radius: 20px;
-            margin-bottom: 15px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 4px;
             display: inline-block;
+            letter-spacing: 0.5px;
         }
 
-        .badge-flight {
-            background: #e3f2fd;
-            color: #1976d2;
+        .badge-flight { background: #eef7ff; color: #2196f3; }
+        .badge-hotel { background: #fdf2f9; color: #e91e63; }
+        .badge-cab { background: #fff9ed; color: #f7921e; }
+
+        .booking-meta-info {
+            flex: 3;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-left: 1px solid #f0f0f0;
+            padding-left: 20px;
         }
 
-        .badge-hotel {
-            background: #f3e5f5;
-            color: #7b1fa2;
+        .date-line {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
         }
 
-        .badge-cab {
-            background: #fff3e0;
-            color: #ef6c00;
+        .date-line i { color: var(--primary-dashboard); width: 18px; font-size: 12px; }
+
+        .meta-line {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .booking-actions {
+            flex: 1.5;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
         }
 
         .booking-status {
-            float: right;
             font-weight: 700;
-            font-size: 11px;
-            padding: 4px 12px;
-            border-radius: 5px;
+            font-size: 9px;
+            padding: 4px 10px;
+            border-radius: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .status-requested {
-            background: #fff4e5;
-            color: #ff9800;
-            border: 1px solid #ffd180;
-        }
+        .status-requested { background: #fff4e5; color: #ff9800; }
+        .status-confirmed { background: #e8f5e9; color: #2e7d32; }
 
-        .status-pending {
-            background: #fffde7;
-            color: #fbc02d;
-            border: 1px solid #fff9c4;
-        }
-
-        .status-confirmed {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-        }
-
-        .status-cancelled {
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #ffcdd2;
-        }
-
-        .status-completed {
-            background: #e3f2fd;
-            color: #1565c0;
-            border: 1px solid #bbdefb;
-        }
-
-        .status-on-hold {
-            background: #f5f5f5;
-            color: #616161;
-            border: 1px solid #e0e0e0;
-        }
-
-        .booking-details h5 {
+        .btn-action-row {
+            padding: 8px 14px;
+            font-size: 11px;
             font-weight: 700;
-            margin-bottom: 5px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .booking-details p {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 0;
-        }
-
-        .btn-edit-booking {
-            background: var(--bg-light);
-            color: var(--primary-dashboard);
-            border: 1px solid #ddd;
-            font-weight: 600;
-            font-size: 12px;
-            padding: 5px 15px;
-            border-radius: 5px;
-            margin-top: 15px;
-            transition: 0.3s;
-        }
-
-        .btn-edit-booking:hover {
+        .btn-view-main {
             background: var(--primary-dashboard);
             color: white;
-            border-color: var(--primary-dashboard);
+            border: none;
+        }
+
+        .btn-view-main:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        .btn-receipt-mini {
+            background: #f7fafc;
+            color: #718096;
+            border: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 991px) {
+            .card-inner { flex-wrap: wrap; }
+            .booking-meta-info { border-left: none; padding-left: 0; gap: 10px; flex-direction: column; align-items: flex-start; }
+            .booking-actions { width: 100%; justify-content: flex-start; }
+        }
+
+        @media (max-width: 576px) {
+            .booking-preview-container { display: none; }
+            .booking-main-info { flex: 1; }
         }
 
         .nav-tabs {
@@ -477,40 +521,68 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
         $title = "";
         $meta = "";
         $dates = "";
+        $img = "";
+        $view_link = "#";
 
         if ($type == 'Flight') {
             $title = $row['from_city'] . " to " . $row['to_city'];
-            $meta = $row['trip_type'] . " | " . $row['travel_class'] . " | " . ($row['adults'] + $row['children'] + $row['infants']) . " Passengers";
-            $dates = "Depart: " . $row['depart_date'] . ($row['return_date'] ? " | Return: " . $row['return_date'] : "");
+            $meta = $row['trip_type'] . " | " . $row['travel_class'] . " | " . ($row['adults'] + $row['children'] + $row['infants']) . " Pax";
+            $dates = date('d M Y', strtotime($row['depart_date'])) . ($row['return_date'] ? " - " . date('d M Y', strtotime($row['return_date'])) : "");
+            $img = "assets/images/plane.png";
+            $view_link = "flight-booking.php";
         } elseif ($type == 'Hotel') {
             $title = $row['hotel_search'];
-            $meta = $row['guests'] . " | " . ($row['room_type'] ?: 'Standard Room');
-            $dates = "Check-in: " . $row['check_in'] . ($row['check_out'] ? " | Check-out: " . $row['check_out'] : "");
+            $meta = $row['guests'] . " | " . ($row['room_type'] ?: 'Standard');
+            $dates = date('d M Y', strtotime($row['check_in'])) . " to " . date('d M Y', strtotime($row['check_out']));
+            $img = !empty($row['hotel_img']) ? $row['hotel_img'] : "assets/images/tour-2-550x590.jpg";
+            $view_link = !empty($row['hotel_id']) ? "hotel-details.php?id=" . $row['hotel_id'] : "hotel.php";
         } elseif ($type == 'Cab') {
             $title = $row['from_city'] . " to " . $row['to_city'];
-            $meta = $row['trip_type'] . " | " . ($row['pickup_type'] ?: 'Standard');
-            $dates = "Pickup: " . $row['pickup_date'] . " at " . $row['pickup_time'];
+            $meta = $row['trip_type'] . " | " . ($row['pickup_type'] ?: 'Transfer');
+            $dates = date('d M Y', strtotime($row['pickup_date'])) . " at " . $row['pickup_time'];
+            $img = !empty($row['cab_img']) ? $row['cab_img'] : "assets/images/car.png";
+            
+            // Dynamic Search Link for Cabs
+            $params = http_build_query([
+                'from' => $row['from_city'],
+                'to' => $row['to_city'],
+                'date' => $row['pickup_date'],
+                'time' => $row['pickup_time'],
+                'tripType' => $row['trip_type'],
+                'pickup' => $row['pickup_type']
+            ]);
+            $view_link = "cab-results.php?" . $params;
         }
 
         echo "
     <div class='booking-card' data-search='{$title} {$type}'>
-        <div class='booking-header'>
-            <div>
-                <span class='booking-type-badge {$badge_class}'><i class='{$icon} me-2'></i>{$type} Booking</span>
+        <div class='card-inner'>
+            <!-- Preview -->
+            <div class='booking-preview-container'>
+                <img src='{$img}' class='booking-preview-img' alt='{$type}'>
             </div>
-            <div>
-                <span class='booking-status status-{$status_lc}'><i class='fas fa-info-circle me-1'></i>{$status}</span>
+
+            <!-- Main Info -->
+            <div class='booking-main-info'>
+                <span class='booking-type-badge {$badge_class}'>{$type}</span>
+                <h5>{$title}</h5>
+                <div class='meta-line'>{$meta}</div>
             </div>
-        </div>
-        <div class='booking-details'>
-            <h5>{$title}</h5>
-            <p class='mb-2 fw-500 text-dark'>{$dates}</p>
-            <p>{$meta}</p>
-            <div class='d-flex gap-2'>";
-        if ($status == 'Requested' || $status == 'Pending') {
-            echo "<button class='btn btn-edit-booking' onclick='editBooking(\"{$type}\", {$row['id']})'><i class='fas fa-edit me-2'></i>Edit Details</button>";
-        }
-        echo "<button class='btn btn-edit-booking bg-white border-0 text-muted' onclick='alert(\"Booking ID: #TRV-{$row['id']}\\nPlease contact support for more details.\")'><i class='fas fa-info-circle me-1'></i>View Receipt</button>
+
+            <!-- Meta/Dates -->
+            <div class='booking-meta-info'>
+                <div class='date-line'><i class='fas fa-calendar-alt'></i> {$dates}</div>
+                <div class='booking-status status-{$status_lc}'>{$status}</div>
+            </div>
+
+            <!-- Actions -->
+            <div class='booking-actions'>
+                <button class='btn-action-row btn-receipt-mini' onclick='alert(\"Booking ID: #TRV-{$row['id']}\\nDate: {$row['booking_date']}\")' title='View Receipt'>
+                    <i class='fas fa-file-invoice'></i> Receipt
+                </button>
+                <a href='{$view_link}' class='btn-action-row btn-view-main'>
+                    <i class='fas fa-eye'></i> View
+                </a>
             </div>
         </div>
     </div>";

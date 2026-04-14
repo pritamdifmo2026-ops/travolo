@@ -4,9 +4,32 @@ include '../includes/db.php';
 
 // Auto-fix: Ensure user_name column exists in cabs and flights
 $check_cabs = $conn->query("SHOW COLUMNS FROM cabs LIKE 'user_name'");
-if ($check_cabs && $check_cabs->num_rows == 0) { $conn->query("ALTER TABLE cabs ADD user_name VARCHAR(100) AFTER id"); }
+if ($check_cabs && $check_cabs->num_rows == 0) {
+    $conn->query("ALTER TABLE cabs ADD user_name VARCHAR(100) AFTER id");
+}
+$check_hotels = $conn->query("SHOW COLUMNS FROM app_hotels LIKE 'category'");
+if ($check_hotels && $check_hotels->num_rows == 0) { 
+    $conn->query("ALTER TABLE app_hotels ADD category VARCHAR(50) DEFAULT 'Standard' AFTER accommodations"); 
+}
+
+// Auto-fix: Ensure hotel_rooms table exists
+$conn->query("CREATE TABLE IF NOT EXISTS hotel_rooms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    hotel_id INT NOT NULL,
+    room_name VARCHAR(100) NOT NULL,
+    capacity VARCHAR(50) DEFAULT '2 Adults, 1 Child',
+    bed_type VARCHAR(50) DEFAULT 'King Bed',
+    features TEXT,
+    room_price DECIMAL(10,2) NOT NULL,
+    room_image VARCHAR(255),
+    status TINYINT(1) DEFAULT 1,
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
+
 $check_flights = $conn->query("SHOW COLUMNS FROM flights LIKE 'user_name'");
-if ($check_flights && $check_flights->num_rows == 0) { $conn->query("ALTER TABLE flights ADD user_name VARCHAR(100) AFTER id"); }
+if ($check_flights && $check_flights->num_rows == 0) {
+    $conn->query("ALTER TABLE flights ADD user_name VARCHAR(100) AFTER id");
+}
 
 // Auto-fix: Ensure hotel_offers table exists
 $conn->query("CREATE TABLE IF NOT EXISTS hotel_offers (
@@ -36,11 +59,11 @@ function handleFileUpload($fileInputName, $targetDir = "../assets/images/")
         if (!is_dir($targetDir)) {
             mkdir($targetDir, 0777, true);
         }
-        
+
         $name = basename($_FILES[$fileInputName]["name"]);
         $fileName = time() . "_" . preg_replace("/[^a-zA-Z0-9.]/", "_", $name);
         $targetFile = $targetDir . $fileName;
-        
+
         if (move_uploaded_file($_FILES[$fileInputName]["tmp_name"], $targetFile)) {
             // Clean up the path for DB (ensure it starts with assets/...)
             $dbPath = str_replace('../', '', $targetFile);
@@ -80,10 +103,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 }
             }
         }
-        header("Location: admin.php?success=Hotel+Added+Successfully");
+        header("Location: admin.php?tab=hotel-inventory&success=Hotel+Added+Successfully");
     } else {
         header("Location: admin.php?error=" . urlencode($conn->error));
     }
+    exit;
+}
+
+// Add Hotel Room Logic
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_hotel_room') {
+    $hotel_id = (int)$_POST['hotel_id'];
+    $r_name = $conn->real_escape_string($_POST['room_name']);
+    $r_price = $conn->real_escape_string($_POST['room_price']);
+    $cap = $conn->real_escape_string($_POST['capacity']);
+    $bed = $conn->real_escape_string($_POST['bed_type']);
+    $feats = isset($_POST['features']) ? json_encode($_POST['features']) : '[]';
+
+    $image = handleFileUpload('room_image', '../assets/images/rooms/') ?: '';
+
+    $sql = "INSERT INTO hotel_rooms (hotel_id, room_name, capacity, bed_type, features, room_price, room_image) 
+            VALUES ($hotel_id, '$r_name', '$cap', '$bed', '$feats', '$r_price', '$image')";
+    
+    if ($conn->query($sql)) {
+        header("Location: admin.php?tab=hotel-inventory&success=Room+Type+Added");
+    } else {
+        header("Location: admin.php?tab=hotel-inventory&error=" . urlencode($conn->error));
+    }
+    exit;
+}
+
+// Delete Hotel Room Logic
+if (isset($_GET['action']) && $_GET['action'] === 'delete_room' && isset($_GET['id'])) {
+    $room_id = (int)$_GET['id'];
+    $conn->query("DELETE FROM hotel_rooms WHERE id=$room_id");
+    header("Location: admin.php?tab=hotel-inventory&success=Room+Type+Deleted");
     exit;
 }
 
@@ -166,13 +219,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $title = $conn->real_escape_string($_POST['main_title']);
     $validity = $conn->real_escape_string($_POST['validity_text']);
     $color = $conn->real_escape_string($_POST['theme_color']);
-    
+
     $image_path = "";
     if (isset($_FILES['offer_image']) && $_FILES['offer_image']['error'] === UPLOAD_ERR_OK) {
         $image_path = handleFileUpload('offer_image', '../assets/images/offers/');
     } elseif ($offer_id > 0) {
         $img_res = $conn->query("SELECT image_path FROM hotel_offers WHERE id = $offer_id");
-        if ($img_row = $img_res->fetch_assoc()) $image_path = $img_row['image_path'];
+        if ($img_row = $img_res->fetch_assoc())
+            $image_path = $img_row['image_path'];
     }
 
     if ($offer_id > 0) {
@@ -180,15 +234,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } else {
         $sql = "INSERT INTO hotel_offers (badge, header_small, header_main, promo_code, main_title, validity_text, image_path, theme_color) VALUES ('$badge', '$h_small', '$h_main', '$promo', '$title', '$validity', '$image_path', '$color')";
     }
-    
+
     $conn->query($sql);
-    header('Location: admin.php?tab=hotel_offers&success=Hotel+Offer+Saved');
+    header('Location: admin.php?tab=hotel-promotional&success=Hotel+Offer+Saved');
     exit;
 }
 
 if (isset($_GET['action']) && $_GET['action'] === 'delete_hotel_offer' && isset($_GET['id'])) {
-    $conn->query("DELETE FROM hotel_offers WHERE id=" . (int)$_GET['id']);
-    header('Location: admin.php?tab=hotel_offers&success=Hotel+Offer+Deleted');
+    $conn->query("DELETE FROM hotel_offers WHERE id=" . (int) $_GET['id']);
+    header('Location: admin.php?tab=hotel-promotional&success=Hotel+Offer+Deleted');
     exit;
 }
 
@@ -514,7 +568,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_package' && isset(
 if (isset($_GET['action']) && $_GET['action'] === 'delete_hotel' && isset($_GET['id'])) {
     $hotel_id = (int) $_GET['id'];
     $conn->query("DELETE FROM app_hotels WHERE id=$hotel_id");
-    header("Location: admin.php?success=Hotel+Deleted+Successfully");
+    header("Location: admin.php?tab=hotel-inventory&success=Hotel+Deleted+Successfully");
     exit;
 }
 
@@ -539,7 +593,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $current_status = (int) $_POST['current_status'];
     $new_status = $current_status ? 0 : 1;
     $conn->query("UPDATE app_hotels SET availability=$new_status WHERE id=$hotel_id");
-    header("Location: admin.php?success=Availability+Updated");
+    header("Location: admin.php?tab=hotel-inventory&success=Availability+Updated");
     exit;
 }
 
@@ -548,7 +602,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $hotel_id = (int) $_POST['hotel_id'];
     $dates = $conn->real_escape_string($_POST['available_dates']);
     $conn->query("UPDATE app_hotels SET available_dates='$dates' WHERE id=$hotel_id");
-    header("Location: admin.php?success=Calendar+Dates+Updated");
+    header("Location: admin.php?tab=hotel-inventory&success=Calendar+Dates+Updated");
     exit;
 }
 
@@ -576,6 +630,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 $offer_modals_html = '';
+$hotel_modals_html = '';
+$room_modals_html = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -875,11 +931,12 @@ $offer_modals_html = '';
                 </li>
                 <li><a href="#" class="nav-link" data-target="manage-cabs"><i class="fas fa-taxi"></i> Manage Cabs</a>
                 </li>
-                <li><a href="#" class="nav-link" data-target="hotels"><i class="fas fa-hotel"></i> Hotel Bookings</a>
+                <li><a href="#" class="nav-link" data-target="hotel-bookings"><i class="fas fa-hotel"></i> Hotel Bookings</a>
                 </li>
-                <li><a href="#" class="nav-link" data-target="manage-hotels"><i class="fas fa-building"></i> Manage
+                <li><a href="#" class="nav-link" data-target="hotel-inventory"><i class="fas fa-building"></i> Manage
                         Hotels</a></li>
-                <li><a href="#" class="nav-link" data-target="hotel-offers"><i class="fas fa-percent text-warning"></i> Hotel Offers</a></li>
+                <li><a href="#" class="nav-link" data-target="hotel-promotional"><i class="fas fa-percent text-warning"></i>
+                        Hotel Offers</a></li>
 
                 <li><a href="#" class="nav-link" data-target="contacts"><i class="fas fa-envelope-open-text"></i>
                         Messages</a></li>
@@ -1183,8 +1240,8 @@ $offer_modals_html = '';
             </div>
         </div>
 
-        <!-- Hotels Card -->
-        <div class="data-card" id="hotels-card">
+        <!-- Hotel Bookings Card -->
+        <div class="data-card" id="hotel-bookings-card">
 
             <div class="px-4 pt-3">
                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
@@ -1332,8 +1389,8 @@ $offer_modals_html = '';
             </div>
         </div>
 
-        <!-- Manage Hotels Card -->
-        <div class="data-card" id="manage-hotels-card">
+        <!-- Hotel Inventory Card -->
+        <div class="data-card" id="hotel-inventory-card">
 
             <div class="p-4">
                 <!-- Add New Hotel Card -->
@@ -1420,15 +1477,16 @@ $offer_modals_html = '';
                     </h5>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
+                <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                    <table class="table align-middle table-hover" style="min-width: 900px;">
                         <thead class="bg-light border-0">
                             <tr>
-                                <th class="border-0 rounded-start">Preview</th>
-                                <th class="border-0">Hotel Details</th>
-                                <th class="border-0">Accommodation</th>
+                                <th class="border-0 rounded-start" style="width: 100px;">Preview</th>
+                                <th class="border-0" style="width: 200px;">Hotel Details</th>
+                                <th class="border-0">Category</th>
+                                <th class="border-0" style="width: 120px;">Rooms</th>
                                 <th class="border-0">Status</th>
-                                <th class="border-0 rounded-end">Action</th>
+                                <th class="border-0 rounded-end text-end" style="width: 250px;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1449,26 +1507,126 @@ $offer_modals_html = '';
                                             <div class='fw-bold text-success' style='font-size:13px;'>₹{$row['price']} <span class='text-muted fw-normal' style='font-size:11px;'>/ night</span></div>
                                           </td>";
                                     echo "<td><span class='badge bg-light text-primary border border-primary-subtle' style='font-size:12px; font-weight:500;'>{$row['accommodations']}</span></td>";
-                                    echo "<td><span class='badge {$avail_status_class}' style='font-size: 11px; padding: 5px 12px; border-radius: 20px; font-weight:500;'>{$avail_text}</span></td>";
+                                    echo "<td><span class='badge bg-light text-warning border border-warning-subtle' style='font-size:11px; font-weight:600;'>" . ($row['category'] ?? 'Standard') . "</span></td>";
+                                    
+                                    // Room Count
+                                    $room_cnt = $conn->query("SELECT COUNT(*) as total FROM hotel_rooms WHERE hotel_id = {$row['id']}")->fetch_assoc()['total'];
                                     echo "<td>
-                                            <div class='btn-group'>
+                                            <button type='button' class='btn btn-sm btn-outline-info rounded-pill px-3 fw-bold' style='font-size:11px;' data-bs-toggle='modal' data-bs-target='#manageRoomsModal{$row['id']}'>
+                                                <i class='fas fa-bed me-1'></i> {$room_cnt} Types
+                                            </button>
+                                          </td>";
+
+                                    echo "<td><span class='badge {$avail_status_class}' style='font-size: 11px; padding: 5px 12px; border-radius: 20px; font-weight:500;'>{$avail_text}</span></td>";
+                                    echo "<td class='text-end'>
+                                            <div class='btn-group shadow-sm bg-white rounded-pill p-1 border'>
                                                 <form action='admin.php' method='POST' style='display:inline;'>
                                                     <input type='hidden' name='action' value='toggle_hotel'>
                                                     <input type='hidden' name='hotel_id' value='{$row['id']}'>
                                                     <input type='hidden' name='current_status' value='{$row['availability']}'>
-                                                    <button type='submit' class='btn btn-sm {$avail_btn_class} rounded-pill px-3 me-2' style='font-size: 12px;'>
-                                                        {$avail_btn_text}
+                                                    <button type='submit' class='btn btn-sm btn-link text-decoration-none fw-bold me-1 px-2' style='font-size: 11px; color: " . ($row['availability'] ? '#e74c3c' : '#27ae60') . ";'>
+                                                        " . ($row['availability'] ? 'Lock' : 'Active') . "
                                                     </button>
                                                 </form>
-                                                <a href='hotel-edit.php?id={$row['id']}' class='btn btn-sm btn-outline-primary rounded-pill px-3 me-2' style='font-size: 12px;'>
-                                                    <i class='fas fa-edit'></i> Edit
+                                                <a href='hotel-edit.php?id={$row['id']}' class='btn btn-sm btn-link text-primary text-decoration-none fw-bold me-1 px-2' style='font-size: 11px;'>
+                                                    Edit
                                                 </a>
-                                                <a href='admin.php?action=delete_hotel&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' style='font-size: 12px;' onclick=\"return confirm('Confirm deletion of this hotel?')\">
-                                                    <i class='fas fa-trash-alt'></i>
+                                                <a href='admin.php?action=delete_hotel&id={$row['id']}' class='btn btn-sm btn-link text-danger text-decoration-none fw-bold px-2' style='font-size: 11px;' onclick=\"return confirm('Confirm deletion of this hotel?')\">
+                                                    Delete
                                                 </a>
                                             </div>
                                           </td>";
                                     echo "</tr>";
+
+                                    // EXTRACT MODAL TO GLOBAL BUFFER
+                                    ob_start(); ?>
+                                    <div class='modal fade' id='manageRoomsModal<?php echo $row['id']; ?>' tabindex='-1' aria-hidden='true'>
+                                        <div class='modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable'>
+                                            <div class='modal-content border-0 shadow-lg' style='border-radius: 20px;'>
+                                                <div class='modal-header border-0 bg-light p-4'>
+                                                    <div>
+                                                        <h5 class='modal-title fw-bold text-dark'>Manage Room Types</h5>
+                                                        <small class='text-muted'>Hotel: <?php echo $row['name']; ?></small>
+                                                    </div>
+                                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                                </div>
+                                                <div class='modal-body p-4'>
+                                                    <!-- List Existing Rooms -->
+                                                    <div class='mb-4'>
+                                                        <h6 class='fw-bold mb-3'><i class='fas fa-list me-2 text-info'></i>Existing Room Types</h6>
+                                                        <?php
+                                                        $rooms_res = $conn->query("SELECT * FROM hotel_rooms WHERE hotel_id = {$row['id']} ORDER BY room_price ASC");
+                                                        if($rooms_res && $rooms_res->num_rows > 0) {
+                                                            echo "<div class='table-responsive'><table class='table table-sm align-middle'>
+                                                                    <thead class='small text-muted'><tr><th>Room Type</th><th>Price</th><th>Capacity</th><th class='text-end'>Action</th></tr></thead>
+                                                                    <tbody>";
+                                                            while($rm = $rooms_res->fetch_assoc()) {
+                                                                echo "<tr>
+                                                                        <td class='fw-bold small text-dark'>{$rm['room_name']}</td>
+                                                                        <td class='small text-success fw-bold'>₹" . number_format($rm['room_price']) . "</td>
+                                                                        <td class='small text-muted'>{$rm['capacity']}</td>
+                                                                        <td class='text-end'><a href='admin.php?action=delete_room&id={$rm['id']}' class='text-danger' onclick='return confirm(\"Delete this room type?\")'><i class='fas fa-trash'></i></a></td>
+                                                                      </tr>";
+                                                            }
+                                                            echo "</tbody></table></div>";
+                                                        } else {
+                                                            echo "<div class='alert alert-light small border-0 text-center py-3'>No room types added yet for this hotel.</div>";
+                                                        }
+                                                        ?>
+                                                    </div>
+                                                    
+                                                    <hr class='opacity-0 my-4'>
+
+                                                    <!-- Add New Room Form -->
+                                                    <div class='bg-light p-4 rounded-4'>
+                                                        <h6 class='fw-bold mb-4'><i class='fas fa-plus-circle me-2 text-primary'></i>Add New Room Type</h6>
+                                                        <form action='admin.php' method='POST' enctype='multipart/form-data' class='row g-3'>
+                                                            <input type='hidden' name='action' value='add_hotel_room'>
+                                                            <input type='hidden' name='hotel_id' value='<?php echo $row['id']; ?>'>
+                                                            
+                                                            <div class='col-md-6'>
+                                                                <label class='form-label small fw-bold text-muted'>Room Name</label>
+                                                                <input type='text' class='form-control rounded-pill' name='room_name' placeholder='Standard / Deluxe / Suite' required>
+                                                            </div>
+                                                            <div class='col-md-3'>
+                                                                <label class='form-label small fw-bold text-muted'>Price / Night</label>
+                                                                <input type='number' class='form-control rounded-pill' name='room_price' placeholder='₹' required>
+                                                            </div>
+                                                            <div class='col-md-3'>
+                                                                <label class='form-label small fw-bold text-muted'>Capacity</label>
+                                                                <input type='text' class='form-control rounded-pill' name='capacity' value='2 Adults, 1 Child' required>
+                                                            </div>
+                                                            <div class='col-md-4'>
+                                                                <label class='form-label small fw-bold text-muted'>Bed Type</label>
+                                                                <input type='text' class='form-control rounded-pill' name='bed_type' value='King Bed' required>
+                                                            </div>
+                                                            <div class='col-md-5'>
+                                                                <label class='form-label small fw-bold text-muted'>Room Photo</label>
+                                                                <input type='file' class='form-control rounded-pill py-1' name='room_image' required>
+                                                            </div>
+                                                            
+                                                            <div class='col-md-12'>
+                                                                <label class='form-label small fw-bold text-muted mb-2'>Room Features</label>
+                                                                <div class='d-flex flex-wrap gap-3'>
+                                                                    <div class='form-check'><input class='form-check-input' type='checkbox' name='features[]' value='WiFi' checked> <label class='small'>Free WiFi</label></div>
+                                                                    <div class='form-check'><input class='form-check-input' type='checkbox' name='features[]' value='AC' checked> <label class='small'>AC</label></div>
+                                                                    <div class='form-check'><input class='form-check-input' type='checkbox' name='features[]' value='Bathtub'> <label class='small'>Bathtub</label></div>
+                                                                    <div class='form-check'><input class='form-check-input' type='checkbox' name='features[]' value='Mini Bar'> <label class='small'>Mini Bar</label></div>
+                                                                    <div class='form-check'><input class='form-check-input' type='checkbox' name='features[]' value='City View'> <label class='small'>City View</label></div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class='col-md-12 text-end pt-2'>
+                                                                <button type='submit' class='btn btn-primary rounded-pill px-5 fw-bold'>Add Room Type</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php
+                                    $room_modals_html .= ob_get_clean();
                                 }
                             } else {
                                 echo "<tr><td colspan='5' class='text-center py-5 text-muted'>
@@ -2356,57 +2514,67 @@ $offer_modals_html = '';
                 </div>
             </div>
         </div>
-        
-        <!-- Manage Hotel Offers Card -->
-        <div class="data-card" id="hotel-offers-card">
+
+        <!-- Hotel Promotional Offers Card -->
+        <div class="data-card" id="hotel-promotional-card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h4><i class="fas fa-percent"></i> Manage Hotel Offers</h4>
-                <div class="text-muted small">Dynamic EaseMyTrip Style Offers</div>
+                <h4 class="mb-0"><i class="fas fa-percent me-2"></i>Hotel Promotional Offers</h4>
+                <div class="text-muted small">Manage exclusive hotel deals</div>
             </div>
 
             <div class="p-4">
                 <!-- Add New Offer Form -->
                 <div class="card border-0 bg-light rounded-4 mb-5 shadow-sm p-4">
-                    <h5 class="fw-bold mb-4 text-dark"><i class="fas fa-plus-circle me-2 text-primary"></i>Add New Hotel Offer</h5>
+                    <h5 class="fw-bold mb-4 text-dark"><i class="fas fa-plus-circle me-2 text-primary"></i>Add New Hotel
+                        Offer</h5>
                     <form action="admin.php" method="POST" enctype="multipart/form-data" class="row g-4">
                         <input type="hidden" name="action" value="save_hotel_offer">
                         <input type="hidden" name="offer_id" value="0">
 
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted">Badge Text (e.g. NEW USER)</label>
-                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="badge" placeholder="NEW USER" required>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="badge"
+                                placeholder="NEW USER" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted">Promo Code</label>
-                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="promo_code" placeholder="HOTEL100" required>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3"
+                                name="promo_code" placeholder="HOTEL100" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted">Header (Small)</label>
-                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="header_small" placeholder="Exclusive Offer on" required>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3"
+                                name="header_small" placeholder="Exclusive Offer on" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted">Header (Main Line)</label>
-                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="header_main" placeholder="Grab Up to 40% OFF*" required>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3"
+                                name="header_main" placeholder="Grab Up to 40% OFF*" required>
                         </div>
                         <div class="col-md-5">
                             <label class="form-label small fw-bold text-muted">Main Body Title</label>
-                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="main_title" placeholder="Book Your Favorite Hotels Now" required>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3"
+                                name="main_title" placeholder="Book Your Favorite Hotels Now" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-muted">Validity Text</label>
-                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="validity_text" placeholder="Valid till: 30th Apr 2026" required>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3"
+                                name="validity_text" placeholder="Valid till: 30th Apr 2026" required>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label small fw-bold text-muted">Theme (HEX Color)</label>
-                            <input type="color" class="form-control border-0 p-1" name="theme_color" value="#00a79d" style="height:38px; width:100%; cursor:pointer;">
+                            <input type="color" class="form-control border-0 p-1" name="theme_color" value="#00a79d"
+                                style="height:38px; width:100%; cursor:pointer;">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label small fw-bold text-muted">Banner Image</label>
-                            <input type="file" class="form-control rounded-pill border-0 shadow-sm bg-white py-1" name="offer_image" required>
+                            <input type="file" class="form-control rounded-pill border-0 shadow-sm bg-white py-1"
+                                name="offer_image" required>
                         </div>
 
                         <div class="col-md-12 text-end">
-                            <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold py-2 shadow-sm">Save Hotel Offer</button>
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold py-2 shadow-sm">Save
+                                Hotel Offer</button>
                         </div>
                     </form>
                 </div>
@@ -2515,6 +2683,8 @@ $offer_modals_html = '';
     </div>
 
     <?php echo $offer_modals_html; ?>
+    <?php echo $hotel_modals_html; ?>
+    <?php echo $room_modals_html; ?>
 
     <!-- JS for Tabs -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -2588,6 +2758,11 @@ $offer_modals_html = '';
             window.history.replaceState({}, '', url);
         }
     </script>
+    <?php
+    echo $offer_modals_html;
+    echo $hotel_modals_html;
+    echo $room_modals_html;
+    ?>
 </body>
 
 </html>
