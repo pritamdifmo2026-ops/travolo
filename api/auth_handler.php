@@ -8,9 +8,10 @@ $action = $_POST['action'] ?? '';
 if ($action === 'send_otp') {
     $phone = $_POST['phone'] ?? '';
     $email = $_POST['email'] ?? '';
+    $name = $_POST['name'] ?? '';
     
-    if (empty($phone) || empty($email)) {
-        echo json_encode(['status' => 'error', 'message' => 'Both Email and Phone number are mandatory']);
+    if (empty($phone) || empty($email) || empty($name)) {
+        echo json_encode(['status' => 'error', 'message' => 'Full Name, Email and Phone number are mandatory']);
         exit;
     }
 
@@ -25,11 +26,11 @@ if ($action === 'send_otp') {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        $stmt = $conn->prepare("UPDATE users SET email = ?, otp = ?, otp_expiry = ? WHERE phone = ?");
-        $stmt->bind_param("ssss", $email, $otp, $expiry, $phone);
+        $stmt = $conn->prepare("UPDATE users SET email = ?, name = ?, otp = ?, otp_expiry = ? WHERE phone = ?");
+        $stmt->bind_param("sssss", $email, $name, $otp, $expiry, $phone);
     } else {
-        $stmt = $conn->prepare("INSERT INTO users (phone, email, otp, otp_expiry) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $phone, $email, $otp, $expiry);
+        $stmt = $conn->prepare("INSERT INTO users (phone, email, name, otp, otp_expiry) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssss", $phone, $email, $name, $otp, $expiry);
     }
 
     if ($stmt->execute()) {

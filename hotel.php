@@ -224,8 +224,13 @@ include_once 'includes/db.php';
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            padding: 0 45px !important;
+            padding: 0 !important; /* Removed side padding for button to fill */
             cursor: pointer !important;
+            transition: 0.3s;
+        }
+
+        .emt-search-btn-wrapper:hover {
+            background: #e07d0d !important;
         }
 
         .emt-search-btn-wrapper button {
@@ -235,7 +240,9 @@ include_once 'includes/db.php';
             font-weight: 800 !important;
             text-transform: uppercase !important;
             border: none !important;
-            padding: 0 !important;
+            padding: 0 45px !important; /* Padding moved here */
+            height: 100% !important;
+            width: 100% !important;
             cursor: pointer !important;
         }
 
@@ -652,6 +659,7 @@ include_once 'includes/db.php';
                 <form id="hotelSearchForm" action="submit.php" method="POST"
                     class="d-flex w-100 flex-wrap flex-lg-nowrap" style="margin:0; padding:0;">
                     <input type="hidden" name="form_type" value="hotel">
+                    <input type="hidden" name="booking_type" value="Check">
                     <input type="hidden" name="hotel_id" id="selectedHotelId" value="0">
                     <input type="hidden" name="status" id="checkStatus" value="Checked">
                     <input type="hidden" name="accommodations" id="accommodationsInput" value="1 Room, 2 Guests">
@@ -1091,8 +1099,12 @@ include_once 'includes/db.php';
                 return;
             }
 
-            // Find selected hotel details
-            const hotel = allHotels.find(h => h.name.toLowerCase() === hotelName.toLowerCase());
+            // Always trigger results filter to update the list below
+            triggerHotelFilter(hotelName);
+
+            // Improved: Case-insensitive and trimmed search for hotel details
+            if (!Array.isArray(allHotels)) allHotels = [];
+            const hotel = allHotels.find(h => h.name && h.name.trim().toLowerCase() === hotelName.trim().toLowerCase());
             let isAvailable = false;
             let hId = 0;
 
@@ -1127,6 +1139,9 @@ include_once 'includes/db.php';
         });
 
         function submitBooking(form) {
+            // Force sync rooms/guests summary string before sending
+            if (typeof updateRoomsUI === 'function') updateRoomsUI();
+            
             Swal.fire({
                 title: 'Processing...',
                 allowOutsideClick: false,
@@ -1219,15 +1234,28 @@ include_once 'includes/db.php';
         }
 
         const searchInput = document.querySelector('input[name="search"]');
-        searchInput.addEventListener('input', function (e) {
-            const val = e.target.value.toLowerCase();
-            filteredHotels = allHotels.filter(hotel =>
-                hotel.name.toLowerCase().includes(val) ||
-                hotel.location.toLowerCase().includes(val) ||
-                hotel.accommodations.toLowerCase().includes(val)
-            );
+        function triggerHotelFilter(val) {
+            val = val ? val.trim().toLowerCase() : "";
+            if (!val) {
+                filteredHotels = allHotels;
+            } else {
+                filteredHotels = allHotels.filter(hotel =>
+                    (hotel.name && hotel.name.toLowerCase().includes(val)) ||
+                    (hotel.location && hotel.location.toLowerCase().includes(val)) ||
+                    (hotel.accommodations && hotel.accommodations.toLowerCase().includes(val))
+                );
+            }
             currentPage = 1;
             renderHotels();
+            // Scroll to results if something was searched
+            if (val) {
+                const resSection = document.getElementById('hotelResultsContainer');
+                if (resSection) resSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        searchInput.addEventListener('input', function (e) {
+            triggerHotelFilter(e.target.value);
         });
 
         function goToPage(page) {

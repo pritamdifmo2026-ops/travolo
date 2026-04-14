@@ -119,28 +119,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $check_in = isset($_POST['check_in']) ? $conn->real_escape_string($_POST['check_in']) : '';
         $phone = isset($_POST['phone']) ? $conn->real_escape_string($_POST['phone']) : '';
         if (empty($phone)) $phone = $_SESSION['user_phone'] ?? '';
-        $user_name = isset($_POST['name']) ? $conn->real_escape_string($_POST['name']) : '';
-        $email = isset($_POST['email']) ? $conn->real_escape_string($_POST['email']) : '';
+        $user_name = isset($_POST['name']) && !empty($_POST['name']) ? $conn->real_escape_string($_POST['name']) : ($_SESSION['user_name'] ?? '');
+        $email = isset($_POST['email']) && !empty($_POST['email']) ? $conn->real_escape_string($_POST['email']) : ($_SESSION['user_email'] ?? '');
         
-        if (empty($check_in) || empty($phone) || empty($user_name)) {
+        if (empty($check_in) || empty($phone) || (empty($user_name) && empty($_SESSION['user_name']))) {
             $response = ['status' => 'error', 'message' => 'Check-in date, Name, and Mobile are required.'];
         } elseif (!isValidPhone($phone)) {
             $response = ['status' => 'error', 'message' => 'Enter a valid 10-digit mobile number.'];
         } elseif (!empty($email) && !isValidEmail($email)) {
             $response = ['status' => 'error', 'message' => 'Invalid email format.'];
         } else {
+            if (empty($user_name)) $user_name = 'Customer'; // Final fallback
             $check_out = $conn->real_escape_string($_POST['check_out'] ?? '');
             $search = $conn->real_escape_string($_POST['search'] ?? '');
             $room_type = $conn->real_escape_string($_POST['room_type'] ?? '');
-            $guests = $conn->real_escape_string($_POST['guests'] ?? '1 Room, 2 Guests');
+            $guests = $conn->real_escape_string($_POST['guests'] ?? '');
+            $accomm = $conn->real_escape_string($_POST['accommodations'] ?? '');
             $price = intval($_POST['price'] ?? 0);
             $hotel_id = intval($_POST['hotel_id'] ?? 0);
             $status = $conn->real_escape_string($_POST['status'] ?? 'Checked');
             $b_type = $conn->real_escape_string($_POST['booking_type'] ?? 'Check');
             $uid = $_SESSION['user_id'] ?? 0;
             
-            $sql = "INSERT INTO hotels (user_id, check_in, check_out, hotel_search, room_type, guests, price, phone, hotel_id, status, user_name, email, booking_type, booking_status) 
-                    VALUES ($uid, '$check_in', '$check_out', '$search', '$room_type', '$guests', $price, '$phone', $hotel_id, '$status', '$user_name', '$email', '$b_type', 'Requested')";
+            $sql = "INSERT INTO hotels (user_id, check_in, check_out, hotel_search, accommodations, room_type, guests, price, phone, hotel_id, status, user_name, email, booking_type, booking_status) 
+                    VALUES ($uid, '$check_in', '$check_out', '$search', '$accomm', '$room_type', '$guests', $price, '$phone', $hotel_id, '$status', '$user_name', '$email', '$b_type', 'Requested')";
                     
             if ($conn->query($sql) === TRUE) {
                 if (isset($_SESSION['user_id'])) {
@@ -153,7 +155,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $msg = ($b_type == 'Booking') ? "Booking Query Sent Successfully!" : "Hotel Availability Checked!";
                 $response = ['status' => 'success', 'message' => $msg];
             } else {
-                $response = ['status' => 'error', 'message' => 'Error: ' . $conn->error];
+                error_log("SQL Error in hotel search: " . $conn->error);
+                $response = ['status' => 'error', 'message' => 'Database Error: ' . $conn->error];
             }
         }
     }

@@ -263,6 +263,12 @@ if (is_logged_in()) {
                 <input type="hidden" name="action" value="send_otp">
                 
                 <div class="form-group-custom">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="userName" name="name" class="form-control-custom" placeholder="John Doe" required>
+                    <i class="fas fa-user form-icon" style="top: 48px;"></i>
+                </div>
+
+                <div class="form-group-custom">
                     <label class="form-label">Email Address</label>
                     <input type="email" id="userEmail" name="email" class="form-control-custom" placeholder="you@example.com" required>
                     <i class="fas fa-envelope form-icon" style="top: 48px;"></i>

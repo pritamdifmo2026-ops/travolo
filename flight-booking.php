@@ -84,25 +84,31 @@
             display: flex;
             align-items: stretch;
             border-bottom: 1px solid var(--emt-border);
+            width: 100%;
+            background: #fff;
         }
 
         .search-segment {
             flex: 1;
-            padding: 10px 14px;
+            padding: 8px 12px;
             border-right: 1px solid var(--emt-border);
             cursor: pointer;
             transition: background 0.2s;
             position: relative;
-            min-height: 72px;
+            min-height: 75px;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .search-segment:hover {
-            background: #f1f5f9;
+            background: #f8fafc;
         }
 
         .search-segment:last-child {
             border-right: none;
-            flex: 0 0 200px;
+            flex: 0 0 160px;
             padding: 0;
         }
 
@@ -156,26 +162,28 @@
         }
 
         .search-btn {
-            background: linear-gradient(135deg, #bf1e2e 0%, #9a1624 100%);
+            background: linear-gradient(135deg, #bf1e2e 0%, #a61a29 100%);
             color: #fff;
             width: 100%;
             height: 100%;
             border: none;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 800;
             text-transform: uppercase;
             transition: all 0.3s;
             letter-spacing: 1px;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .search-btn:hover {
-            background: linear-gradient(135deg, #9a1624 0%, #7a1020 100%);
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #a61a29 0%, #8c1622 100%);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
         }
 
         .search-segment#searchSegment {
-            flex: 0 0 140px;
+            flex: 0 0 160px;
             padding: 0;
             overflow: hidden;
             border-bottom-right-radius: 8px;
@@ -1097,8 +1105,8 @@
                                         <div class="col-6"><button type="button" class="btn btn-outline-primary btn-sm w-100" onclick="setTravelClass('First Class', this)" style="font-size:12px;">First Class</button></div>
                                         <div class="col-6"><button type="button" class="btn btn-outline-primary btn-sm w-100" onclick="setTravelClass('Premium', this)" style="font-size:12px;">Premium</button></div>
                                     </div>
-                                    <div class="d-grid">
-                                        <button type="button" class="btn btn-primary fw-bold rounded-pill py-1" onclick="toggleDropdown('travellerDropdown')" style="font-size:14px;">APPLY</button>
+                                    <div class="d-grid mt-3">
+                                        <button type="button" class="btn btn-primary fw-bold rounded-pill py-2" onclick="toggleDropdown('travellerDropdown')">APPLY</button>
                                     </div>
                                 </div>
                             </div>
@@ -1107,13 +1115,13 @@
                         <!-- EMAIL ADDRESS -->
                         <div class="search-segment" id="emailSegment">
                             <label class="segment-label">Email Address</label>
-                            <input type="email" name="email" class="fw-bold border-0 p-0 fs-5 w-100" placeholder="Enter Email" value="<?php echo htmlspecialchars($_SESSION['user_email'] ?? $_GET['email'] ?? ''); ?>" required>
+                            <input type="email" name="email" class="fw-bold border-0 p-0 w-100" style="font-size: 14px; outline: none; background: transparent;" placeholder="your@email.com" value="<?php echo htmlspecialchars($_SESSION['user_email'] ?? $_GET['email'] ?? ''); ?>" required>
                         </div>
 
                         <!-- MOBILE NUMBER -->
                         <div class="search-segment" id="mobileSegment">
                             <label class="segment-label">Mobile Number</label>
-                            <input type="tel" name="mobile" class="fw-bold border-0 p-0 fs-5 w-100" placeholder="Enter Mobile No" value="<?php echo htmlspecialchars($_SESSION['user_phone'] ?? $_GET['mobile'] ?? ''); ?>" required pattern="[6-9][0-9]{9}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" title="Please enter a valid 10-digit mobile number">
+                            <input type="tel" name="mobile" class="fw-bold border-0 p-0 w-100" style="font-size: 14px; outline: none; background: transparent;" placeholder="Mobile No" value="<?php echo htmlspecialchars($_SESSION['user_phone'] ?? $_GET['mobile'] ?? ''); ?>" required pattern="[6-9][0-9]{9}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" title="Please enter a valid 10-digit mobile number">
                         </div>
 
                         <!-- SEARCH BTN -->
@@ -1124,7 +1132,7 @@
                             <input type="hidden" name="travel_class" id="hiddenClass" value="Economy">
                             <button type="submit" class="search-btn">SEARCH</button>
                         </div>
-                    </div>
+                    </div> <!-- End search-row -->
 
                     <!-- Special Fares -->
                     <div class="special-fares">

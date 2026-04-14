@@ -1014,7 +1014,7 @@ $room_modals_html = '';
                             <th>Dates</th>
                             <th>Passengers</th>
                             <th>Class</th>
-                            <th>Phone</th>
+                            <th>Customer Details</th>
                             <th>Status</th>
                             <th>Requested</th>
                         </tr>
@@ -1040,7 +1040,8 @@ $room_modals_html = '';
                             echo "<td>{$row['adults']}A, {$row['children']}C, {$row['infants']}I</td>";
                             echo "<td><span class='{$cab_class}'>{$row['travel_class']}</span></td>";
                             echo "<td>
-                                <div class='fw-bold text-dark' style='font-size:13px;'><i class='fas fa-user me-1 text-primary small'></i> " . ($row['user_name'] ?? '') . "</div>
+                                <div class='fw-bold text-dark' style='font-size:13px;'><i class='fas fa-user-circle me-1 text-primary small'></i> " . ($row['user_name'] ?? 'User') . "</div>
+                                <div class='small text-muted' style='font-size:11px;'><i class='fas fa-envelope text-info me-1 small'></i> " . ($row['email'] ?? 'No Email') . "</div>
                                 <div class='small text-muted' style='font-size:11px;'><i class='fas fa-phone-alt text-success me-1 small'></i> {$row['phone']}</div>
                               </td>";
                             echo "<td>
@@ -1080,7 +1081,7 @@ $room_modals_html = '';
                         <tr>
                             <th>Route</th>
                             <th>Date / Type</th>
-                            <th>Mobile</th>
+                            <th>Contact Info</th>
                             <th>Passengers / Class</th>
                             <th>Searched At</th>
                             <th>Action</th>
@@ -1094,7 +1095,10 @@ $room_modals_html = '';
                                 echo "<tr>";
                                 echo "<td><strong>{$row['from_city']}</strong><br>to <strong>{$row['to_city']}</strong></td>";
                                 echo "<td>{$row['depart_date']}<br><span class='badge bg-light text-dark border'>{$row['trip_type']}</span></td>";
-                                echo "<td><strong class='text-primary'>{$row['mobile']}</strong></td>";
+                                echo "<td>
+                                    <div class='fw-bold text-primary' style='font-size:13px;'>{$row['mobile']}</div>
+                                    <div class='small text-muted' style='font-size:11px;'>{$row['email']}</div>
+                                  </td>";
                                 echo "<td>{$row['adults']}A, {$row['children']}C, {$row['infants']}I<br><span class='text-muted' style='font-size:11px;'>{$row['travel_class']}</span></td>";
                                 echo "<td><span style='color:#95a5a6; font-size:12px;'>" . date('M j, Y g:i A', strtotime($row['search_time'])) . "</span></td>";
                                 echo "<td>
@@ -1265,9 +1269,10 @@ $room_modals_html = '';
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Check-in</th>
+                                    <th>Check-in / Out</th>
                                     <th>Hotel Requested</th>
-                                    <th>Phone</th>
+                                    <th>Rooms/Guests</th>
+                                    <th>Contact Details</th>
                                     <th>Status</th>
                                     <th>Time</th>
                                 </tr>
@@ -1277,9 +1282,16 @@ $room_modals_html = '';
                                 $res = $conn->query("SELECT * FROM hotels WHERE booking_type = 'Check' ORDER BY id DESC LIMIT 50");
                                 while ($row = $res->fetch_assoc()) {
                                     echo "<tr>";
-                                    echo "<td><strong>{$row['check_in']}</strong></td>";
+                                    echo "<td>
+                                            <div class='fw-bold text-dark'>{$row['check_in']}</div>
+                                            <div class='small text-muted' style='font-size:11px;'><i class='fas fa-sign-out-alt me-1'></i>{$row['check_out']}</div>
+                                          </td>";
                                     echo "<td>{$row['hotel_search']}</td>";
-                                    echo "<td>{$row['phone']}</td>";
+                                    echo "<td><span class='badge' style='background: #eef2f7; color: #4b5563; font-weight: 500;'>{$row['accommodations']}</span></td>";
+                                    echo "<td>
+                                            <div class='fw-bold text-dark' style='font-size:13px;'><i class='fas fa-phone-alt text-success me-1 small'></i> {$row['phone']}</div>
+                                            <div class='small text-muted' style='font-size:11px;'><i class='fas fa-envelope text-primary me-1 small'></i> {$row['email']}</div>
+                                          </td>";
                                     echo "<td><span class='badge bg-light text-dark border'>{$row['status']}</span></td>";
                                     echo "<td><span style='color:#95a5a6; font-size:12px;'>" . date('M j, g:i A', strtotime($row['booking_date'])) . "</span></td>";
                                     echo "</tr>";
