@@ -208,9 +208,20 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             letter-spacing: 0.5px;
         }
 
-        .badge-flight { background: #eef7ff; color: #2196f3; }
-        .badge-hotel { background: #fdf2f9; color: #e91e63; }
-        .badge-cab { background: #fff9ed; color: #f7921e; }
+        .badge-flight {
+            background: #eef7ff;
+            color: #2196f3;
+        }
+
+        .badge-hotel {
+            background: #fdf2f9;
+            color: #e91e63;
+        }
+
+        .badge-cab {
+            background: #fff9ed;
+            color: #f7921e;
+        }
 
         .booking-meta-info {
             flex: 3;
@@ -228,7 +239,11 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             white-space: nowrap;
         }
 
-        .date-line i { color: var(--primary-dashboard); width: 18px; font-size: 12px; }
+        .date-line i {
+            color: var(--primary-dashboard);
+            width: 18px;
+            font-size: 12px;
+        }
 
         .meta-line {
             font-size: 12px;
@@ -253,8 +268,15 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             letter-spacing: 0.5px;
         }
 
-        .status-requested { background: #fff4e5; color: #ff9800; }
-        .status-confirmed { background: #e8f5e9; color: #2e7d32; }
+        .status-requested {
+            background: #fff4e5;
+            color: #ff9800;
+        }
+
+        .status-confirmed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
 
         .btn-action-row {
             padding: 8px 14px;
@@ -286,14 +308,32 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
         }
 
         @media (max-width: 991px) {
-            .card-inner { flex-wrap: wrap; }
-            .booking-meta-info { border-left: none; padding-left: 0; gap: 10px; flex-direction: column; align-items: flex-start; }
-            .booking-actions { width: 100%; justify-content: flex-start; }
+            .card-inner {
+                flex-wrap: wrap;
+            }
+
+            .booking-meta-info {
+                border-left: none;
+                padding-left: 0;
+                gap: 10px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .booking-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
         }
 
         @media (max-width: 576px) {
-            .booking-preview-container { display: none; }
-            .booking-main-info { flex: 1; }
+            .booking-preview-container {
+                display: none;
+            }
+
+            .booking-main-info {
+                flex: 1;
+            }
         }
 
         .nav-tabs {
@@ -610,7 +650,7 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             $meta = $row['trip_type'] . " | " . ($row['pickup_type'] ?: 'Transfer');
             $dates = date('d M Y', strtotime($row['pickup_date'])) . " at " . $row['pickup_time'];
             $img = !empty($row['cab_img']) ? $row['cab_img'] : "assets/images/car.png";
-            
+
             // Dynamic Search Link for Cabs
             $params = http_build_query([
                 'from' => $row['from_city'],

@@ -53,6 +53,19 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-xl-6 d-none d-xl-block">
+                    <!--====== User Top Info ======-->
+                    <div class="header-top-right d-flex align-items-center justify-content-end">
+                        <?php if (is_logged_in()): ?>
+                            <div class="user-top-info text-white me-4" style="font-size: 14px; font-weight: 500;">
+                                <i class="fas fa-user-circle me-2"></i>Hello, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>
+                            </div>
+                            <a href="logout.php" class="text-white fw-bold" style="font-size: 14px;">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -89,12 +102,10 @@
                             <li class="menu-item has-children"><a href="contact.php">Contact</a></li>
                             <?php if (is_logged_in()): ?>
                                 <li class="menu-item">
-                                    <a href="user-dashboard.php" class="text-success">
-                                        <i class="fas fa-user-circle"></i> Hello, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>
+                                    <a href="user-dashboard.php" class="text-success fw-bold">
+                                        <i class="fas fa-calendar-check me-1"></i>My Booking
                                     </a>
                                 </li>
-                                <li class="menu-item"><a href="logout.php" class="text-danger"><i
-                                             class="fas fa-sign-out-alt"></i> Logout</a></li>
                             <?php else: ?>
                                 <li class="menu-item"><a href="login-user.php"><i class="fas fa-user"></i> Login</a></li>
                             <?php endif; ?>

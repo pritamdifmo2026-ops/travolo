@@ -71,8 +71,8 @@
                             <form>
                                 <div class="form_group">
                                     <label><i class="far fa-paper-plane"></i></label>
-                                    <input type="email" class="form_control" placeholder="Email Address"
-                                        name="email" required>
+                                    <input type="email" class="form_control" placeholder="Email Address" name="email"
+                                        required>
                                     <p class="pt-2">I agree to all terms and policies</p>
                                 </div>
                             </form>
@@ -88,7 +88,7 @@
                                 +91-8373996644</p>
 
                             <p>Email Address<br>
-                               sales@travolo.online</p>
+                                sales@travolo.online</p>
 
                             <p>Visit office<br>
                                 1733, Sector-52, Gurgaon (HR)-122003.</p>
@@ -153,10 +153,10 @@
 <script src="assets/js/theme.js"></script>
 <script>
     // Auto-hide alerts and clean URL
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const alerts = document.querySelectorAll('.alert');
-        setTimeout(function() {
-            alerts.forEach(function(alert) {
+        setTimeout(function () {
+            alerts.forEach(function (alert) {
                 if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
                     const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
                     if (bsAlert) bsAlert.close();

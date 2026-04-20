@@ -1718,7 +1718,8 @@ include_once 'includes/auth.php';
                                             </div>
                                             <div class="banner-use-code">CODE:
                                                 <b><?php echo htmlspecialchars($offer['promo_code']); ?></b> <i
-                                                    class="far fa-copy copy-icon"></i></div>
+                                                    class="far fa-copy copy-icon"></i>
+                                            </div>
                                         </div>
                                         <div class="banner-img"><img src="<?php echo htmlspecialchars($offer['image_path']); ?>"
                                                 alt="Offer"></div>
@@ -1777,7 +1778,8 @@ include_once 'includes/auth.php';
                                     <div>
                                         <div class="city-name text-white"><?php echo htmlspecialchars($t['city']); ?></div>
                                         <div class="transfer-label text-white-50" style="font-size: 11px;">
-                                            <?php echo htmlspecialchars($t['airport']); ?></div>
+                                            <?php echo htmlspecialchars($t['airport']); ?>
+                                        </div>
                                     </div>
                                     <div class="book-arrow"
                                         style="color: var(--travolo-teal); font-weight: 800; font-size: 13px;">
@@ -1825,7 +1827,8 @@ include_once 'includes/auth.php';
                                     <img src="<?php echo htmlspecialchars($o['image_path']); ?>"
                                         alt="<?php echo htmlspecialchars($o['city']); ?>" loading="lazy">
                                     <div class="overseas-price-tag">Starts
-                                        <b><?php echo htmlspecialchars($o['price_starts']); ?></b></div>
+                                        <b><?php echo htmlspecialchars($o['price_starts']); ?></b>
+                                    </div>
                                 </div>
                                 <div class="overseas-body-content text-start">
                                     <h4><?php echo htmlspecialchars($o['city']); ?></h4>
@@ -2359,11 +2362,13 @@ include_once 'includes/auth.php';
                                             <div class="banner-info"
                                                 style="background: <?php echo htmlspecialchars($offer['theme_color']); ?>;">
                                                 <div class="discount-text">
-                                                    <?php echo htmlspecialchars($offer['header_small']); ?></div>
+                                                    <?php echo htmlspecialchars($offer['header_small']); ?>
+                                                </div>
                                                 <div class="service-name"><?php echo htmlspecialchars($offer['header_main']); ?>
                                                 </div>
                                                 <div class="banner-use-code">CODE:
-                                                    <b><?php echo htmlspecialchars($offer['promo_code']); ?></b></div>
+                                                    <b><?php echo htmlspecialchars($offer['promo_code']); ?></b>
+                                                </div>
                                             </div>
                                             <div class="banner-img"><img
                                                     src="<?php echo htmlspecialchars($offer['image_path']); ?>" alt="Offer">

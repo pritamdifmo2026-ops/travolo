@@ -1569,7 +1569,8 @@ include 'includes/db.php'; ?>
                             style="background: #f8fafc; border-color: #e2e8f0 !important; border-radius: 12px !important;">
                             <div>
                                 <h6 class="fw-bold mb-1" style="color: #1a1a1b; font-size: 14px;">
-                                    <?php echo $place['city']; ?></h6>
+                                    <?php echo $place['city']; ?>
+                                </h6>
                                 <a href="<?php echo $place['link']; ?>" class="small fw-bold text-decoration-none"
                                     style="color: #00a79d !important; font-size: 12px;">Explore <i
                                         class="fas fa-chevron-right ms-1" style="font-size: 7px;"></i></a>
