@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travelo Admin - Login</title>
+    <title>Travolo Admin - Login</title>
     <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
     <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -87,7 +87,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 
 <div class="login-card">
-    <img src="assets/images/logo.jpg" alt="Travelo Logo">
+    <img src="assets/images/logo.jpg" alt="Travolo Logo">
     <h4 class="mb-4">Admin Login</h4>
     
     <?php if ($error): ?>
@@ -101,5 +101,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form>
 </div>
 
+<script>
+    // Auto-hide error messages
+    document.addEventListener('DOMContentLoaded', function() {
+        const errors = document.querySelectorAll('.error-message');
+        setTimeout(function() {
+            errors.forEach(e => e.style.display = 'none');
+        }, 3000);
+    });
+</script>
 </body>
 </html>

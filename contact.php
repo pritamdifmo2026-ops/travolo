@@ -8,7 +8,7 @@
     <meta name="description" content="Adventure, Tours, Travel">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!--====== Title ======-->
-    <title>Travelo - Tours and Travel</title>
+    <title>Travolo - Tours and Travel</title>
     <!--====== Favicon Icon ======-->
     <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
     <!--====== Google Fonts ======-->
@@ -37,8 +37,8 @@
 </head>
 
 <body>
-<?php include 'includes/navbar.php'; ?>
-    
+    <?php include 'includes/navbar.php'; ?>
+
 
 
     <!--====== Start Breadcrumb Section ======-->
@@ -147,8 +147,10 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form_group">
-                                        <input type="tel" placeholder="10 Digit Mobile" class="form_control" name="number"
-                                            required pattern="[6-9][0-9]{9}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" title="Please enter a valid 10-digit mobile number">
+                                        <input type="tel" placeholder="10 Digit Mobile" class="form_control"
+                                            name="number" required pattern="[6-9][0-9]{9}" maxlength="10"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                            title="Please enter a valid 10-digit mobile number">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
@@ -159,7 +161,8 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form_group">
-                                        <input type="url" placeholder="Website (e.g. https://google.com)" class="form_control" name="website">
+                                        <input type="url" placeholder="Website (e.g. https://google.com)"
+                                            class="form_control" name="website">
                                     </div>
                                 </div>
                                 <div class="col-lg-12">
@@ -249,8 +252,8 @@
         </div>
     </section>
     <!--====== End Gallery Section ======-->
-<?php include 'includes/footer.php'; ?>
-    
+    <?php include 'includes/footer.php'; ?>
+
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

@@ -46,7 +46,7 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Bookings | Travelo Dashboard</title>
+    <title>My Bookings | Travolo Dashboard</title>
     <!--====== Favicon Icon ======-->
     <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
     <!--====== Google Fonts ======-->
@@ -507,6 +507,75 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             </div>
         </div>
     </div>
+
+    <!--====== Start Gallery Section ======-->
+    <section class="gallery-section mbm-150">
+        <div class="container-fluid">
+            <div class="slider-active-5-item wow fadeInUp">
+                <!--=== Single Gallery Item ===-->
+                <div class="single-gallery-item">
+                    <div class="gallery-img">
+                        <img src="assets/images/tour-3-550x590.jpg" alt="Gallery Image">
+                        <div class="hover-overlay">
+                            <a href="assets/images/tour-3-550x590.jpg" class="icon-btn img-popup"><i
+                                    class="far fa-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!--=== Single Gallery Item ===-->
+                <div class="single-gallery-item">
+                    <div class="gallery-img">
+                        <img src="assets/images/tour-4-550x590.jpg" alt="Gallery Image">
+                        <div class="hover-overlay">
+                            <a href="assets/images/tour-4-550x590.jpg" class="icon-btn img-popup"><i
+                                    class="far fa-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!--=== Single Gallery Item ===-->
+                <div class="single-gallery-item">
+                    <div class="gallery-img">
+                        <img src="assets/images/tour-12-550x590.jpg" alt="Gallery Image">
+                        <div class="hover-overlay">
+                            <a href="assets/images/tour-12-550x590.jpg" class="icon-btn img-popup"><i
+                                    class="far fa-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!--=== Single Gallery Item ===-->
+                <div class="single-gallery-item">
+                    <div class="gallery-img">
+                        <img src="assets/images/tour-8-550x590.jpg" alt="Gallery Image">
+                        <div class="hover-overlay">
+                            <a href="assets/images/tour-8-550x590.jpg" class="icon-btn img-popup"><i
+                                    class="far fa-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!--=== Single Gallery Item ===-->
+                <div class="single-gallery-item">
+                    <div class="gallery-img">
+                        <img src="assets/images/tour-3-550x590.jpg" alt="Gallery Image">
+                        <div class="hover-overlay">
+                            <a href="assets/images/gallery/gl-5.jpg" class="icon-btn img-popup"><i
+                                    class="far fa-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!--=== Single Gallery Item ===-->
+                <div class="single-gallery-item">
+                    <div class="gallery-img">
+                        <img src="assets/images/tour-8-550x590.jpg" alt="Gallery Image">
+                        <div class="hover-overlay">
+                            <a href="assets/images/tour-8-550x590.jpg" class="icon-btn img-popup"><i
+                                    class="far fa-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--====== End Gallery Section ======-->
 
     <?php
     include 'includes/footer.php';

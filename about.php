@@ -8,7 +8,7 @@
     <meta name="description" content="Adventure, Tours, Travel">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!--====== Title ======-->
-    <title>Travelo - Tours and Travel</title>
+    <title>Travolo - Tours and Travel</title>
     <!--====== Favicon Icon ======-->
     <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
     <!--====== Google Fonts ======-->
@@ -37,8 +37,8 @@
 </head>
 
 <body>
-<?php include 'includes/navbar.php'; ?>
-    
+    <?php include 'includes/navbar.php'; ?>
+
 
 
     <!--====== Start Breadcrumb Section ======-->
@@ -80,7 +80,8 @@
                         </div>
                         <p class="wow fadeInDown text-justify">
                             Travel Made Simple, Affordable & Memorable
-                            Welcome to <span style="color:blue; font-weight:bold;">T</span>ravolo, your trusted travel partner for booking flights, hotels,
+                            Welcome to <span style="color:blue; font-weight:bold;">T</span>ravolo, your trusted travel
+                            partner for booking flights, hotels,
                             cabs, and complete holiday packages.
                             We specialize in providing smooth, secure, and cost-effective travel solutions for
                             individuals, families, and corporate clients.
@@ -384,8 +385,8 @@
 
 
 
-<?php include 'includes/footer.php'; ?>
-    
+    <?php include 'includes/footer.php'; ?>
+
 
 </body>
 

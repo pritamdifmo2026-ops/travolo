@@ -12,7 +12,7 @@ include_once 'includes/db.php';
     <meta name="description" content="Adventure, Tours, Travel">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!--====== Title ======-->
-    <title>Travelo - Tours and Travel</title>
+    <title>Travolo - Tours and Travel</title>
     <!--====== Favicon Icon ======-->
     <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
     <!--====== Google Fonts ======-->
@@ -224,7 +224,8 @@ include_once 'includes/db.php';
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            padding: 0 !important; /* Removed side padding for button to fill */
+            padding: 0 !important;
+            /* Removed side padding for button to fill */
             cursor: pointer !important;
             transition: 0.3s;
         }
@@ -240,7 +241,8 @@ include_once 'includes/db.php';
             font-weight: 800 !important;
             text-transform: uppercase !important;
             border: none !important;
-            padding: 0 45px !important; /* Padding moved here */
+            padding: 0 45px !important;
+            /* Padding moved here */
             height: 100% !important;
             width: 100% !important;
             cursor: pointer !important;
@@ -1141,7 +1143,7 @@ include_once 'includes/db.php';
         function submitBooking(form) {
             // Force sync rooms/guests summary string before sending
             if (typeof updateRoomsUI === 'function') updateRoomsUI();
-            
+
             Swal.fire({
                 title: 'Processing...',
                 allowOutsideClick: false,

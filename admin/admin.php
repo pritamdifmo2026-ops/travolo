@@ -1490,14 +1490,15 @@ $room_modals_html = '';
                 </div>
 
                 <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                    <table class="table align-middle table-hover" style="min-width: 900px;">
+                    <table class="table align-middle table-hover" style="min-width: 1000px;">
                         <thead class="bg-light border-0">
                             <tr>
                                 <th class="border-0 rounded-start" style="width: 100px;">Preview</th>
                                 <th class="border-0" style="width: 200px;">Hotel Details</th>
-                                <th class="border-0">Category</th>
-                                <th class="border-0" style="width: 120px;">Rooms</th>
-                                <th class="border-0">Status</th>
+                                <th class="border-0 text-center">Category</th>
+                                <th class="border-0 text-center">Class</th>
+                                <th class="border-0 text-center" style="width: 130px;">Rooms</th>
+                                <th class="border-0 text-center">Status</th>
                                 <th class="border-0 rounded-end text-end" style="width: 250px;">Action</th>
                             </tr>
                         </thead>
@@ -1518,18 +1519,18 @@ $room_modals_html = '';
                                             <div class='small text-muted'><i class='fas fa-map-marker-alt me-1'></i>{$row['location']}</div>
                                             <div class='fw-bold text-success' style='font-size:13px;'>₹{$row['price']} <span class='text-muted fw-normal' style='font-size:11px;'>/ night</span></div>
                                           </td>";
-                                    echo "<td><span class='badge bg-light text-primary border border-primary-subtle' style='font-size:12px; font-weight:500;'>{$row['accommodations']}</span></td>";
-                                    echo "<td><span class='badge bg-light text-warning border border-warning-subtle' style='font-size:11px; font-weight:600;'>" . ($row['category'] ?? 'Standard') . "</span></td>";
+                                    echo "<td class='text-center'><span class='badge bg-light text-primary border border-primary-subtle' style='font-size:12px; font-weight:500;'>{$row['accommodations']}</span></td>";
+                                    echo "<td class='text-center'><span class='badge bg-light text-warning border border-warning-subtle' style='font-size:11px; font-weight:600;'>" . ($row['category'] ?? 'Standard') . "</span></td>";
                                     
                                     // Room Count
                                     $room_cnt = $conn->query("SELECT COUNT(*) as total FROM hotel_rooms WHERE hotel_id = {$row['id']}")->fetch_assoc()['total'];
-                                    echo "<td>
+                                    echo "<td class='text-center'>
                                             <button type='button' class='btn btn-sm btn-outline-info rounded-pill px-3 fw-bold' style='font-size:11px;' data-bs-toggle='modal' data-bs-target='#manageRoomsModal{$row['id']}'>
                                                 <i class='fas fa-bed me-1'></i> {$room_cnt} Types
                                             </button>
                                           </td>";
 
-                                    echo "<td><span class='badge {$avail_status_class}' style='font-size: 11px; padding: 5px 12px; border-radius: 20px; font-weight:500;'>{$avail_text}</span></td>";
+                                    echo "<td class='text-center'><span class='badge {$avail_status_class}' style='font-size: 11px; padding: 5px 12px; border-radius: 20px; font-weight:500;'>{$avail_text}</span></td>";
                                     echo "<td class='text-end'>
                                             <div class='btn-group shadow-sm bg-white rounded-pill p-1 border'>
                                                 <form action='admin.php' method='POST' style='display:inline;'>
@@ -2694,10 +2695,6 @@ $room_modals_html = '';
         </div>
     </div>
 
-    <?php echo $offer_modals_html; ?>
-    <?php echo $hotel_modals_html; ?>
-    <?php echo $room_modals_html; ?>
-
     <!-- JS for Tabs -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Flatpickr JS -->
@@ -2709,10 +2706,8 @@ $room_modals_html = '';
                 mode: "multiple",
                 dateFormat: "Y-m-d",
                 onChange: function (selectedDates, dateStr, instance) {
-                    // Get the corresponding display div
                     const hotelId = instance.element.closest('form').querySelector('input[name="hotel_id"]').value;
                     const displayDiv = document.getElementById('display-' + hotelId);
-
                     if (dateStr) {
                         const datesArray = dateStr.split(', ');
                         displayDiv.innerHTML = datesArray.map(d => `<span class='date-badge'>${d}</span>`).join('');
@@ -2721,6 +2716,32 @@ $room_modals_html = '';
                     }
                 }
             });
+
+            // Auto-hide alerts and clean URL
+            const alerts = document.querySelectorAll('.alert');
+            const errors = document.querySelectorAll('.error-message');
+            
+            setTimeout(function() {
+                alerts.forEach(function(alert) {
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                        const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                        if (bsAlert) bsAlert.close();
+                    } else {
+                        alert.style.display = 'none';
+                    }
+                });
+                errors.forEach(e => e.style.display = 'none');
+            }, 3000);
+
+            if (window.history.replaceState) {
+                const url = new URL(window.location);
+                if (url.searchParams.has('success') || url.searchParams.has('error') || url.searchParams.has('msg')) {
+                    url.searchParams.delete('success');
+                    url.searchParams.delete('error');
+                    url.searchParams.delete('msg');
+                    window.history.replaceState({}, '', url);
+                }
+            }
         });
 
         const navLinks = document.querySelectorAll('.nav-link');
@@ -2729,17 +2750,12 @@ $room_modals_html = '';
         function switchTab(target) {
             const link = document.querySelector(`.nav-link[data-target="${target}"]`);
             if (link) {
-                // Update active link
                 navLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
-
-                // Hide all cards, show target
                 const targetId = target + '-card';
                 dataCards.forEach(card => card.classList.remove('active'));
                 const targetCard = document.getElementById(targetId);
                 if (targetCard) targetCard.classList.add('active');
-
-                // Save to localStorage
                 localStorage.setItem('activeAdminTab', target);
             }
         }
@@ -2752,22 +2768,13 @@ $room_modals_html = '';
             });
         });
 
-        // On page load, restore tab from URL or localStorage
         const urlParams = new URLSearchParams(window.location.search);
         const urlTab = urlParams.get('tab');
         const savedTab = localStorage.getItem('activeAdminTab');
-
         if (urlTab) {
             switchTab(urlTab);
         } else if (savedTab) {
             switchTab(savedTab);
-        }
-
-        // Clean URL after success message displayed to prevent reappear on refresh
-        if (window.history.replaceState && window.location.search.includes('success=')) {
-            const url = new URL(window.location);
-            url.searchParams.delete('success');
-            window.history.replaceState({}, '', url);
         }
     </script>
     <?php
@@ -2775,6 +2782,10 @@ $room_modals_html = '';
     echo $hotel_modals_html;
     echo $room_modals_html;
     ?>
+</body>
+
+</html>
+pt>
 </body>
 
 </html>

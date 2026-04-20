@@ -10,7 +10,7 @@ if (is_logged_in()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Travelo</title>
+    <title>Login - Travolo</title>
     <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
     <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -243,12 +243,12 @@ if (is_logged_in()) {
         <a href="index.php" class="back-to-home"><i class="fas fa-arrow-left me-2"></i>Home</a>
         
         <div class="logo-wrapper">
-            <img src="assets/images/logo1.png" alt="Travelo Logo">
+            <img src="assets/images/logo1.png" alt="Travolo Logo">
         </div>
 
         <div id="phoneSection">
             <div class="login-header">
-                <h2>Welcome to Travelo</h2>
+                <h2>Welcome to Travolo</h2>
                 <p>Login to book your premium cab experience.</p>
             </div>
 
@@ -543,6 +543,19 @@ if (is_logged_in()) {
               xfbml      : true,
               version    : 'v18.0'
             });
+        }
+
+        // Auto-hide limit alert and clean URL
+        const limitAlert = document.querySelector('.limit-reached-alert');
+        if (limitAlert) {
+            setTimeout(() => limitAlert.style.display = 'none', 3000);
+        }
+        if (window.history.replaceState) {
+            const url = new URL(window.location);
+            if (url.searchParams.has('msg')) {
+                url.searchParams.delete('msg');
+                window.history.replaceState({}, '', url);
+            }
         }
     });
 

@@ -151,3 +151,29 @@
 <script src="assets/vendor/wow.min.js"></script>
 <!--====== Main js ======-->
 <script src="assets/js/theme.js"></script>
+<script>
+    // Auto-hide alerts and clean URL
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert');
+        setTimeout(function() {
+            alerts.forEach(function(alert) {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                    const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                    if (bsAlert) bsAlert.close();
+                } else {
+                    alert.style.display = 'none';
+                }
+            });
+        }, 3000);
+
+        if (window.history.replaceState) {
+            const url = new URL(window.location);
+            if (url.searchParams.has('success') || url.searchParams.has('error') || url.searchParams.has('msg')) {
+                url.searchParams.delete('success');
+                url.searchParams.delete('error');
+                url.searchParams.delete('msg');
+                window.history.replaceState({}, '', url);
+            }
+        }
+    });
+</script>

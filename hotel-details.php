@@ -16,7 +16,7 @@ if (!$hotel) {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title><?php echo htmlspecialchars($hotel['name']); ?> | Hotel Details - Travelo</title>
+    <title><?php echo htmlspecialchars($hotel['name']); ?> | Hotel Details - Travolo</title>
     <link rel="shortcut icon" href="assets/images/favicon.ico" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
