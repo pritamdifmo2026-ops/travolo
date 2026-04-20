@@ -2785,7 +2785,3 @@ $room_modals_html = '';
 </body>
 
 </html>
-pt>
-</body>
-
-</html>
