@@ -2499,7 +2499,7 @@ include_once 'includes/auth.php';
             });
         }
     </script>
-    <?php include 'includes/footer.php'; ?>
+
 </body>
 
 </html>

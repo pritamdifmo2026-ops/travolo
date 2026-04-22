@@ -2258,7 +2258,7 @@ include 'includes/db.php'; ?>
             });
         }
     </script>
-    <?php include 'includes/footer.php'; ?>
+
 </body>
 
 </html>
