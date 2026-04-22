@@ -307,7 +307,7 @@
                         <span class="sub-title2">About Company</span>
                     </div>
                     <div class="cta-content-box text-white pt-3">
-                        <h2 class="mb-35 text-white">Ready to Travel Smarter and Safer & Stress-Free </h2>
+                        <h2 class="mb-35 text-white">Ready to Travel Smarter Safer & Stress-Free </h2>
                         <a href="about.php" class="btn btn-green">Check Availability</a>
                     </div>
                 </div>
