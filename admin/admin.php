@@ -918,27 +918,27 @@ $room_modals_html = '';
 
         <div class="sidebar-content">
             <ul class="sidebar-menu">
-                <li><a href="#" class="nav-link active" data-target="flights"><i class="fas fa-plane-departure"></i>
+                <li><a href="#" class="admin-nav-link active" data-target="flights"><i class="fas fa-plane-departure"></i>
                         Flight
                         Bookings</a></li>
-                <li><a href="#" class="nav-link" data-target="flight-searches"><i class="fas fa-search-location"></i>
+                <li><a href="#" class="admin-nav-link" data-target="flight-searches"><i class="fas fa-search-location"></i>
                         Flight Searches</a></li>
-                <li><a href="#" class="nav-link" data-target="manage-routes"><i class="fas fa-route"></i> Manage
+                <li><a href="#" class="admin-nav-link" data-target="manage-routes"><i class="fas fa-route"></i> Manage
                         Routes</a></li>
-                <li><a href="#" class="nav-link" data-target="manage-offers"><i class="fas fa-tags"></i> Manage
+                <li><a href="#" class="admin-nav-link" data-target="manage-offers"><i class="fas fa-tags"></i> Manage
                         Offers</a></li>
-                <li><a href="#" class="nav-link" data-target="cabs"><i class="fas fa-car-side"></i> Cab Bookings</a>
+                <li><a href="#" class="admin-nav-link" data-target="cabs"><i class="fas fa-car-side"></i> Cab Bookings</a>
                 </li>
-                <li><a href="#" class="nav-link" data-target="manage-cabs"><i class="fas fa-taxi"></i> Manage Cabs</a>
+                <li><a href="#" class="admin-nav-link" data-target="manage-cabs"><i class="fas fa-taxi"></i> Manage Cabs</a>
                 </li>
-                <li><a href="#" class="nav-link" data-target="hotel-bookings"><i class="fas fa-hotel"></i> Hotel Bookings</a>
+                <li><a href="#" class="admin-nav-link" data-target="hotel-bookings"><i class="fas fa-hotel"></i> Hotel Bookings</a>
                 </li>
-                <li><a href="#" class="nav-link" data-target="hotel-inventory"><i class="fas fa-building"></i> Manage
+                <li><a href="#" class="admin-nav-link" data-target="hotel-inventory"><i class="fas fa-building"></i> Manage
                         Hotels</a></li>
-                <li><a href="#" class="nav-link" data-target="hotel-promotional"><i class="fas fa-percent text-warning"></i>
+                <li><a href="#" class="admin-nav-link" data-target="hotel-promotional"><i class="fas fa-percent text-warning"></i>
                         Hotel Offers</a></li>
 
-                <li><a href="#" class="nav-link" data-target="contacts"><i class="fas fa-envelope-open-text"></i>
+                <li><a href="#" class="admin-nav-link" data-target="contacts"><i class="fas fa-envelope-open-text"></i>
                         Messages</a></li>
                 <li><a href="../index.php" target="_blank"><i class="fas fa-external-link-alt"></i> View Website</a>
                 </li>
@@ -2742,40 +2742,42 @@ $room_modals_html = '';
                     window.history.replaceState({}, '', url);
                 }
             }
-        });
+            // Admin Tab Switching Logic
+            const adminLinks = document.querySelectorAll('.admin-nav-link');
+            const dataCards = document.querySelectorAll('.data-card');
 
-        const navLinks = document.querySelectorAll('.nav-link');
-        const dataCards = document.querySelectorAll('.data-card');
-
-        function switchTab(target) {
-            const link = document.querySelector(`.nav-link[data-target="${target}"]`);
-            if (link) {
-                navLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                const targetId = target + '-card';
-                dataCards.forEach(card => card.classList.remove('active'));
-                const targetCard = document.getElementById(targetId);
-                if (targetCard) targetCard.classList.add('active');
-                localStorage.setItem('activeAdminTab', target);
+            function switchTab(target) {
+                const link = document.querySelector(`.admin-nav-link[data-target="${target}"]`);
+                if (link) {
+                    adminLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    const targetId = target + '-card';
+                    dataCards.forEach(card => card.classList.remove('active'));
+                    const targetCard = document.getElementById(targetId);
+                    if (targetCard) targetCard.classList.add('active');
+                    localStorage.setItem('activeAdminTab', target);
+                }
             }
-        }
 
-        navLinks.forEach(link => {
-            link.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = this.getAttribute('data-target');
-                switchTab(target);
+            adminLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('data-target');
+                    if (target) switchTab(target);
+                });
             });
-        });
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlTab = urlParams.get('tab');
-        const savedTab = localStorage.getItem('activeAdminTab');
-        if (urlTab) {
-            switchTab(urlTab);
-        } else if (savedTab) {
-            switchTab(savedTab);
-        }
+            // Initial Tab Selection
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlTab = urlParams.get('tab');
+            const savedTab = localStorage.getItem('activeAdminTab');
+            
+            if (urlTab) {
+                switchTab(urlTab);
+            } else if (savedTab) {
+                switchTab(savedTab);
+            }
+        });
     </script>
     <?php
     echo $offer_modals_html;
