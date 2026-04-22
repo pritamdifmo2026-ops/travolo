@@ -206,6 +206,20 @@ $tables = [
         website VARCHAR(100),
         message TEXT,
         date_sent TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )",
+    "CREATE TABLE IF NOT EXISTS flight_searches (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        from_city VARCHAR(100),
+        to_city VARCHAR(100),
+        depart_date VARCHAR(30),
+        trip_type VARCHAR(30),
+        mobile VARCHAR(20),
+        email VARCHAR(100),
+        adults INT,
+        children INT,
+        infants INT,
+        travel_class VARCHAR(30),
+        search_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )"
 ];
 
