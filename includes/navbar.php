@@ -1,5 +1,10 @@
 <?php include_once __DIR__ . '/auth.php'; ?>
-<!-- Preloader Disabled -->
+<!--====== Start Preloader ======-->
+<div class="preloader">
+    <div class="loader">
+        <div class="pre-box"></div>
+    </div>
+</div><!--====== End Preloader ======-->
 
 <!--====== Search From ======-->
 <div class="modal fade search-modal" id="search-modal">
@@ -58,7 +63,8 @@
                     <div class="header-top-right d-flex align-items-center justify-content-end">
                         <?php if (is_logged_in()): ?>
                             <div class="user-top-info text-white me-4" style="font-size: 14px; font-weight: 500;">
-                                <i class="fas fa-user-circle me-2"></i>Hello, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>
+                                <i class="fas fa-user-circle me-2"></i>Hello,
+                                <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?>
                             </div>
                             <a href="logout.php" class="text-white fw-bold" style="font-size: 14px;">
                                 <i class="fas fa-sign-out-alt me-1"></i>Logout
@@ -73,7 +79,7 @@
     <div class="header-navigation navigation-white">
         <div class="nav-overlay"></div>
         <div class="container">
-            <div class="primary-menu black-bg px-0">
+            <div class="primary-menu px-0">
                 <!--====== Site Branding ======-->
                 <div class="site-brading ">
                     <a href="index.php" class="brand-logo"><img src="assets/images/logo1.png" width="150px"

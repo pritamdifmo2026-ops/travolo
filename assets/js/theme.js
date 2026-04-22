@@ -72,20 +72,6 @@
             $(this).toggleClass('sub-menu-open')
         });
 
-        // check browser width in real-time
-        function breakpointCheck() {
-            var windowWidth = window.innerWidth;
-            if (windowWidth <= 1199) {
-                navContainer.addClass('breakpoint-on');
-            }
-            else {
-                navContainer.removeClass('breakpoint-on');
-            }
-        }
-        breakpointCheck();
-        var_window.on('resize', function () {
-            breakpointCheck();
-        });
     };
 
     // Document Ready
