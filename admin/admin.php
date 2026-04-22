@@ -2742,36 +2742,33 @@ $room_modals_html = '';
                     window.history.replaceState({}, '', url);
                 }
             }
-            // Admin Tab Switching Logic
-            const adminLinks = document.querySelectorAll('.admin-nav-link');
-            const dataCards = document.querySelectorAll('.data-card');
+            // Robust Tab Switching using Event Delegation
+                        document.addEventListener('click', function (e) {
+                            const link = e.target.closest('.admin-nav-link');
+                            if (link) {
+                                e.preventDefault();
+                                const target = link.getAttribute('data-target');
+                                if (target) {
+                                    document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+                                    link.classList.add('active');
+                                    document.querySelectorAll('.data-card').forEach(c => c.classList.remove('active'));
+                                    const targetCard = document.getElementById(target + '-card');
+                                    if (targetCard) targetCard.classList.add('active');
+                                    localStorage.setItem('activeAdminTab', target);
+                                }
+                            }
+                        });
 
-            function switchTab(target) {
-                const link = document.querySelector(`.admin-nav-link[data-target="${target}"]`);
-                if (link) {
-                    adminLinks.forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
-                    const targetId = target + '-card';
-                    dataCards.forEach(card => card.classList.remove('active'));
-                    const targetCard = document.getElementById(targetId);
-                    if (targetCard) targetCard.classList.add('active');
-                    localStorage.setItem('activeAdminTab', target);
-                }
-            }
-
-            adminLinks.forEach(link => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = this.getAttribute('data-target');
-                    if (target) switchTab(target);
-                });
-            });
-
-            // Initial Tab Selection
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlTab = urlParams.get('tab');
-            const savedTab = localStorage.getItem('activeAdminTab');
-            
+                        // Initial Tab Selection
+                        const savedTab = localStorage.getItem('activeAdminTab') || 'flights';
+                        const initialLink = document.querySelector('.admin-nav-link[data-target="' + savedTab + '"]');
+                        if (initialLink) {
+                            document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+                            initialLink.classList.add('active');
+                            document.querySelectorAll('.data-card').forEach(c => c.classList.remove('active'));
+                            const card = document.getElementById(savedTab + '-card');
+                            if (card) card.classList.add('active');
+                        }
             if (urlTab) {
                 switchTab(urlTab);
             } else if (savedTab) {
