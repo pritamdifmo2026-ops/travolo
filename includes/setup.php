@@ -72,12 +72,13 @@ foreach ($tables_to_check as $table) {
     $cols = [
         'user_id' => 'INT(6) UNSIGNED DEFAULT 0 AFTER id',
         'email' => 'VARCHAR(100) AFTER phone',
-        'booking_status' => "VARCHAR(30) DEFAULT 'Requested' AFTER " . ($table == 'hotels' ? 'booking_type' : ($table == 'flights' ? 'phone' : 'phone'))
+        'booking_status' => "VARCHAR(30) DEFAULT 'Requested'"
     ];
     if ($table == 'hotels') {
         $cols['phone'] = 'VARCHAR(20) AFTER accommodations';
         $cols['user_name'] = 'VARCHAR(50) AFTER status';
         $cols['check_out'] = 'VARCHAR(30) AFTER check_in';
+        $cols['booking_type'] = "ENUM('Check', 'Booking') DEFAULT 'Check' AFTER email";
     } else {
         $cols['user_name'] = 'VARCHAR(50) AFTER id';
     }
