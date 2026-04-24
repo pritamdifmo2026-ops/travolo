@@ -256,7 +256,7 @@
                     <!--=== We Image Box ===-->
                     <div class="we-two_image-box mb-20">
                         <div class="we-image mb-30">
-                            <img src="assets/images/abt1.png" alt="we Image">
+                            <img src="assets/images/abt1_no_badge.png" alt="we Image">
                         </div>
                     </div>
                 </div>
@@ -552,10 +552,10 @@
                                     </div>
                                 </div>
                                 <div class="testimonial-author">
-                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Christine">
+                                    <img src="https://randomuser.me/api/portraits/women/.jpg" alt="">
                                     <div>
-                                        <h6>Christine Eve</h6>
-                                        <small>Founder &amp; CEO</small>
+                                        <h6></h6>
+                                        <small>.... &amp; ...</small>
                                     </div>
                                 </div>
 
@@ -575,35 +575,17 @@
                                     </div>
                                 </div>
                                 <div class="testimonial-author">
-                                    <img src="https://randomuser.me/api/portraits/men/46.jpg" alt="John">
+                                    <img src="https://randomuser.me/api/portraits/men/.jpg" alt="">
                                     <div>
-                                        <h6>John Smith</h6>
-                                        <small>Marketing Head</small>
+                                        <h6></h6>
+                                        <small>....</small>
                                     </div>
                                 </div>
                             </div>
 
 
-                            <!-- item 3 -->
-                            <div class="carousel-item">
-                                <div class="testimonial-card">
-                                    <div class="testimonial-stars">★★★★☆</div>
-                                    <p class="mb-0 fs-6">
-                                        Bring to the table win-win survival strategies to ensure proactive domination.
-                                    </p>
-                                    <div class="testimonial-one__arrow">
-                                        <span class="first"></span>
-                                        <span class="second"></span>
-                                    </div>
-                                </div>
-                                <div class="testimonial-author">
-                                    <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Emily">
-                                    <div>
-                                        <h6>Emily Brown</h6>
-                                        <small>Product Designer</small>
-                                    </div>
-                                </div>
-                            </div>
+
+
 
                         </div>
 

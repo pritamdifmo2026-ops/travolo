@@ -1,8 +1,8 @@
 <!--====== Start Footer ======-->
-<footer class="main-footer black-bg2 pt-230">
+<footer class="main-footer black-bg2 pt-180">
     <div class="container">
         <!--=== Footer CTA ===-->
-        <div class="footer-cta pt-80 pb-40">
+        <div class="footer-cta pt-40 pb-20">
             <div class="row">
                 <div class="col-lg-6">
                     <!--=== Single CTA Item ===-->
@@ -32,14 +32,14 @@
             </div>
         </div>
         <!--=== Footer Widget ===-->
-        <div class="footer-widget-area pt-75 pb-30">
+        <div class="footer-widget-area pt-50 pb-20">
             <div class="row">
                 <div class="col-lg-3 col-md-6">
                     <!--=== Footer Widget ===-->
                     <div class="footer-widget about-company-widget mb-40">
 
                         <div class="footer-content">
-                            <a href="#" class="footer-logo"><img src="assets/images/logo1.png" alt="Site Logo"></a>
+                            <a href="#" class="footer-logo"><img src="assets/images/logo1.png" width="120px" alt="Site Logo"></a>
                             <p class="pt-4">To take travolo example which us ever undertakes laborious physical
                                 exercise except obsome.</p>
 
@@ -107,7 +107,7 @@
                     </div>
 
                     <!--=== Footer Nav ===-->
-                    <div class="footer-nav pt-3">
+                    <div class="footer-nav pt-1">
                         <ul>
                             <li><a href="terms-conditions.php">Terms & Condition</a></li>
                             <li><a href="cancellationpolicy.php">Cancellation Policy</a></li>

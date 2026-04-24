@@ -82,7 +82,7 @@
             <div class="primary-menu px-0">
                 <!--====== Site Branding ======-->
                 <div class="site-brading ">
-                    <a href="index.php" class="brand-logo"><img src="assets/images/logo1.png" width="150px"
+                    <a href="index.php" class="brand-logo"><img src="assets/images/logo1.png" width="200px"
                             alt="Logo"></a>
                 </div>
                 <!--====== Nav Menu ======-->

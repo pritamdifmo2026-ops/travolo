@@ -92,7 +92,7 @@
                         </div>
                         <div class="info">
                             <span class="title">Email Address</span>
-                            <p><a href="mailto:info@travolo.online">info@travolo.online</a></p>
+                            <p><a href="mailto:info@travolo.online">sales@travolo.online</a></p>
 
                         </div>
                     </div>
@@ -105,7 +105,7 @@
                         </div>
                         <div class="info">
                             <span class="title">Hotline</span>
-                            <p><a href="tel:+919910516644">+91-9910516644</a></p>
+                            <p><a href="tel:+919910516644">+91-8373996644</a></p>
 
                         </div>
                     </div>
