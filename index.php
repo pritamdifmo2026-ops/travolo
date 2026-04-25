@@ -780,21 +780,6 @@
         </div>
     </section><!--====== End Gallery Section ======-->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <?php include 'includes/footer.php'; ?>
 
 

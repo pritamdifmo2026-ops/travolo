@@ -142,7 +142,9 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="form_group">
-                                        <input type="text" placeholder="Name" class="form_control" name="name" required>
+                                        <input type="text" placeholder="Name" class="form_control" name="name" required
+                                            maxlength="50" pattern="[A-Za-z.' ]+"
+                                            title="Only letters and spaces allowed">
                                     </div>
                                 </div>
                                 <div class="col-lg-6">
@@ -184,6 +186,99 @@
             </div>
         </div>
     </section><!--====== End Contact Section ======-->
+
+    <!--====== Start FAQ Section ======-->
+    <section class="faq-section pb-100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-8">
+                    <div class="section-title text-center mb-50 wow fadeInDown">
+                        <span class="sub-title">Faq</span>
+                        <h2>Frequently Asked Questions</h2>
+                    </div>
+                </div>
+            </div>
+            <!-- Filter Buttons -->
+            <div class="row justify-content-center mb-40">
+                <div class="col-lg-10 text-center">
+                    <div class="faq-filter-buttons">
+                        <button class="btn btn-outline-primary rounded-pill px-4 py-2 me-2 mb-2 active"
+                            data-filter="all">All</button>
+                        <button class="btn btn-outline-primary rounded-pill px-4 py-2 me-2 mb-2"
+                            data-filter="Flight">Flights</button>
+                        <button class="btn btn-outline-primary rounded-pill px-4 py-2 me-2 mb-2"
+                            data-filter="Hotel">Hotels</button>
+                        <button class="btn btn-outline-primary rounded-pill px-4 py-2 me-2 mb-2"
+                            data-filter="Cab">Cabs</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="accordion" id="faqAccordion">
+                        <?php
+                        include 'includes/db.php';
+                        $faqs = $conn->query("SELECT * FROM faqs WHERE status = 1 ORDER BY sort_order ASC, id DESC");
+                        $count = 0;
+                        if ($faqs && $faqs->num_rows > 0):
+                            while ($faq = $faqs->fetch_assoc()):
+                                $count++;
+                                ?>
+                                <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden faq-item"
+                                    data-category="<?php echo $faq['category']; ?>">
+                                    <h2 class="accordion-header" id="heading<?php echo $faq['id']; ?>">
+                                        <button class="accordion-button collapsed fw-bold py-4 px-4 bg-white" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#collapse<?php echo $faq['id']; ?>"
+                                            aria-expanded="false" aria-controls="collapse<?php echo $faq['id']; ?>"
+                                            style="font-size: 18px; color: #133a25;">
+                                            <?php echo htmlspecialchars($faq['question']); ?>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse<?php echo $faq['id']; ?>" class="accordion-collapse collapse"
+                                        aria-labelledby="heading<?php echo $faq['id']; ?>" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body px-4 pb-4 pt-0 text-muted"
+                                            style="font-size: 16px; line-height: 1.8;">
+                                            <?php echo nl2br(htmlspecialchars($faq['answer'])); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php
+                            endwhile;
+                        else:
+                            ?>
+                            <p class="text-center text-muted">More questions coming soon!</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterButtons = document.querySelectorAll('.faq-filter-buttons button');
+            const faqItems = document.querySelectorAll('.faq-item');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const filter = this.getAttribute('data-filter');
+
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Filter items
+                    faqItems.forEach(item => {
+                        if (filter === 'all' || item.getAttribute('data-category') === filter) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+    <!--====== End FAQ Section ======-->
     <!--====== Start Gallery Section ======-->
     <section class="gallery-section mbm-150">
         <div class="container-fluid">

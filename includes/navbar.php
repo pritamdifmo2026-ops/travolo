@@ -81,7 +81,7 @@
         <div class="container">
             <div class="primary-menu px-0">
                 <!--====== Site Branding ======-->
-                <div class="site-brading ">
+                <div class="site-branding">
                     <a href="index.php" class="brand-logo"><img src="assets/images/logo1.png" width="200px"
                             alt="Logo"></a>
                 </div>

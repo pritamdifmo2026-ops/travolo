@@ -13,7 +13,7 @@
                         <div class="content">
                             <h3 class="title text-white">Need Any Support For
                                 Tour & Travels ?</h3>
-                            <a href="#" class="icon-btn"><i class="far fa-long-arrow-right"></i></a>
+                            <a href="contact.php" class="icon-btn"><i class="far fa-long-arrow-right"></i></a>
                         </div>
                     </div>
                 </div>

@@ -1411,7 +1411,8 @@ button {
   padding: 0;
   border: none;
   background: transparent;
-  display: none; /* Hidden on desktop */
+  display: none;
+  /* Hidden on desktop */
 }
 
 .header-navigation .navbar-toggler span {
@@ -1424,9 +1425,17 @@ button {
   transition: 0.3s;
 }
 
-.header-navigation .navbar-toggler span:nth-child(1) { top: 0; }
-.header-navigation .navbar-toggler span:nth-child(2) { top: 9px; }
-.header-navigation .navbar-toggler span:nth-child(3) { top: 18px; }
+.header-navigation .navbar-toggler span:nth-child(1) {
+  top: 0;
+}
+
+.header-navigation .navbar-toggler span:nth-child(2) {
+  top: 9px;
+}
+
+.header-navigation .navbar-toggler span:nth-child(3) {
+  top: 18px;
+}
 
 /* Mobile Responsiveness (Pure CSS) */
 @media screen and (max-width: 1199px) {
@@ -1456,6 +1465,10 @@ button {
 
   .header-navigation .main-menu ul {
     display: block;
+  }
+
+  .header-navigation .main-menu ul>li>a {
+    padding: 10px 0;
   }
 
   .header-navigation .main-menu ul>li {
@@ -1609,10 +1622,7 @@ button {
 
 @media (max-width: 1199px) {
   .header-three .header-navigation .primary-menu {
-    padding: 15px;
-    margin-bottom: 0;
-    margin: 0 -15px;
-    border-radius: 0;
+    padding: 10px 8px !important;
   }
 }
 
@@ -1662,6 +1672,17 @@ button {
 
   100% {
     top: 0;
+  }
+}
+
+@media (max-width: 1199px) {
+  .site-branding {
+    padding: 5px 0;
+  }
+
+  .brand-logo img {
+    max-height: 45px !important;
+    width: auto !important;
   }
 }
 

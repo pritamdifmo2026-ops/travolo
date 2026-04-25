@@ -46,8 +46,67 @@ $conn->query("CREATE TABLE IF NOT EXISTS hotel_offers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )");
 
+// Auto-fix: Ensure faqs table exists with category column
+$conn->query("CREATE TABLE IF NOT EXISTS faqs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category VARCHAR(50) DEFAULT 'General',
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    sort_order INT DEFAULT 0,
+    status TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)");
+$check_cat = $conn->query("SHOW COLUMNS FROM faqs LIKE 'category'");
+if ($check_cat && $check_cat->num_rows == 0) {
+    $conn->query("ALTER TABLE faqs ADD category VARCHAR(50) DEFAULT 'General' AFTER id");
+}
+
+// Seed initial categorized FAQs if empty
+$check_empty = $conn->query("SELECT id FROM faqs LIMIT 1");
+if ($check_empty && $check_empty->num_rows == 0) {
+    $conn->query("INSERT INTO faqs (category, question, answer, sort_order) VALUES 
+    ('Flight', 'How do I check my flight status?', 'You can check your live flight status by entering your flight number on our Flights page or by visiting the airline\'s official website.', 1),
+    ('Flight', 'What is the baggage allowance?', 'Baggage allowance varies by airline. Generally, domestic flights allow 15kg check-in and 7kg cabin luggage.', 2),
+    ('Hotel', 'Can I cancel my hotel booking?', 'Cancellation policies depend on the specific hotel and room type. You can view the policy in your booking confirmation.', 1),
+    ('Hotel', 'Is breakfast included in the room price?', 'This depends on the plan you select. Look for the \"Breakfast Included\" tag during your selection.', 2),
+    ('Cab', 'How do I track my cab?', 'Once a driver is assigned, you will receive a tracking link via SMS and email 30 minutes before your pickup time.', 1),
+    ('Cab', 'Are there any extra toll charges?', 'Toll charges and parking fees are usually extra and to be paid directly to the driver unless specified otherwise.', 2),
+    ('General', 'How can I contact customer support?', 'Our support team is available 24/7. You can reach us via the contact form, email, or our helpline number.', 1)");
+}
+
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header('Location: ../login.php');
+    exit;
+}
+
+// FAQ Management Logic
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_faq') {
+    $faq_id = intval($_POST['faq_id'] ?? 0);
+    $category = $conn->real_escape_string($_POST['category']);
+    $question = $conn->real_escape_string($_POST['question']);
+    $answer = $conn->real_escape_string($_POST['answer']);
+    $order = intval($_POST['sort_order']);
+
+    if ($faq_id > 0) {
+        $sql = "UPDATE faqs SET category='$category', question='$question', answer='$answer', sort_order=$order WHERE id=$faq_id";
+    } else {
+        $sql = "INSERT INTO faqs (category, question, answer, sort_order) VALUES ('$category', '$question', '$answer', $order)";
+    }
+
+    $conn->query($sql);
+    header('Location: admin.php?tab=manage-faqs&success=FAQ+Saved');
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'delete_faq' && isset($_GET['id'])) {
+    $conn->query("DELETE FROM faqs WHERE id=" . (int)$_GET['id']);
+    header('Location: admin.php?tab=manage-faqs&success=FAQ+Deleted');
+    exit;
+}
+
+if (isset($_GET['action']) && $_GET['action'] === 'toggle_faq' && isset($_GET['id'])) {
+    $conn->query("UPDATE faqs SET status = !status WHERE id=" . (int)$_GET['id']);
+    header('Location: admin.php?tab=manage-faqs&success=FAQ+Status+Updated');
     exit;
 }
 
@@ -938,6 +997,7 @@ $room_modals_html = '';
                 <li><a href="#" class="admin-nav-link" data-target="hotel-promotional"><i class="fas fa-percent text-warning"></i>
                         Hotel Offers</a></li>
 
+                <li><a href="#" class="admin-nav-link" data-target="manage-faqs"><i class="fas fa-question-circle"></i> Manage FAQ</a></li>
                 <li><a href="#" class="admin-nav-link" data-target="contacts"><i class="fas fa-envelope-open-text"></i>
                         Messages</a></li>
                 <li><a href="../index.php" target="_blank"><i class="fas fa-external-link-alt"></i> View Website</a>
@@ -2693,6 +2753,117 @@ $room_modals_html = '';
                 </div>
             </div>
         </div>
+        <!-- Manage FAQ Card -->
+        <div class="data-card" id="manage-faqs-card">
+            <div class="card-header">
+                <h4><i class="fas fa-question-circle"></i> Manage Frequently Asked Questions</h4>
+            </div>
+            <div class="p-4">
+                <!-- Add/Edit FAQ Form -->
+                <div class="card border-0 bg-light rounded-4 mb-4 shadow-sm p-4">
+                    <h6 class="fw-bold mb-3"><i class="fas fa-plus-circle me-2 text-primary"></i>Add / Update FAQ</h6>
+                    <form action="admin.php" method="POST" class="row g-3">
+                        <input type="hidden" name="action" value="save_faq">
+                        <input type="hidden" name="faq_id" id="faq_id" value="0">
+                        <div class="col-md-6">
+                            <label class="small fw-bold text-muted">Category</label>
+                            <select class="form-select rounded-pill border-0 shadow-sm px-3" name="category" id="faq_category" required style="height: 45px;">
+                                <option value="General">General</option>
+                                <option value="Flight">Flight</option>
+                                <option value="Hotel">Hotel</option>
+                                <option value="Cab">Cab</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold text-muted">Sort Order</label>
+                            <input type="number" class="form-control rounded-pill border-0 shadow-sm px-3" name="sort_order" id="faq_order" value="0" style="height: 45px;">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="small fw-bold text-muted">Question</label>
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="question" id="faq_question" placeholder="E.g. How do I book a tour?" required style="height: 45px;">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="small fw-bold text-muted">Answer</label>
+                            <textarea class="form-control rounded-4 border-0 shadow-sm px-3" name="answer" id="faq_answer" rows="3" placeholder="Provide a detailed answer here..." required></textarea>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm">Save FAQ</button>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="button" class="btn btn-light w-100 rounded-pill fw-bold py-2 shadow-sm" onclick="resetFaqForm()">Clear</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Category</th>
+                                <th>Question & Answer</th>
+                                <th>Order</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $f_res = $conn->query("SELECT * FROM faqs ORDER BY sort_order ASC, id DESC");
+                            if ($f_res && $f_res->num_rows > 0) {
+                                while ($f = $f_res->fetch_assoc()) {
+                                    $status_badge = $f['status'] ? 'bg-success' : 'bg-secondary';
+                                    $status_text = $f['status'] ? 'Active' : 'Inactive';
+                                    $cat_badge = 'bg-light text-dark';
+                                    if($f['category'] == 'Flight') $cat_badge = 'bg-primary text-white';
+                                    if($f['category'] == 'Hotel') $cat_badge = 'bg-success text-white';
+                                    if($f['category'] == 'Cab') $cat_badge = 'bg-warning text-dark';
+                                    
+                                    $q_json = json_encode($f['question']);
+                                    $a_json = json_encode($f['answer']);
+                                    $c_json = json_encode($f['category']);
+                                    echo "<tr>";
+                                    echo "<td><span class='badge {$cat_badge} rounded-pill px-3'>{$f['category']}</span></td>";
+                                    echo "<td>
+                                            <div class='fw-bold text-dark'>{$f['question']}</div>
+                                            <div class='small text-muted text-truncate' style='max-width:400px;'>{$f['answer']}</div>
+                                          </td>";
+                                    echo "<td><span class='badge bg-light text-dark border rounded-pill px-3'>{$f['sort_order']}</span></td>";
+                                    echo "<td><span class='badge {$status_badge} rounded-pill'>{$status_text}</span></td>";
+                                    echo "<td class='text-end'>
+                                            <button type='button' class='btn btn-sm btn-outline-primary rounded-pill px-3 me-2' onclick='editFaq({$f['id']}, {$q_json}, {$a_json}, {$f['sort_order']}, {$c_json})'><i class='fas fa-edit'></i></button>
+                                            <a href='admin.php?action=toggle_faq&id={$f['id']}' class='btn btn-sm btn-outline-warning rounded-pill px-3 me-2'><i class='fas fa-eye-slash'></i></a>
+                                            <a href='admin.php?action=delete_faq&id={$f['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' onclick='return confirm(\"Delete this FAQ?\")'><i class='fas fa-trash'></i></a>
+                                          </td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='4' class='text-center py-5 text-muted'>No FAQs found. Add your first one above!</td></tr>";
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function editFaq(id, q, a, order, cat) {
+                document.getElementById('faq_id').value = id;
+                document.getElementById('faq_question').value = q;
+                document.getElementById('faq_answer').value = a;
+                document.getElementById('faq_order').value = order;
+                document.getElementById('faq_category').value = cat;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            function resetFaqForm() {
+                document.getElementById('faq_id').value = '0';
+                document.getElementById('faq_question').value = '';
+                document.getElementById('faq_answer').value = '';
+                document.getElementById('faq_order').value = '0';
+                document.getElementById('faq_category').value = 'General';
+            }
+        </script>
+    </div>
     </div>
 
     <!-- JS for Tabs -->
@@ -2759,20 +2930,18 @@ $room_modals_html = '';
                             }
                         });
 
-                        // Initial Tab Selection
-                        const savedTab = localStorage.getItem('activeAdminTab') || 'flights';
-                        const initialLink = document.querySelector('.admin-nav-link[data-target="' + savedTab + '"]');
-                        if (initialLink) {
-                            document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
-                            initialLink.classList.add('active');
-                            document.querySelectorAll('.data-card').forEach(c => c.classList.remove('active'));
-                            const card = document.getElementById(savedTab + '-card');
-                            if (card) card.classList.add('active');
-                        }
-            if (urlTab) {
-                switchTab(urlTab);
-            } else if (savedTab) {
-                switchTab(savedTab);
+            // Initial Tab Selection from URL or Storage
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlTab = urlParams.get('tab');
+            const savedTab = urlTab || localStorage.getItem('activeAdminTab') || 'flights';
+            
+            const initialLink = document.querySelector('.admin-nav-link[data-target="' + savedTab + '"]');
+            if (initialLink) {
+                document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+                initialLink.classList.add('active');
+                document.querySelectorAll('.data-card').forEach(c => c.classList.remove('active'));
+                const card = document.getElementById(savedTab + '-card');
+                if (card) card.classList.add('active');
             }
         });
     </script>

@@ -2023,6 +2023,58 @@ include_once 'includes/auth.php';
             </div>
         </div>
     </section>
+    <!--====== Start FAQ Section ======-->
+    <section class="faq-section pb-100 mt-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-8">
+                    <div class="section-title text-center mb-50 wow fadeInDown">
+                        <span class="sub-title">Faq</span>
+                        <h2>Cab Booking FAQs</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="accordion" id="cabFaqAccordion">
+                        <?php
+                        $faqs = $conn->query("SELECT * FROM faqs WHERE status = 1 AND category = 'Cab' ORDER BY sort_order ASC LIMIT 5");
+                        if ($faqs && $faqs->num_rows > 0):
+                            while ($faq = $faqs->fetch_assoc()):
+                                ?>
+                                <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
+                                    <h2 class="accordion-header" id="cHeading<?php echo $faq['id']; ?>">
+                                        <button class="accordion-button collapsed fw-bold py-4 px-4 bg-white" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#cCollapse<?php echo $faq['id']; ?>"
+                                            aria-expanded="false" aria-controls="cCollapse<?php echo $faq['id']; ?>"
+                                            style="font-size: 18px; color: #133a25;">
+                                            <?php echo htmlspecialchars($faq['question']); ?>
+                                        </button>
+                                    </h2>
+                                    <div id="cCollapse<?php echo $faq['id']; ?>" class="accordion-collapse collapse"
+                                        aria-labelledby="cHeading<?php echo $faq['id']; ?>" data-bs-parent="#cabFaqAccordion">
+                                        <div class="accordion-body px-4 pb-4 pt-0 text-muted"
+                                            style="font-size: 16px; line-height: 1.8;">
+                                            <?php echo nl2br(htmlspecialchars($faq['answer'])); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php
+                            endwhile;
+                        else:
+                            ?>
+                            <div class="text-center p-5 bg-light rounded-4">
+                                <i class="fas fa-taxi fa-3x mb-3 text-muted"></i>
+                                <p class="text-muted mb-0">Need help with cab bookings? Check our <a href="contact.php"
+                                        class="text-primary fw-bold">General FAQ</a> or contact support.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--====== End FAQ Section ======-->
 
 
     <!--====== Start Gallery Section ======-->
@@ -2499,6 +2551,7 @@ include_once 'includes/auth.php';
             });
         }
     </script>
+
 
 </body>
 
