@@ -7,6 +7,7 @@ if (is_logged_in()) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -135,7 +136,7 @@ if (is_logged_in()) {
             transition: color 0.3s;
         }
 
-        .form-control-custom:focus + .form-icon {
+        .form-control-custom:focus+.form-icon {
             color: var(--accent-color);
         }
 
@@ -213,8 +214,15 @@ if (is_logged_in()) {
 
         /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .login-card {
@@ -236,56 +244,64 @@ if (is_logged_in()) {
         }
     </style>
 </head>
+
 <body>
 
-<div class="login-container">
-    <div class="login-card">
-        <a href="index.php" class="back-to-home"><i class="fas fa-arrow-left me-2"></i>Home</a>
-        
-        <div class="logo-wrapper">
-            <img src="assets/images/logo1.png" alt="Travolo Logo">
-        </div>
+    <div class="login-container">
+        <div class="login-card">
+            <a href="index.php" class="back-to-home"><i class="fas fa-arrow-left me-2"></i>Home</a>
 
-        <div id="phoneSection">
-            <div class="login-header">
-                <h2>Welcome to Travolo</h2>
-                <p>Login to book your premium cab experience.</p>
+            <div class="logo-wrapper">
+                <img src="assets/images/logo1.png" alt="Travolo Logo">
             </div>
 
-            <?php if (isset($_GET['msg']) && $_GET['msg'] == 'limit_reached'): ?>
-                <div class="limit-reached-alert">
-                    <i class="fas fa-exclamation-circle"></i>
-                    You've reached your free search limit. Please login to continue.
-                </div>
-            <?php endif; ?>
-
-            <form id="phoneForm">
-                <input type="hidden" name="action" value="send_otp">
-                
-                <div class="form-group-custom">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" id="userName" name="name" class="form-control-custom" placeholder="John Doe" required>
-                    <i class="fas fa-user form-icon" style="top: 48px;"></i>
+            <div id="phoneSection">
+                <div class="login-header">
+                    <h2>Welcome to Travolo</h2>
+                    <p>Login to book your premium cab experience.</p>
                 </div>
 
-                <div class="form-group-custom">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" id="userEmail" name="email" class="form-control-custom" placeholder="you@example.com" required>
-                    <i class="fas fa-envelope form-icon" style="top: 48px;"></i>
-                </div>
+                    <?php if (isset($_GET['msg']) && $_GET['msg'] == 'limit_reached'): ?>
+                    <div class="limit-reached-alert">
+                        <i class="fas fa-exclamation-circle"></i>
+                        You've reached your free search limit. Please login to continue.
+                    </div>
+                    <?php endif; ?>
 
-                <div class="form-group-custom">
-                    <label class="form-label">Phone Number</label>
-                    <input type="tel" id="mobileNumber" name="phone" class="form-control-custom" placeholder="Enter 10 Digit Mobile" value="<?php echo htmlspecialchars($_GET['phone'] ?? ''); ?>" required pattern="[6-9][0-9]{9}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" title="Please enter a valid 10-digit mobile number">
-                    <i class="fas fa-phone form-icon" style="top: 48px;"></i>
-                </div>
+                <form id="phoneForm">
+                    <input type="hidden" name="action" value="send_otp">
 
-                <button type="submit" class="btn-premium mb-4" id="sendOtpBtn">
-                    Get OTP <i class="fas fa-paper-plane"></i>
-                </button>
+                    <div class="form-group-custom">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="userName" name="name" class="form-control-custom" placeholder="John Doe"
+                            required>
+                        <i class="fas fa-user form-icon" style="top: 48px;"></i>
+                    </div>
 
-                <!-- Social Login Section -->
-                <div class="text-center mb-4">
+                    <div class="form-group-custom">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="userEmail" name="email" class="form-control-custom"
+                            placeholder="you@example.com" required>
+                        <i class="fas fa-envelope form-icon" style="top: 48px;"></i>
+                    </div>
+
+                    <div class="form-group-custom">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" id="mobileNumber" name="phone" class="form-control-custom"
+                            placeholder="Enter 10 Digit Mobile"
+                            value="<?php echo htmlspecialchars($_GET['phone'] ?? ''); ?>" required
+                            pattern="[6-9][0-9]{9}" maxlength="10"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            title="Please enter a valid 10-digit mobile number">
+                        <i class="fas fa-phone form-icon" style="top: 48px;"></i>
+                    </div>
+
+                    <button type="submit" class="btn-premium mb-4" id="sendOtpBtn">
+                        Get OTP <i class="fas fa-paper-plane"></i>
+                    </button>
+
+                    <!-- Social Login Section -->
+                    <!-- <div class="text-center mb-4">
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
                         <hr style="flex:1; border-color:#eee;">
                         <span style="font-size:12px; color:#999; font-weight:700; text-transform:uppercase;">Or Continue With</span>
@@ -298,268 +314,269 @@ if (is_logged_in()) {
                             <i class="fab fa-facebook-f"></i>
                         </button>
                     </div>
-                </div>
-            </form>
-        </div>
-
-        <div id="otpSection" class="otp-display">
-            <div class="login-header">
-                <h2>Verify OTP</h2>
-                <p>We've sent a 6-digit code to <span id="displayPhone" class="fw-bold text-dark"></span></p>
+                </div> -->
+                </form>
             </div>
 
-            <form id="otpForm">
-                <input type="hidden" name="action" value="verify_otp">
-                <input type="hidden" name="phone" id="otpPhone">
-                <div class="otp-inputs">
-                    <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
-                    <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
-                    <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
-                    <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
-                    <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
-                    <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
+            <div id="otpSection" class="otp-display">
+                <div class="login-header">
+                    <h2>Verify OTP</h2>
+                    <p>We've sent a 6-digit code to <span id="displayPhone" class="fw-bold text-dark"></span></p>
                 </div>
-                <input type="hidden" name="otp" id="finalOtp">
-                
-                <button type="submit" class="btn-premium">
-                    Verify & Login <i class="fas fa-check-circle"></i>
-                </button>
 
-                <div class="resend-link">
-                    Didn't receive code? <a href="#" id="resendOtp">Resend Now</a>
-                </div>
-            </form>
+                <form id="otpForm">
+                    <input type="hidden" name="action" value="verify_otp">
+                    <input type="hidden" name="phone" id="otpPhone">
+                    <div class="otp-inputs">
+                        <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
+                        <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
+                        <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
+                        <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
+                        <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
+                        <input type="text" class="otp-digit" maxlength="1" pattern="\d*" inputmode="numeric">
+                    </div>
+                    <input type="hidden" name="otp" id="finalOtp">
+
+                    <button type="submit" class="btn-premium">
+                        Verify & Login <i class="fas fa-check-circle"></i>
+                    </button>
+
+                    <div class="resend-link">
+                        Didn't receive code? <a href="#" id="resendOtp">Resend Now</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    // OTP Input Navigation
-    const digits = document.querySelectorAll('.otp-digit');
-    digits.forEach((digit, index) => {
-        digit.addEventListener('input', (e) => {
-            if (e.target.value.length === 1 && index < digits.length - 1) {
-                digits[index + 1].focus();
-            }
-        });
-        digit.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) {
-                digits[index - 1].focus();
-            }
-        });
-    });
-
-    // Form Handling
-    const phoneForm = document.getElementById('phoneForm');
-    const otpSection = document.getElementById('otpSection');
-    const phoneSection = document.getElementById('phoneSection');
-    const otpForm = document.getElementById('otpForm');
-
-    phoneForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const phone = document.getElementById('mobileNumber').value;
-        
-        if (phone.length < 10) {
-             Swal.fire('Error', 'Please enter a valid phone number', 'error');
-             return;
-        }
-
-        Swal.fire({
-            title: 'Sending OTP...',
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // OTP Input Navigation
+        const digits = document.querySelectorAll('.otp-digit');
+        digits.forEach((digit, index) => {
+            digit.addEventListener('input', (e) => {
+                if (e.target.value.length === 1 && index < digits.length - 1) {
+                    digits[index + 1].focus();
+                }
+            });
+            digit.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) {
+                    digits[index - 1].focus();
+                }
+            });
         });
 
-        fetch('api/auth_handler.php', {
-            method: 'POST',
-            body: new FormData(this)
-        })
-        .then(res => res.json())
-        .then(data => {
-            Swal.close();
-            if (data.status === 'success') {
-                document.getElementById('displayPhone').innerText = phone;
-                document.getElementById('otpPhone').value = phone;
-                phoneSection.classList.add('otp-display'); // Hide phone section
-                otpSection.style.display = 'block'; // Show OTP section
-                
-                // For Demo: Show OTP in alert
-                Swal.fire({
-                    icon: 'info',
-                    title: 'OTP Sent',
-                    text: 'For demo purpose, your OTP is: ' + data.otp,
-                    confirmButtonColor: '#F7921E'
-                });
-            } else {
-                Swal.fire('Error', data.message, 'error');
+        // Form Handling
+        const phoneForm = document.getElementById('phoneForm');
+        const otpSection = document.getElementById('otpSection');
+        const phoneSection = document.getElementById('phoneSection');
+        const otpForm = document.getElementById('otpForm');
+
+        phoneForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const phone = document.getElementById('mobileNumber').value;
+
+            if (phone.length < 10) {
+                Swal.fire('Error', 'Please enter a valid phone number', 'error');
+                return;
             }
-        })
-        .catch(() => Swal.fire('Error', 'Network or server error', 'error'));
-    });
 
-    otpForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        let otp = "";
-        digits.forEach(d => otp += d.value);
-        
-        if (otp.length < 6) {
-            Swal.fire('Error', 'Please enter 6 digit OTP', 'error');
-            return;
-        }
-        
-        document.getElementById('finalOtp').value = otp;
+            Swal.fire({
+                title: 'Sending OTP...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
 
-        Swal.fire({
-            title: 'Verifying...',
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
-        });
+            fetch('api/auth_handler.php', {
+                method: 'POST',
+                body: new FormData(this)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    Swal.close();
+                    if (data.status === 'success') {
+                        document.getElementById('displayPhone').innerText = phone;
+                        document.getElementById('otpPhone').value = phone;
+                        phoneSection.classList.add('otp-display'); // Hide phone section
+                        otpSection.style.display = 'block'; // Show OTP section
 
-        fetch('api/auth_handler.php', {
-            method: 'POST',
-            body: new FormData(this)
-        })
-        .then(res => res.json())
-        .then(data => {
-            Swal.close();
-            if (data.status === 'success') {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Welcome!',
-                    text: 'Login successful',
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    const params = new URLSearchParams(window.location.search);
-                    const returnUrl = params.get('return_url') || 'index.php';
-                    window.location.href = returnUrl;
-                });
-            } else {
-                Swal.fire('Error', data.message, 'error');
-            }
-        })
-        .catch(() => Swal.fire('Error', 'Verification failed', 'error'));
-    });
-
-    // SOCIAL LOGIN LOGIC
-    // ==================
-    
-    // 1. Common Social Auth Handler
-    window.handleSocialAuth = function(data) {
-        Swal.fire({ title: 'Authenticating...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-        
-        const formData = new FormData();
-        formData.append('action', 'social_login');
-        formData.append('email', data.email);
-        formData.append('name', data.name);
-        formData.append('social_id', data.social_id);
-        formData.append('social_type', data.social_type);
-        if (data.phone) formData.append('phone', data.phone);
-
-        fetch('api/auth_handler.php', { method: 'POST', body: formData })
-        .then(res => res.json())
-        .then(res => {
-            Swal.close();
-            if (res.status === 'success') {
-                Swal.fire({ icon: 'success', title: 'Welcome!', text: 'Login successful', timer: 1500, showConfirmButton: false }).then(() => {
-                    const params = new URLSearchParams(window.location.search);
-                    window.location.href = params.get('return_url') || 'index.php';
-                });
-            } else if (res.status === 'require_phone') {
-                Swal.fire({
-                    title: 'One last thing!',
-                    text: 'Please enter your mobile number to complete your registration.',
-                    input: 'tel',
-                    inputPlaceholder: 'Enter 10 Digit Mobile',
-                    showCancelButton: true,
-                    confirmButtonColor: '#F7921E',
-                    preConfirm: (phone) => {
-                        if (!/^[6-9][0-9]{9}$/.test(phone)) {
-                            Swal.showValidationMessage('Invalid mobile number');
-                        }
-                        return phone;
+                        // For Demo: Show OTP in alert
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'OTP Sent',
+                            text: 'For demo purpose, your OTP is: ' + data.otp,
+                            confirmButtonColor: '#F7921E'
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
                     }
-                }).then((pResult) => {
-                    if (pResult.isConfirmed) {
-                        handleSocialAuth({ ...data, phone: pResult.value });
+                })
+                .catch(() => Swal.fire('Error', 'Network or server error', 'error'));
+        });
+
+        otpForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            let otp = "";
+            digits.forEach(d => otp += d.value);
+
+            if (otp.length < 6) {
+                Swal.fire('Error', 'Please enter 6 digit OTP', 'error');
+                return;
+            }
+
+            document.getElementById('finalOtp').value = otp;
+
+            Swal.fire({
+                title: 'Verifying...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            fetch('api/auth_handler.php', {
+                method: 'POST',
+                body: new FormData(this)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    Swal.close();
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Welcome!',
+                            text: 'Login successful',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            const params = new URLSearchParams(window.location.search);
+                            const returnUrl = params.get('return_url') || 'index.php';
+                            window.location.href = returnUrl;
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Error', 'Verification failed', 'error'));
+        });
+
+        // SOCIAL LOGIN LOGIC
+        // ==================
+
+        // 1. Common Social Auth Handler
+        window.handleSocialAuth = function (data) {
+            Swal.fire({ title: 'Authenticating...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+            const formData = new FormData();
+            formData.append('action', 'social_login');
+            formData.append('email', data.email);
+            formData.append('name', data.name);
+            formData.append('social_id', data.social_id);
+            formData.append('social_type', data.social_type);
+            if (data.phone) formData.append('phone', data.phone);
+
+            fetch('api/auth_handler.php', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(res => {
+                    Swal.close();
+                    if (res.status === 'success') {
+                        Swal.fire({ icon: 'success', title: 'Welcome!', text: 'Login successful', timer: 1500, showConfirmButton: false }).then(() => {
+                            const params = new URLSearchParams(window.location.search);
+                            window.location.href = params.get('return_url') || 'index.php';
+                        });
+                    } else if (res.status === 'require_phone') {
+                        Swal.fire({
+                            title: 'One last thing!',
+                            text: 'Please enter your mobile number to complete your registration.',
+                            input: 'tel',
+                            inputPlaceholder: 'Enter 10 Digit Mobile',
+                            showCancelButton: true,
+                            confirmButtonColor: '#F7921E',
+                            preConfirm: (phone) => {
+                                if (!/^[6-9][0-9]{9}$/.test(phone)) {
+                                    Swal.showValidationMessage('Invalid mobile number');
+                                }
+                                return phone;
+                            }
+                        }).then((pResult) => {
+                            if (pResult.isConfirmed) {
+                                handleSocialAuth({ ...data, phone: pResult.value });
+                            }
+                        });
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
                     }
                 });
-            } else {
-                Swal.fire('Error', res.message, 'error');
-            }
-        });
-    };
+        };
 
-    // 2. Google Login Callback
-    window.handleCredentialResponse = (response) => {
-        const base64Url = response.credential.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const payload = JSON.parse(window.atob(base64));
-        
-        handleSocialAuth({
-            email: payload.email,
-            name: payload.name,
-            social_id: payload.sub,
-            social_type: 'Google'
-        });
-    };
+        // 2. Google Login Callback
+        window.handleCredentialResponse = (response) => {
+            const base64Url = response.credential.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(window.atob(base64));
 
-    // 3. Facebook Login Function
-    window.loginFB = () => {
-        FB.login(function(response) {
-            if (response.status === 'connected') {
-                FB.api('/me', {fields: 'name,email'}, function(userData) {
-                    handleSocialAuth({
-                        email: userData.email,
-                        name: userData.name,
-                        social_id: userData.id,
-                        social_type: 'Facebook'
+            handleSocialAuth({
+                email: payload.email,
+                name: payload.name,
+                social_id: payload.sub,
+                social_type: 'Google'
+            });
+        };
+
+        // 3. Facebook Login Function
+        window.loginFB = () => {
+            FB.login(function (response) {
+                if (response.status === 'connected') {
+                    FB.api('/me', { fields: 'name,email' }, function (userData) {
+                        handleSocialAuth({
+                            email: userData.email,
+                            name: userData.name,
+                            social_id: userData.id,
+                            social_type: 'Facebook'
+                        });
                     });
+                }
+            }, { scope: 'public_profile,email' });
+        };
+
+        window.addEventListener('load', function () {
+            // Init Google
+            if (window.google) {
+                google.accounts.id.initialize({
+                    client_id: "your_google_client_id_here.apps.googleusercontent.com",
+                    callback: handleCredentialResponse,
+                    auto_select: false
+                });
+                google.accounts.id.renderButton(
+                    document.getElementById("googleBtn"),
+                    { theme: "outline", size: "large", shape: "pill", type: "icon" }
+                );
+            }
+
+            // Init Facebook
+            if (window.FB) {
+                FB.init({
+                    appId: 'your_fb_app_id_here',
+                    cookie: true,
+                    xfbml: true,
+                    version: 'v18.0'
                 });
             }
-        }, {scope: 'public_profile,email'});
-    };
 
-    window.addEventListener('load', function() {
-        // Init Google
-        if (window.google) {
-            google.accounts.id.initialize({
-                client_id: "your_google_client_id_here.apps.googleusercontent.com", 
-                callback: handleCredentialResponse,
-                auto_select: false
-            });
-            google.accounts.id.renderButton(
-                document.getElementById("googleBtn"),
-                { theme: "outline", size: "large", shape: "pill", type: "icon" }
-            );
-        }
-
-        // Init Facebook
-        if (window.FB) {
-            FB.init({
-              appId      : 'your_fb_app_id_here',
-              cookie     : true,
-              xfbml      : true,
-              version    : 'v18.0'
-            });
-        }
-
-        // Auto-hide limit alert and clean URL
-        const limitAlert = document.querySelector('.limit-reached-alert');
-        if (limitAlert) {
-            setTimeout(() => limitAlert.style.display = 'none', 3000);
-        }
-        if (window.history.replaceState) {
-            const url = new URL(window.location);
-            if (url.searchParams.has('msg')) {
-                url.searchParams.delete('msg');
-                window.history.replaceState({}, '', url);
+            // Auto-hide limit alert and clean URL
+            const limitAlert = document.querySelector('.limit-reached-alert');
+            if (limitAlert) {
+                setTimeout(() => limitAlert.style.display = 'none', 3000);
             }
-        }
-    });
+            if (window.history.replaceState) {
+                const url = new URL(window.location);
+                if (url.searchParams.has('msg')) {
+                    url.searchParams.delete('msg');
+                    window.history.replaceState({}, '', url);
+                }
+            }
+        });
 
-</script>
+    </script>
 
 </body>
+
 </html>
