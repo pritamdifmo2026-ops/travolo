@@ -1194,6 +1194,16 @@ include 'includes/db.php'; ?>
                             </div>
                         </div>
 
+                        <!-- FULL NAME -->
+                        <div class="search-segment" id="nameSegment">
+                            <label class="segment-label">Full Name</label>
+                            <input type="text" name="name" class="fw-bold border-0 p-0 w-100"
+                                style="font-size: 14px; outline: none; background: transparent;"
+                                placeholder="Enter Full Name"
+                                value="<?php echo htmlspecialchars($_SESSION['user_name'] ?? $_GET['name'] ?? ''); ?>"
+                                required>
+                        </div>
+
                         <!-- EMAIL ADDRESS -->
                         <div class="search-segment" id="emailSegment">
                             <label class="segment-label">Email Address</label>
@@ -2290,8 +2300,14 @@ include 'includes/db.php'; ?>
                                 Swal.fire({
                                     icon: 'success',
                                     title: 'Booking Request Sent!',
-                                    html: `Your request for <b>${airline} ${flightNo}</b> has been submitted.<br><small>Our team will contact you shortly.</small>`,
-                                    confirmButtonColor: '#FF6B35'
+                                    html: data.message,
+                                    confirmButtonColor: '#FF6B35',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    if (data.redirect) {
+                                        window.location.href = data.redirect;
+                                    }
                                 });
                             } else if (data.redirect) {
                                 Swal.fire({ icon: 'warning', title: 'Login Required', text: data.message, confirmButtonColor: '#F7921E' })

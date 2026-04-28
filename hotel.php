@@ -686,6 +686,12 @@ include_once 'includes/db.php';
                     </div>
 
                     <div class="emt-search-item emt-search-item-medium">
+                        <span class="emt-label">Full Name</span>
+                        <input type="text" class="emt-input" name="name" placeholder="Enter Full Name"
+                            value="<?php echo htmlspecialchars($_SESSION['user_name'] ?? ''); ?>" required>
+                    </div>
+
+                    <div class="emt-search-item emt-search-item-medium">
                         <span class="emt-label">Email Address</span>
                         <input type="email" class="emt-input" name="email" placeholder="you@example.com"
                             value="<?php echo htmlspecialchars($_SESSION['user_email'] ?? ''); ?>" required>
@@ -1214,13 +1220,23 @@ include_once 'includes/db.php';
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        Swal.fire({ icon: 'success', title: 'Saved!', text: data.message, confirmButtonColor: '#F7921E' })
-                            .then(() => {
+                        Swal.fire({ 
+                            icon: 'success', 
+                            title: 'Saved!', 
+                            text: data.message, 
+                            confirmButtonColor: '#F7921E',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            } else {
                                 // Reset form and summary
                                 form.reset();
                                 rooms = [{ id: 1, adults: 2, children: 0 }];
                                 updateRoomsUI();
-                            });
+                            }
+                        });
                     } else {
                         if (data.redirect) {
                             Swal.fire({ icon: 'warning', title: 'Login Required', text: data.message, confirmButtonColor: '#F7921E' })

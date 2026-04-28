@@ -196,6 +196,12 @@ addColumn('flights', 'user_name', 'VARCHAR(100) AFTER user_id');
 addColumn('cabs', 'user_name', 'VARCHAR(100) AFTER user_id');
 addColumn('cabs', 'cab_id', 'INT(6) DEFAULT 0 AFTER user_name');
 
+addColumn('cabs', 'return_date', 'VARCHAR(30) AFTER pickup_time');
+addColumn('cabs', 'return_time', 'VARCHAR(20) AFTER return_date');
+addColumn('cabs', 'hours', 'VARCHAR(20) AFTER return_time');
+addColumn('cabs', 'pickup_address', 'TEXT AFTER hours');
+addColumn('cabs', 'dropoff_address', 'TEXT AFTER pickup_address');
+
 addColumn('cab_inventory', 'hourly_price', 'INT DEFAULT 0 AFTER base_price');
 addColumn('cab_inventory', 'airport_price', 'INT DEFAULT 0 AFTER hourly_price');
 addColumn('cab_inventory', 'outstation_price', 'INT DEFAULT 0 AFTER airport_price');

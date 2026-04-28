@@ -1633,13 +1633,27 @@ include_once 'includes/auth.php';
                                         $p_res = $conn->query("SELECT * FROM cab_packages WHERE status=1 ORDER BY hours ASC");
                                         if ($p_res && $p_res->num_rows > 0) {
                                             while ($p = $p_res->fetch_assoc()) {
-                                                echo "<option value='{$p['package_name']}'>{$p['package_name']}</option>";
+                                                // Default to 8 hours if possible
+                                                $sel = ($p['hours'] == 8 || strpos($p['package_name'], '8') !== false) ? 'selected' : '';
+                                                echo "<option value='{$p['package_name']}' $sel>{$p['package_name']}</option>";
                                             }
                                         } else {
                                             echo "<option value='8hrs / 80km'>8hrs / 80km (Default)</option>";
                                         }
                                         ?>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="form-group-custom">
+                                <label>Full Name</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" name="name" class="form-control" placeholder="Enter Full Name"
+                                        value="<?php echo htmlspecialchars($_SESSION['user_name'] ?? $_GET['name'] ?? ''); ?>"
+                                        required>
                                 </div>
                             </div>
                         </div>
@@ -1769,7 +1783,7 @@ include_once 'includes/auth.php';
                         $hiddenClass = ($counter > 6) ? 'd-none' : '';
                         ?>
                         <div class="transfer-card extra-transfer <?php echo $hiddenClass; ?>" data-id="<?php echo $counter; ?>"
-                            onclick="window.location.href='cab-results.php?from=<?php echo urlencode($t['city']); ?>&to=Airport'">
+                            onclick="window.location.href='cab-results.php?from=<?php echo urlencode($t['city']); ?>&to=Airport&tripType=Airport Transfer'" style="cursor:pointer;">
                             <img src="<?php echo htmlspecialchars($t['image_path']); ?>"
                                 alt="<?php echo htmlspecialchars($t['city']); ?>" loading="lazy">
                             <div class="badge-discount"><?php echo htmlspecialchars($t['badge_text'] ?: 'FIXED FARE'); ?></div>
@@ -1924,7 +1938,7 @@ include_once 'includes/auth.php';
                                 if ($out_res && $out_res->num_rows > 0) {
                                     while ($o = $out_res->fetch_assoc()) {
                                         ?>
-                                        <div class="outstation-tile">
+                                        <div class="outstation-tile" style="cursor:pointer;" onclick="window.location.href='cab-results.php?from=<?php echo urlencode($o['city']); ?>&to=Explore&tripType=Outstation'">
                                             <div class="tile-img">
                                                 <img src="<?php echo htmlspecialchars($o['thumbnail']); ?>"
                                                     alt="<?php echo htmlspecialchars($o['city']); ?>">
@@ -2502,23 +2516,7 @@ include_once 'includes/auth.php';
 
         // HANDLE BOOKING FROM RESULTS
         function bookCab(id) {
-            const isLoggedIn = <?php echo is_logged_in() ? 'true' : 'false'; ?>;
-
-            if (!isLoggedIn) {
-                Swal.fire({
-                    title: 'Login Required',
-                    text: 'Please login to save your booking details.',
-                    icon: 'info',
-                    showCancelButton: true,
-                    confirmButtonColor: '#00a79d',
-                    confirmButtonText: 'Login Now'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = 'login-user.php?return_url=' + encodeURIComponent(window.location.href);
-                    }
-                });
-                return;
-            }
+            // Guest Booking allowed, so we remove the isLoggedIn check
 
             Swal.fire({
                 title: 'Confirm Booking?',

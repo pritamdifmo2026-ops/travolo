@@ -155,7 +155,7 @@
     //===== Nice select js
 
     if ($('select').length) {
-        $('select').niceSelect();
+        $('select:not(.ignore-nice-select)').niceSelect();
     }
 
     //===== Slick slider js

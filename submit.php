@@ -9,6 +9,50 @@ require 'phpmailer/src/Exception.php';
 require 'phpmailer/src/PHPMailer.php';
 require 'phpmailer/src/SMTP.php';
 
+// MOBILE & EMAIL VALIDATION HELPER
+function isValidPhone($p)
+{
+    return preg_match('/^[6-9]\d{9}$/', $p); // Standard 10-digit Indian Mobile Validation
+}
+
+function isValidEmail($e)
+{
+    return filter_var($e, FILTER_VALIDATE_EMAIL);
+}
+
+// GUEST BOOKING HELPER: Ensures a user session exists (creates user if new)
+function ensureUserSession($conn, $name, $email, $phone)
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    // 1. Check if user already exists by email or phone
+    $stmt = $conn->prepare("SELECT id, name, email, phone FROM users WHERE email = ? OR phone = ?");
+    $stmt->bind_param("ss", $email, $phone);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        $uid = $user['id'];
+    } else {
+        // 2. Create a new "Guest" user
+        $stmt_ins = $conn->prepare("INSERT INTO users (name, email, phone) VALUES (?, ?, ?)");
+        $stmt_ins->bind_param("sss", $name, $email, $phone);
+        $stmt_ins->execute();
+        $uid = $conn->insert_id;
+    }
+
+    // 3. Set Session
+    $_SESSION['user_id'] = $uid;
+    $_SESSION['user_name'] = $name;
+    $_SESSION['user_email'] = $email;
+    $_SESSION['user_phone'] = $phone;
+
+    return $uid;
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $type = $_POST['form_type'] ?? '';
 
@@ -29,16 +73,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $response = ['status' => 'error', 'message' => 'An unknown error occurred.'];
 
-    // MOBILE & EMAIL VALIDATION HELPER
-    function isValidPhone($p)
-    {
-        return preg_match('/^[6-9]\d{9}$/', $p); // Standard 10-digit Indian Mobile Validation
-    }
-
-    function isValidEmail($e)
-    {
-        return filter_var($e, FILTER_VALIDATE_EMAIL);
-    }
 
     if ($type == "contact") {
 
@@ -89,14 +123,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $children = intval($_POST['children'] ?? 0);
             $infants = intval($_POST['infants'] ?? 0);
             $tclass = $conn->real_escape_string($_POST['travel_class'] ?? 'Economy');
-            $uid = $_SESSION['user_id'] ?? 0;
-            $email = $_SESSION['user_email'] ?? $_POST['email'] ?? '';
-            $user_name = $_SESSION['user_name'] ?? $_POST['name'] ?? 'User';
+            
+            $email = $_POST['email'] ?? $_SESSION['user_email'] ?? '';
+            $user_name = $_POST['name'] ?? $_SESSION['user_name'] ?? 'User';
+
+            // Ensure we have a user session (Guest Booking Logic)
+            $uid = ensureUserSession($conn, $user_name, $email, $phone);
 
             $sql = "INSERT INTO flights (user_id, user_name, trip_type, from_city, to_city, depart_date, return_date, adults, children, infants, travel_class, phone, email) 
                     VALUES ($uid, '$user_name', '$trip_type', '$from', '$to', '$depart_date', '$return_date', $adults, $children, $infants, '$tclass', '$phone', '$email')";
             if ($conn->query($sql) === TRUE) {
-                $response = ['status' => 'success', 'message' => 'Flight Booking Request Sent!'];
+                $response = [
+                    'status' => 'success', 
+                    'message' => 'Flight Booking Request Sent! Redirecting to your dashboard...',
+                    'redirect' => 'user-dashboard.php'
+                ];
             } else {
                 $response = ['status' => 'error', 'message' => 'Error: ' . $conn->error];
             }
@@ -156,21 +197,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $hotel_id = intval($_POST['hotel_id'] ?? 0);
             $status = $conn->real_escape_string($_POST['status'] ?? 'Checked');
             $b_type = $conn->real_escape_string($_POST['booking_type'] ?? 'Check');
-            $uid = $_SESSION['user_id'] ?? 0;
+            
+            // Ensure we have a user session (Guest Booking Logic)
+            $uid = ensureUserSession($conn, $user_name, $email, $phone);
 
             $sql = "INSERT INTO hotels (user_id, check_in, check_out, hotel_search, accommodations, room_type, guests, price, phone, hotel_id, status, user_name, email, booking_type, booking_status) 
                     VALUES ($uid, '$check_in', '$check_out', '$search', '$accomm', '$room_type', '$guests', $price, '$phone', $hotel_id, '$status', '$user_name', '$email', '$b_type', 'Requested')";
 
             if ($conn->query($sql) === TRUE) {
-                if (isset($_SESSION['user_id'])) {
-                    $uid = $_SESSION['user_id'];
-                    $upd = $conn->prepare("UPDATE users SET name = ?, email = ? WHERE id = ? AND (name IS NULL OR email IS NULL OR name = '' OR email = '')");
-                    $upd->bind_param("ssi", $user_name, $email, $uid);
-                    $upd->execute();
-                    $upd->close();
-                }
-                $msg = ($b_type == 'Booking') ? "Booking Query Sent Successfully!" : "Hotel Availability Checked!";
-                $response = ['status' => 'success', 'message' => $msg];
+                $msg = ($b_type == 'Booking') ? "Booking Query Sent Successfully! Redirecting to dashboard..." : "Hotel Availability Checked!";
+                $response = [
+                    'status' => 'success', 
+                    'message' => $msg,
+                    'redirect' => ($b_type == 'Booking') ? 'user-dashboard.php' : ''
+                ];
             } else {
                 error_log("SQL Error in hotel search: " . $conn->error);
                 $response = ['status' => 'error', 'message' => 'Database Error: ' . $conn->error];
@@ -200,17 +240,91 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $response = ['status' => 'error', 'message' => 'Pickup and drop cities cannot be the same.'];
             } else {
                 $uid = $_SESSION['user_id'] ?? 0;
-                $email = $_SESSION['user_email'] ?? $_POST['email'] ?? '';
-                $user_name = $_SESSION['user_name'] ?? $_POST['name'] ?? 'User';
+                $email = $_POST['email'] ?? $_SESSION['user_email'] ?? '';
+                $user_name = $_POST['name'] ?? $_SESSION['user_name'] ?? 'User';
 
-                $sql = "INSERT INTO cabs (user_id, user_name, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, return_date, return_time, hours, phone, email) 
-                        VALUES ($uid, '$user_name', '$trip_type', '$pickup', '$from', '$to', '$pickup_date', '$pickup_time', '$return_date', '$return_time', '$hours', '$phone', '$email')";
+                // Ensure we have a user session (Guest Booking Logic)
+                $uid = ensureUserSession($conn, $user_name, $email, $phone);
+
+                $pick_addr = $conn->real_escape_string($_GET['pickup_address'] ?? '');
+                $drop_addr = $conn->real_escape_string($_GET['dropoff_address'] ?? '');
+
+                $sql = "INSERT INTO cabs (user_id, user_name, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, return_date, return_time, hours, phone, email, pickup_address, dropoff_address) 
+                        VALUES ($uid, '$user_name', '$trip_type', '$pickup', '$from', '$to', '$pickup_date', '$pickup_time', '$return_date', '$return_time', '$hours', '$phone', '$email', '$pick_addr', '$drop_addr')";
 
                 if ($conn->query($sql) === TRUE) {
-                    $response = ['status' => 'success', 'message' => 'Cab Booking Request Sent!'];
+                    $response = [
+                        'status' => 'success', 
+                        'message' => 'Cab Booking Request Sent! Redirecting to dashboard...',
+                        'redirect' => 'user-dashboard.php'
+                    ];
                 } else {
                     $response = ['status' => 'error', 'message' => 'Error: ' . $conn->error];
                 }
+            }
+        }
+    } elseif ($type == "update_booking" || (isset($_POST['action']) && $_POST['action'] == "update_booking")) {
+        $id = (int)($_POST['id'] ?? 0);
+        $booking_type = $_POST['type'] ?? '';
+        $phone = $conn->real_escape_string($_POST['phone'] ?? '');
+        $uid = $_SESSION['user_id'] ?? 0;
+
+        if (!$id || !$booking_type || !$uid) {
+            $response = ['status' => 'error', 'message' => 'Invalid request data.'];
+        } else {
+            $table = "";
+            $sets = ["phone = '$phone'"];
+
+            if ($booking_type == "Flight") {
+                $table = "flights";
+                $from = $conn->real_escape_string($_POST['from_city'] ?? '');
+                $to = $conn->real_escape_string($_POST['to_city'] ?? '');
+                $depart = $conn->real_escape_string($_POST['depart_date'] ?? '');
+                $return = $conn->real_escape_string($_POST['return_date'] ?? '');
+                $sets[] = "from_city = '$from'";
+                $sets[] = "to_city = '$to'";
+                $sets[] = "depart_date = '$depart'";
+                if($return) $sets[] = "return_date = '$return'";
+            } elseif ($booking_type == "Hotel") {
+                $table = "hotels";
+                $h_search = $conn->real_escape_string($_POST['hotel_search'] ?? '');
+                $checkin = $conn->real_escape_string($_POST['check_in'] ?? '');
+                $checkout = $conn->real_escape_string($_POST['check_out'] ?? '');
+                $room_type = $conn->real_escape_string($_POST['room_type'] ?? '');
+                $guests = $conn->real_escape_string($_POST['guests'] ?? '');
+                $price = intval($_POST['price'] ?? 0);
+                
+                $sets[] = "hotel_search = '$h_search'";
+                $sets[] = "check_in = '$checkin'";
+                $sets[] = "check_out = '$checkout'";
+                $sets[] = "room_type = '$room_type'";
+                $sets[] = "guests = '$guests'";
+                if($price > 0) $sets[] = "price = $price";
+            } elseif ($booking_type == "Cab") {
+                $table = "cabs";
+                $from = $conn->real_escape_string($_POST['from_city'] ?? '');
+                $to = $conn->real_escape_string($_POST['to_city'] ?? '');
+                $date = $conn->real_escape_string($_POST['pickup_date'] ?? '');
+                $time = $conn->real_escape_string($_POST['pickup_time'] ?? '');
+                $trip = $conn->real_escape_string($_POST['trip_type'] ?? '');
+                $sets[] = "from_city = '$from'";
+                $sets[] = "to_city = '$to'";
+                $sets[] = "pickup_date = '$date'";
+                $sets[] = "pickup_time = '$time'";
+                if (!empty($trip)) {
+                    $sets[] = "trip_type = '$trip'";
+                }
+            }
+
+            if ($table) {
+                $sql = "UPDATE $table SET " . implode(", ", $sets) . " WHERE id = $id AND user_id = $uid AND (booking_status = 'Requested' OR booking_status = 'Pending' OR booking_status = '')";
+                if ($conn->query($sql) === TRUE) {
+                    $response = ['status' => 'success', 'message' => 'Booking updated successfully!'];
+                } else {
+                    $response = ['status' => 'error', 'message' => 'Update failed: ' . $conn->error];
+                }
+            } else {
+                $response = ['status' => 'error', 'message' => 'Invalid booking type.'];
             }
         }
     }
@@ -234,11 +348,17 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['action']) && $_GET['acti
     if (empty($mobile))
         $mobile = $_SESSION['user_phone'] ?? '';
     $uid = $_SESSION['user_id'] ?? 0;
-    $email = $_SESSION['user_email'] ?? $_GET['email'] ?? '';
-    $user_name = $conn->real_escape_string($_SESSION['user_name'] ?? $_GET['name'] ?? 'User');
+    $email = $_GET['email'] ?? $_SESSION['user_email'] ?? '';
+    $user_name = $conn->real_escape_string($_GET['name'] ?? $_SESSION['user_name'] ?? 'User');
 
-    $sql = "INSERT INTO cabs (user_id, user_name, cab_id, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, phone, email) 
-            VALUES ($uid, '$user_name', $cab_id, '$trip', '$pickup', '$from', '$to', '$date', '$time', '$mobile', '$email')";
+    // Ensure we have a user session (Guest Booking Logic)
+    $uid = ensureUserSession($conn, $user_name, $email, $mobile);
+
+    $pick_addr = $conn->real_escape_string($_GET['pickup_address'] ?? '');
+    $drop_addr = $conn->real_escape_string($_GET['dropoff_address'] ?? '');
+
+    $sql = "INSERT INTO cabs (user_id, user_name, cab_id, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, phone, email, pickup_address, dropoff_address) 
+            VALUES ($uid, '$user_name', $cab_id, '$trip', '$pickup', '$from', '$to', '$date', '$time', '$mobile', '$email', '$pick_addr', '$drop_addr')";
 
     $success = false;
     if ($conn->query($sql) === TRUE) {
@@ -272,12 +392,14 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['action']) && $_GET['acti
             <?php if ($success): ?>
                 Swal.fire({
                     title: 'Booking Confirmed!',
-                    text: 'Your cab booking request has been sent successfully. Our team will contact you shortly.',
+                    text: 'Your cab booking request has been sent successfully. Redirecting to your dashboard...',
                     icon: 'success',
                     confirmButtonColor: '#00a79d',
-                    confirmButtonText: 'Back to Home'
+                    confirmButtonText: 'View Dashboard',
+                    timer: 3000,
+                    showConfirmButton: false
                 }).then(() => {
-                    window.location.href = 'index.php';
+                    window.location.href = 'user-dashboard.php';
                 });
             <?php else: ?>
                 Swal.fire({

@@ -662,13 +662,7 @@ if (!$hotel) {
         });
 
         function openBookingModal(name, price) {
-            if (!isLoggedIn) {
-                const currentUrl = new URL(window.location.href);
-                currentUrl.searchParams.set('reserve_room', name);
-                currentUrl.searchParams.set('reserve_price', price);
-                window.location.href = 'login-user.php?return_url=' + encodeURIComponent(currentUrl.toString());
-                return;
-            }
+            // Guest booking allowed - we no longer redirect to login here
             // Robust parsing: handle strings with commas or raw numbers
             currentBasePrice = typeof price === 'string' ? parseInt(price.replace(/,/g, '')) : parseInt(price);
 
@@ -690,9 +684,22 @@ if (!$hotel) {
                 .then(r => r.json()).then(data => {
                     btn.innerText = 'CONFIRM BOOKING'; btn.disabled = false;
                     if (data.status === 'success') {
-                        Swal.fire({ icon: 'success', title: 'Request Sent!' });
-                        bootstrap.Modal.getInstance(document.getElementById('bookingModal')).hide();
-                    } else Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Request Sent!',
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            } else {
+                                bootstrap.Modal.getInstance(document.getElementById('bookingModal')).hide();
+                            }
+                        });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                    }
                 });
         });
     </script>

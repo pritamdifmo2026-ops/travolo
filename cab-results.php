@@ -10,6 +10,7 @@ $time = isset($_GET['time']) ? $_GET['time'] : '12:00 PM';
 $tripType = trim(isset($_GET['tripType']) ? $_GET['tripType'] : 'Transfer');
 $mobile = $_SESSION['user_phone'] ?? ($_GET['mobile'] ?? '');
 $pickup_type = isset($_GET['pickup']) ? $_GET['pickup'] : 'One Way';
+$duration = trim(isset($_GET['duration']) && $_GET['duration'] !== '' ? $_GET['duration'] : '8hrs / 80km');
 
 // Serviceability Check
 $serviceable = false;
@@ -237,24 +238,84 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
 
     <?php include_once 'includes/navbar.php'; ?>
 
-    <!-- Results Selection Control -->
-    <div class="results-header-box">
+    <!-- Inline Search Control (EaseMyTrip Style) -->
+    <div class="results-header-box" style="background: linear-gradient(90deg, #1aa39a, #158b83); padding: 15px 0;">
         <div class="container">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                <div class="search-info-pill">
-                    <div><i class="fas fa-map-marker-alt"></i> <span><?php echo htmlspecialchars($from); ?></span></div>
-                    <i class="fas fa-arrow-right text-muted" style="font-size: 10px;"></i>
-                    <div><i class="fas fa-map-pin"></i> <span><?php echo htmlspecialchars($to); ?></span></div>
-                    <div class="ms-3 ps-3 border-start">
-                        <?php if($tripType === 'Hourly'): ?>
-                            <i class="far fa-clock"></i> <span>Hourly Package (8h/80km)</span>
-                        <?php else: ?>
-                            <i class="fas fa-calendar-alt"></i> <span><?php echo htmlspecialchars($date); ?> | <?php echo htmlspecialchars($time); ?></span>
-                        <?php endif; ?>
-                    </div>
+            <form action="cab-results.php" method="GET" id="inlineSearchForm" class="row g-2 align-items-end">
+                <!-- Trip Type Radio Buttons -->
+                <div class="col-12 text-white mb-2 d-flex flex-wrap gap-4 align-items-center" style="font-size: 12px; font-weight: 700;">
+                    <label class="d-flex align-items-center gap-1 cursor-pointer" style="cursor: pointer;">
+                        <input type="radio" name="tripType" value="Transfer" <?php if($tripType === 'Transfer' || $tripType === 'Airport Transfer') echo 'checked'; ?> onchange="document.getElementById('inlineSearchForm').submit();">
+                        AIRPORT TRANSFER
+                    </label>
+                    <label class="d-flex align-items-center gap-1 cursor-pointer" style="cursor: pointer;">
+                        <input type="radio" name="tripType" value="Outstation" <?php if($tripType === 'Outstation') echo 'checked'; ?> onchange="document.getElementById('inlineSearchForm').submit();">
+                        OUTSTATION/OTHER
+                    </label>
+                    <label class="d-flex align-items-center gap-1 cursor-pointer" style="cursor: pointer;">
+                        <input type="radio" name="tripType" value="Hourly" <?php if($tripType === 'Hourly') echo 'checked'; ?> onchange="document.getElementById('inlineSearchForm').submit();">
+                        HOURLY
+                    </label>
                 </div>
-                <button class="modify-search-btn" onclick="window.history.back()"><i class="fas fa-pencil-alt me-2"></i> Modify Search</button>
-            </div>
+
+                <!-- Input Fields row -->
+                <?php if($tripType === 'Hourly'): ?>
+                    <div class="col-md-5">
+                        <input type="text" name="from" class="form-control rounded-1 border-0 py-2" value="<?php echo htmlspecialchars($from); ?>" placeholder="Enter Pick-up Location" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-white small fw-bold mb-1 d-block" style="font-size: 10px;">PICK-UP DATE & TIME</label>
+                        <div class="d-flex gap-1">
+                            <input type="date" name="date" class="form-control rounded-1 border-0 py-2 px-2" value="<?php echo htmlspecialchars($date); ?>" required>
+                            <input type="time" name="time" class="form-control rounded-1 border-0 py-2 px-2" value="<?php echo date('H:i', strtotime($time)); ?>" required>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="text-white small fw-bold mb-1 d-block" style="font-size: 10px;">RENT FOR</label>
+                        <style>
+                            /* Cache-busting fix: force hide the plugin's fake dropdown and force show our native select */
+                            #durationForm .nice-select { display: none !important; }
+                        </style>
+                        <select name="duration" class="form-select rounded-1 border-0 py-2 fw-bold text-dark ignore-nice-select" style="display: block !important;">
+                            <?php
+                            $p_res = $conn->query("SELECT * FROM cab_packages WHERE status=1 ORDER BY hours ASC");
+                            if ($p_res && $p_res->num_rows > 0) {
+                                while ($p = $p_res->fetch_assoc()) {
+                                    $sel = ($duration == $p['package_name']) ? 'selected' : '';
+                                    echo "<option value='{$p['package_name']}' $sel>{$p['package_name']}</option>";
+                                }
+                            } else {
+                                echo "<option value='4 hrs / 40 km' ".(strpos($duration, '4')!==false ? 'selected' : '').">4 hrs / 40 km</option>";
+                                echo "<option value='8 hrs / 80 km' ".(strpos($duration, '8')!==false ? 'selected' : '').">8 hrs / 80 km</option>";
+                                echo "<option value='12 hrs / 120 km' ".(strpos($duration, '12')!==false ? 'selected' : '').">12 hrs / 120 km</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button type="submit" class="btn rounded-pill text-white fw-bold px-4 py-2 border border-white" style="background: transparent; margin-top: 15px;">SEARCH</button>
+                    </div>
+                <?php else: ?>
+                    <div class="col-md-3">
+                        <label class="text-white small fw-bold mb-1 d-block" style="font-size: 10px;">FROM</label>
+                        <input type="text" name="from" class="form-control rounded-1 border-0 py-2" value="<?php echo htmlspecialchars($from); ?>" placeholder="Pick-up City/Airport" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-white small fw-bold mb-1 d-block" style="font-size: 10px;">TO</label>
+                        <input type="text" name="to" class="form-control rounded-1 border-0 py-2" value="<?php echo htmlspecialchars($to); ?>" placeholder="Drop City/Airport" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="text-white small fw-bold mb-1 d-block" style="font-size: 10px;">PICK-UP DATE & TIME</label>
+                        <div class="d-flex gap-1">
+                            <input type="date" name="date" class="form-control rounded-1 border-0 py-2 px-2" value="<?php echo htmlspecialchars($date); ?>" required>
+                            <input type="time" name="time" class="form-control rounded-1 border-0 py-2 px-2" value="<?php echo date('H:i', strtotime($time)); ?>" required>
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <button type="submit" class="btn rounded-pill text-white fw-bold px-4 py-2 border border-white" style="background: transparent; margin-top: 15px;">SEARCH</button>
+                    </div>
+                <?php endif; ?>
+            </form>
         </div>
     </div>
 
@@ -262,7 +323,14 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
         <div class="row">
             <div class="col-lg-12">
                 <div class="mb-4 d-flex align-items-center justify-content-between">
-                    <h5 class="fw-bold mb-0">Cabs available for your route (<?php echo htmlspecialchars($from); ?>)</h5>
+                    <?php
+                    $target_cab_id = isset($_GET['cab_id']) ? intval($_GET['cab_id']) : 0;
+                    $header_text = "Cabs available for your route (" . htmlspecialchars($from) . ")";
+                    if ($target_cab_id > 0) {
+                        $header_text = "Your Selected Cab Details";
+                    }
+                    ?>
+                    <h5 class="fw-bold mb-0"><?php echo $header_text; ?></h5>
                     <div class="text-muted small">Prices include taxes and tolls (estimated)</div>
                 </div>
 
@@ -298,10 +366,26 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
                     elseif ($tripType === 'Airport Transfer' || $to === 'Airport' || $from === 'Airport') $price_col = 'airport_price';
                     elseif ($tripType === 'Outstation') $price_col = 'outstation_price';
 
-                    $cabs_res = $conn->query("SELECT *, $price_col as display_price FROM cab_inventory WHERE status = 1 ORDER BY display_price ASC");
+                    $cab_filter = "";
+                    if ($target_cab_id > 0) {
+                        $cab_filter = " AND id = $target_cab_id";
+                    }
+
+                    $cabs_res = $conn->query("SELECT *, $price_col as display_price FROM cab_inventory WHERE status = 1 $cab_filter ORDER BY display_price ASC");
                     if ($cabs_res && $cabs_res->num_rows > 0) {
                         while ($cab = $cabs_res->fetch_assoc()) {
                             $display_price = ($cab['display_price'] > 0) ? $cab['display_price'] : $cab['base_price'];
+                            
+                            // Dynamic Pricing Calculation for Hourly
+                            if ($tripType === 'Hourly') {
+                                $selected_hours = intval($duration); // Extracts '4' from '4 hrs / 40 km'
+                                if ($selected_hours > 0) {
+                                    // Assuming the DB's hourly_price is the default for 8 hours
+                                    $price_per_hour = $display_price / 8;
+                                    $display_price = round($price_per_hour * $selected_hours);
+                                }
+                            }
+
                             $cat_class = 'category-' . strtolower($cab['category']);
                             ?>
                             <div class="car-result-card wow fadeInUp">
@@ -321,8 +405,8 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
                                 </div>
                                 <div class="car-price-section">
                                     <div class="car-price-tag">₹<?php echo number_format($display_price); ?></div>
-                                    <span class="car-price-unit"><?php echo ($tripType === 'Hourly') ? 'for 8 hrs / 80 km' : 'all inclusive fare'; ?></span>
-                                    <button class="book-now-premium" onclick="bookCab(<?php echo $cab['id']; ?>)">Book Now</button>
+                                    <span class="car-price-unit border rounded px-2 py-1 bg-light text-dark" style="font-size: 11px; font-weight: 700;"><?php echo ($tripType === 'Hourly') ? 'For ' . htmlspecialchars($duration) : 'all inclusive fare'; ?></span>
+                                    <button class="book-now-premium" onclick="bookCab(<?php echo $cab['id']; ?>)"><?php echo ($target_cab_id > 0) ? 'Book Again' : 'Book Now'; ?></button>
                                 </div>
                             </div>
                             <?php
@@ -339,50 +423,21 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
 
     <?php include_once 'includes/footer.php'; ?>
 
+
+
     <script>
         function bookCab(id) {
-            // Check if logged in via PHP embedded variable
-            const isLoggedIn = <?php echo is_logged_in() ? 'true' : 'false'; ?>;
-            
-            if (!isLoggedIn) {
-                Swal.fire({
-                    title: 'Login Required',
-                    text: 'Please login with your mobile and email to proceed with the booking.',
-                    icon: 'info',
-                    showCancelButton: true,
-                    confirmButtonColor: '#00a79d',
-                    confirmButtonText: 'Login Now',
-                    cancelButtonText: 'Maybe Later'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Redirect to login with return_url and current search params to preserve context
-                        const currentUrl = encodeURIComponent(window.location.href);
-                        window.location.href = 'login-user.php?return_url=' + currentUrl;
-                    }
-                });
-                return;
-            }
+            const params = new URLSearchParams();
+            params.append('cab_id', id);
+            params.append('from', '<?php echo addslashes($from); ?>');
+            params.append('to', '<?php echo addslashes($to); ?>');
+            params.append('date', '<?php echo addslashes($date); ?>');
+            params.append('time', '<?php echo addslashes($time); ?>');
+            params.append('tripType', '<?php echo addslashes($tripType); ?>');
+            params.append('pickup', '<?php echo addslashes($pickup_type); ?>');
+            params.append('duration', '<?php echo addslashes($duration); ?>');
 
-            Swal.fire({
-                title: 'Confirm Booking',
-                text: 'Proceed to finalize your booking for this cab?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#00a79d',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, Proceed!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = 'submit.php?action=book_cab&cab_id=' + id + 
-                        '&from=<?php echo urlencode($from); ?>' +
-                        '&to=<?php echo urlencode($to); ?>' +
-                        '&date=<?php echo urlencode($date); ?>' +
-                        '&time=<?php echo urlencode($time); ?>' +
-                        '&tripType=<?php echo urlencode($tripType); ?>' +
-                        '&pickup=<?php echo urlencode($pickup_type); ?>' +
-                        '&mobile=<?php echo urlencode($mobile); ?>';
-                }
-            })
+            window.location.href = 'cab-checkout.php?' + params.toString();
         }
     </script>
 </body>
