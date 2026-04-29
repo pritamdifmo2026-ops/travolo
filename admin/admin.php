@@ -724,7 +724,7 @@ $room_modals_html = '';
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Travolo Admin Dashboard</title>
-    <link rel="shortcut icon" href="../assets/images/favicon.ico" type="image/png">
+    <link rel="shortcut icon" href="../assets/images/favicon.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/fonts/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css">
