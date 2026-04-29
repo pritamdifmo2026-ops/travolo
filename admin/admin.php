@@ -716,6 +716,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 $offer_modals_html = '';
 $hotel_modals_html = '';
 $room_modals_html = '';
+$cab_modals_html = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -2031,6 +2032,46 @@ $room_modals_html = '';
                                                 <a href='admin.php?action=delete_cab_transfer&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' onclick='return confirm(\"Delete this item?\")'>Delete</a>
                                               </td>";
                                         echo "</tr>";
+
+                                        // Build Edit Modal
+                                        $cab_modals_html .= "
+                                        <div class='modal fade' id='editTransferModal{$row['id']}' tabindex='-1'>
+                                            <div class='modal-dialog modal-dialog-centered'>
+                                                <div class='modal-content rounded-4 border-0 shadow'>
+                                                    <div class='modal-header border-0'>
+                                                        <h5 class='modal-title fw-bold'>Edit Domestic Transfer</h5>
+                                                        <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+                                                    </div>
+                                                    <form action='admin.php' method='POST' enctype='multipart/form-data'>
+                                                        <div class='modal-body'>
+                                                            <input type='hidden' name='action' value='edit_cab_transfer'>
+                                                            <input type='hidden' name='id' value='{$row['id']}'>
+                                                            <input type='hidden' name='existing_image' value='{$row['image_path']}'>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>City Name</label>
+                                                                <input type='text' name='city' class='form-control rounded-pill' value='".htmlspecialchars($row['city'])."' required>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Airport Name</label>
+                                                                <input type='text' name='airport' class='form-control rounded-pill' value='".htmlspecialchars($row['airport'])."' required>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Badge Text</label>
+                                                                <input type='text' name='badge_text' class='form-control rounded-pill' value='".htmlspecialchars($row['badge_text'])."'>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Update Image (Optional)</label>
+                                                                <input type='file' name='cab_image' class='form-control rounded-pill' accept='image/*'>
+                                                            </div>
+                                                        </div>
+                                                        <div class='modal-footer border-0'>
+                                                            <button type='button' class='btn btn-light rounded-pill' data-bs-modal='dismiss'>Cancel</button>
+                                                            <button type='submit' class='btn btn-primary rounded-pill px-4'>Update</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>";
                                     }
                                     ?>
                                 </tbody>
@@ -2209,6 +2250,46 @@ $room_modals_html = '';
                                                 <a href='admin.php?action=delete_cab_hourly&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' onclick='return confirm(\"Delete this item?\")'>Delete</a>
                                               </td>";
                                         echo "</tr>";
+
+                                        // Build Edit Modal
+                                        $cab_modals_html .= "
+                                        <div class='modal fade' id='editHourlyModal{$row['id']}' tabindex='-1'>
+                                            <div class='modal-dialog modal-dialog-centered'>
+                                                <div class='modal-content rounded-4 border-0 shadow'>
+                                                    <div class='modal-header border-0'>
+                                                        <h5 class='modal-title fw-bold'>Edit Hourly Rental</h5>
+                                                        <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+                                                    </div>
+                                                    <form action='admin.php' method='POST' enctype='multipart/form-data'>
+                                                        <div class='modal-body'>
+                                                            <input type='hidden' name='action' value='edit_cab_hourly'>
+                                                            <input type='hidden' name='id' value='{$row['id']}'>
+                                                            <input type='hidden' name='existing_image' value='{$row['image_path']}'>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>City Name</label>
+                                                                <input type='text' name='city' class='form-control rounded-pill' value='".htmlspecialchars($row['city'])."' required>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Location Tag</label>
+                                                                <input type='text' name='location_tag' class='form-control rounded-pill' value='".htmlspecialchars($row['location_tag'])."' required>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Price Per Hour (₹)</label>
+                                                                <input type='number' name='price_per_hr' class='form-control rounded-pill' value='{$row['price_per_hr']}' required>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Update Image (Optional)</label>
+                                                                <input type='file' name='cab_image' class='form-control rounded-pill' accept='image/*'>
+                                                            </div>
+                                                        </div>
+                                                        <div class='modal-footer border-0'>
+                                                            <button type='button' class='btn btn-light rounded-pill' data-bs-dismiss='modal'>Cancel</button>
+                                                            <button type='submit' class='btn btn-success rounded-pill px-4'>Update</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>";
                                     }
                                     ?>
                                 </tbody>
@@ -2277,6 +2358,46 @@ $room_modals_html = '';
                                                 <a href='admin.php?action=delete_cab_overseas&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' onclick='return confirm(\"Delete this item?\")'>Delete</a>
                                               </td>";
                                         echo "</tr>";
+
+                                        // Build Edit Modal
+                                        $cab_modals_html .= "
+                                        <div class='modal fade' id='editOverseasModal{$row['id']}' tabindex='-1'>
+                                            <div class='modal-dialog modal-dialog-centered'>
+                                                <div class='modal-content rounded-4 border-0 shadow'>
+                                                    <div class='modal-header border-0'>
+                                                        <h5 class='modal-title fw-bold'>Edit Overseas Transfer</h5>
+                                                        <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+                                                    </div>
+                                                    <form action='admin.php' method='POST' enctype='multipart/form-data'>
+                                                        <div class='modal-body'>
+                                                            <input type='hidden' name='action' value='edit_cab_overseas'>
+                                                            <input type='hidden' name='id' value='{$row['id']}'>
+                                                            <input type='hidden' name='existing_image' value='{$row['image_path']}'>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>City Name</label>
+                                                                <input type='text' name='city' class='form-control rounded-pill' value='".htmlspecialchars($row['city'])."' required>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Short Description</label>
+                                                                <input type='text' name='description' class='form-control rounded-pill' value='".htmlspecialchars($row['description'])."' required>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Price Starts (e.g. AED 120)</label>
+                                                                <input type='text' name='price_starts' class='form-control rounded-pill' value='".htmlspecialchars($row['price_starts'])."' required>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Update Image (Optional)</label>
+                                                                <input type='file' name='cab_image' class='form-control rounded-pill' accept='image/*'>
+                                                            </div>
+                                                        </div>
+                                                        <div class='modal-footer border-0'>
+                                                            <button type='button' class='btn btn-light rounded-pill' data-bs-dismiss='modal'>Cancel</button>
+                                                            <button type='submit' class='btn btn-info text-white rounded-pill px-4'>Update</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>";
                                     }
                                     ?>
                                 </tbody>
@@ -2375,6 +2496,64 @@ $room_modals_html = '';
                                                 <a href='admin.php?action=delete_cab_offer&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' style='font-size:12px;' onclick='return confirm(\"Permanently delete this Travolo offer?\")'>Delete</a>
                                               </td>";
                                         echo "</tr>";
+
+                                        // Build Edit Modal
+                                        $cab_modals_html .= "
+                                        <div class='modal fade' id='editCabOfferModal{$row['id']}' tabindex='-1'>
+                                            <div class='modal-dialog modal-dialog-centered modal-lg'>
+                                                <div class='modal-content rounded-4 border-0 shadow'>
+                                                    <div class='modal-header border-0'>
+                                                        <h5 class='modal-title fw-bold'>Edit Cab Offer</h5>
+                                                        <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+                                                    </div>
+                                                    <form action='admin.php' method='POST' enctype='multipart/form-data'>
+                                                        <div class='modal-body'>
+                                                            <input type='hidden' name='action' value='edit_cab_offer'>
+                                                            <input type='hidden' name='id' value='{$row['id']}'>
+                                                            <input type='hidden' name='existing_image' value='{$row['image_path']}'>
+                                                            <div class='row'>
+                                                                <div class='col-md-6 mb-3'>
+                                                                    <label class='form-label small fw-bold'>Promo Code</label>
+                                                                    <input type='text' name='promo_code' class='form-control rounded-pill' value='".htmlspecialchars($row['promo_code'])."' required>
+                                                                </div>
+                                                                <div class='col-md-6 mb-3'>
+                                                                    <label class='form-label small fw-bold'>Badge Text</label>
+                                                                    <input type='text' name='badge' class='form-control rounded-pill' value='".htmlspecialchars($row['badge'])."' required>
+                                                                </div>
+                                                                <div class='col-md-6 mb-3'>
+                                                                    <label class='form-label small fw-bold'>Header (Small)</label>
+                                                                    <input type='text' name='header_small' class='form-control rounded-pill' value='".htmlspecialchars($row['header_small'])."' required>
+                                                                </div>
+                                                                <div class='col-md-6 mb-3'>
+                                                                    <label class='form-label small fw-bold'>Highlight (Main)</label>
+                                                                    <input type='text' name='header_main' class='form-control rounded-pill' value='".htmlspecialchars($row['header_main'])."' required>
+                                                                </div>
+                                                                <div class='col-md-6 mb-3'>
+                                                                    <label class='form-label small fw-bold'>Theme Color (HEX)</label>
+                                                                    <input type='text' name='theme_color' class='form-control rounded-pill' value='".htmlspecialchars($row['theme_color'])."' required>
+                                                                </div>
+                                                                <div class='col-md-12 mb-3'>
+                                                                    <label class='form-label small fw-bold'>Main Body Title</label>
+                                                                    <input type='text' name='main_title' class='form-control rounded-pill' value='".htmlspecialchars($row['main_title'])."' required>
+                                                                </div>
+                                                                <div class='col-md-6 mb-3'>
+                                                                    <label class='form-label small fw-bold'>Validity Text</label>
+                                                                    <input type='text' name='validity_text' class='form-control rounded-pill' value='".htmlspecialchars($row['validity_text'])."' required>
+                                                                </div>
+                                                                <div class='col-md-6 mb-3'>
+                                                                    <label class='form-label small fw-bold'>Update Banner (Optional)</label>
+                                                                    <input type='file' name='offer_image' class='form-control rounded-pill' accept='image/*'>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class='modal-footer border-0'>
+                                                            <button type='button' class='btn btn-light rounded-pill' data-bs-dismiss='modal'>Cancel</button>
+                                                            <button type='submit' class='btn btn-dark rounded-pill px-4'>Update Offer</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>";
                                     }
                                     ?>
                                 </tbody>
@@ -2443,6 +2622,42 @@ $room_modals_html = '';
                                                 <a href='admin.php?action=delete_cab_outstation&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' style='font-size:12px;' onclick='return confirm(\"Delete this outstation city?\")'>Delete</a>
                                               </td>";
                                         echo "</tr>";
+
+                                        // Build Edit Modal
+                                        $cab_modals_html .= "
+                                        <div class='modal fade' id='editOutstationModal{$row['id']}' tabindex='-1'>
+                                            <div class='modal-dialog modal-dialog-centered'>
+                                                <div class='modal-content rounded-4 border-0 shadow'>
+                                                    <div class='modal-header border-0'>
+                                                        <h5 class='modal-title fw-bold'>Edit Outstation Cab</h5>
+                                                        <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+                                                    </div>
+                                                    <form action='admin.php' method='POST' enctype='multipart/form-data'>
+                                                        <div class='modal-body'>
+                                                            <input type='hidden' name='action' value='edit_cab_outstation'>
+                                                            <input type='hidden' name='id' value='{$row['id']}'>
+                                                            <input type='hidden' name='existing_image' value='{$row['thumbnail']}'>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>City Name</label>
+                                                                <input type='text' name='city' class='form-control rounded-pill' value='".htmlspecialchars($row['city'])."' required>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Destinations (Comma separated)</label>
+                                                                <textarea name='destinations' class='form-control rounded-4' rows='3' required>".htmlspecialchars($row['destinations'])."</textarea>
+                                                            </div>
+                                                            <div class='mb-3'>
+                                                                <label class='form-label small fw-bold'>Update Thumbnail (Optional)</label>
+                                                                <input type='file' name='cab_image' class='form-control rounded-pill' accept='image/*'>
+                                                            </div>
+                                                        </div>
+                                                        <div class='modal-footer border-0'>
+                                                            <button type='button' class='btn btn-light rounded-pill' data-bs-dismiss='modal'>Cancel</button>
+                                                            <button type='submit' class='btn btn-primary rounded-pill px-4'>Update</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>";
                                     }
                                     ?>
                                 </tbody>
@@ -3127,6 +3342,7 @@ $room_modals_html = '';
     echo $offer_modals_html;
     echo $hotel_modals_html;
     echo $room_modals_html;
+    echo $cab_modals_html;
     ?>
 </body>
 
