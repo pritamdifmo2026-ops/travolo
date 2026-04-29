@@ -1,3 +1,2 @@
-# Block all direct access to this folder
-Order deny,allow
-Deny from all
+# Block all direct access to this folder (Apache 2.4+)
+Require all denied

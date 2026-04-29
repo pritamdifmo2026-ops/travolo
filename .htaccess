@@ -1,24 +1,19 @@
-# Travolo Root Security
+# Travolo Root Security (Apache 2.4+)
+
 # 1. Prevent Directory Browsing
 Options -Indexes
 
 # 2. Protect sensitive file types
 <FilesMatch "^\.|\.(ini|log|sh|sql)$">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 
 # 3. Specifically protect db.php and setup files
 <FilesMatch "^(db|master_setup|database_repair|master_seed|seed|setup_.*)\.php$">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 
-# 4. Allow specific access to assets
-<Directory "assets">
-    Options -Indexes
-</Directory>
-
-# 5. PHP Error handling (Optional - depends on server)
-# php_flag display_errors Off
-# php_value error_reporting 0
+# 4. Prevent access to git and hidden files
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
