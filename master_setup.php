@@ -156,6 +156,9 @@ $tables = [
         capacity INT DEFAULT 4,
         luggage INT DEFAULT 2,
         base_price INT NOT NULL,
+        hourly_price INT DEFAULT 0,
+        airport_price INT DEFAULT 0,
+        outstation_price INT DEFAULT 0,
         price_per_km DECIMAL(10,2) DEFAULT 0,
         features TEXT,
         rating DECIMAL(2,1) DEFAULT 4.5,
@@ -223,6 +226,12 @@ $tables = [
         infants INT,
         travel_class VARCHAR(30),
         search_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )",
+    "CREATE TABLE IF NOT EXISTS hotel_images (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        hotel_id INT NOT NULL,
+        image_path VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )"
 ];
 
