@@ -1066,8 +1066,14 @@ include_once 'includes/db.php';
 
         // Toggle Popover
         roomsGuestsTrigger.addEventListener('click', function (e) {
+            // If click is inside the popover, don't toggle (close) the popover
             if (e.target.closest('.emt-rooms-guests-popover')) return;
             roomsGuestsPopover.classList.toggle('active');
+        });
+
+        // Prevent clicks inside popover from bubbling up to document (which closes it)
+        roomsGuestsPopover.addEventListener('click', function (e) {
+            e.stopPropagation();
         });
 
         // Close on click outside
@@ -1149,13 +1155,68 @@ include_once 'includes/db.php';
         // Initialize Rooms UI
         updateRoomsUI();
 
+        function submitBooking(form, silent = false) {
+            if (typeof updateRoomsUI === 'function') updateRoomsUI();
+
+            if (!silent) {
+                Swal.fire({
+                    title: 'Processing...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+            }
+
+            return fetch('submit.php', {
+                method: 'POST',
+                body: new FormData(form)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        if (!silent) {
+                            Swal.fire({ 
+                                icon: 'success', 
+                                title: 'Saved!', 
+                                text: data.message, 
+                                confirmButtonColor: '#F7921E',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                if (data.redirect) window.location.href = data.redirect;
+                                else {
+                                    form.reset();
+                                    rooms = [{ id: 1, adults: 2, children: 0 }];
+                                    updateRoomsUI();
+                                }
+                            });
+                        }
+                        return data;
+                    } else {
+                        if (data.redirect) {
+                            Swal.fire({ icon: 'warning', title: 'Login Required', text: data.message, confirmButtonColor: '#F7921E' })
+                                .then(() => {
+                                    const sep = data.redirect.includes('?') ? '&' : '?';
+                                    window.location.href = data.redirect + sep + "return_url=" + encodeURIComponent(window.location.href);
+                                });
+                        } else if (!silent) {
+                            Swal.fire({ icon: 'error', title: 'Oops...', text: data.message });
+                        }
+                        return data;
+                    }
+                })
+                .catch(error => {
+                    if (!silent) {
+                        Swal.fire({ icon: 'error', title: 'System Error', text: 'Something went wrong.' });
+                    }
+                });
+        }
+
         // Search Form Logic
         document.getElementById('hotelSearchForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
             const formData = new FormData(this);
             const checkIn = formData.get('check_in');
-            const checkOut = formData.get('check_out');
             const hotelName = formData.get('search');
             const accommodations = formData.get('accommodations');
 
@@ -1164,95 +1225,45 @@ include_once 'includes/db.php';
                 return;
             }
 
-            // Always trigger results filter to update the list below
+            // 1. SILENT BACKGROUND SAVE (Immediate)
+            submitBooking(this, true);
+
+            // 2. CONTINUE WITH UI CHECKS
             triggerHotelFilter(hotelName);
 
-            // Improved: Case-insensitive and trimmed search for hotel details
             if (!Array.isArray(allHotels)) allHotels = [];
-            const hotel = allHotels.find(h => h.name && h.name.trim().toLowerCase() === hotelName.trim().toLowerCase());
-            let isAvailable = false;
-            let hId = 0;
+            const query = hotelName.trim().toLowerCase();
+            
+            // Logic: Is there ANY hotel that matches the search (name or city) and has the date available?
+            const matchingHotels = allHotels.filter(h => 
+                (h.name && h.name.toLowerCase().includes(query)) || 
+                (h.city && h.city.toLowerCase().includes(query))
+            );
 
-            if (hotel) {
-                hId = hotel.id;
-                document.getElementById('selectedHotelId').value = hId;
-                if (hotel.available_dates) {
-                    const availableDates = hotel.available_dates.split(', ');
-                    if (availableDates.includes(checkIn)) {
-                        isAvailable = true;
+            let isAvailable = false;
+            if (matchingHotels.length > 0) {
+                isAvailable = matchingHotels.some(h => {
+                    if (h.available_dates) {
+                        const dates = h.available_dates.split(', ');
+                        return dates.includes(checkIn);
                     }
-                }
+                    return false;
+                });
             }
 
-            const statusText = isAvailable ? 'Available' : 'Not Available';
+            const statusText = isAvailable ? 'Available' : 'Enquiry';
             document.getElementById('checkStatus').value = statusText;
 
             const swalConfig = {
-                title: isAvailable ? 'Good news!' : 'Sorry!',
-                text: isAvailable ? `Yes, ${hotelName} is available on ${checkIn}. Save this check?` : `${hotelName} is not available on ${checkIn}. Save this request anyway?`,
-                icon: isAvailable ? 'success' : 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, Save it!',
+                title: isAvailable ? 'Good news!' : 'Search Logged!',
+                text: isAvailable ? `${hotelName} is available on ${checkIn}. We have logged your request and will contact you soon.` : `Request logged for ${hotelName} on ${checkIn}. Our team will check availability and get back to you.`,
+                icon: isAvailable ? 'success' : 'info',
+                confirmButtonText: 'Great!',
                 confirmButtonColor: '#F7921E'
             };
 
-            Swal.fire(swalConfig).then((result) => {
-                if (result.isConfirmed) {
-                    submitBooking(this);
-                }
-            });
+            Swal.fire(swalConfig);
         });
-
-        function submitBooking(form) {
-            // Force sync rooms/guests summary string before sending
-            if (typeof updateRoomsUI === 'function') updateRoomsUI();
-
-            Swal.fire({
-                title: 'Processing...',
-                allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); }
-            });
-
-            fetch('submit.php', {
-                method: 'POST',
-                body: new FormData(form)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        Swal.fire({ 
-                            icon: 'success', 
-                            title: 'Saved!', 
-                            text: data.message, 
-                            confirmButtonColor: '#F7921E',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            if (data.redirect) {
-                                window.location.href = data.redirect;
-                            } else {
-                                // Reset form and summary
-                                form.reset();
-                                rooms = [{ id: 1, adults: 2, children: 0 }];
-                                updateRoomsUI();
-                            }
-                        });
-                    } else {
-                        if (data.redirect) {
-                            Swal.fire({ icon: 'warning', title: 'Login Required', text: data.message, confirmButtonColor: '#F7921E' })
-                                .then(() => {
-                                    const sep = data.redirect.includes('?') ? '&' : '?';
-                                    window.location.href = data.redirect + sep + "return_url=" + encodeURIComponent(window.location.href);
-                                });
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'Oops...', text: data.message });
-                        }
-                    }
-                })
-                .catch(error => {
-                    Swal.fire({ icon: 'error', title: 'System Error', text: 'Something went wrong.' });
-                });
-        }
 
         // Fetch and setup dynamic hotels
         let allHotels = [];

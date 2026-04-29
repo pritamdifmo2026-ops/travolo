@@ -93,13 +93,17 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
 
         .welcome-card {
             background: linear-gradient(135deg, var(--primary-dark), var(--primary-dashboard));
-            color: white;
+            color: #ffffff !important;
             border-radius: 20px;
             padding: 40px;
             margin-bottom: 40px;
             box-shadow: 0 10px 30px rgba(0, 167, 157, 0.2);
             position: relative;
             overflow: hidden;
+        }
+
+        .welcome-card h2, .welcome-card p {
+            color: #ffffff !important;
         }
 
         .welcome-card::after {
@@ -641,7 +645,11 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             $view_link = "flight-booking.php";
         } elseif ($type == 'Hotel') {
             $title = $row['hotel_search'];
-            $meta = $row['guests'] . " | " . ($row['room_type'] ?: 'Standard');
+            $price_display = "";
+            if (isset($row['price']) && $row['price'] > 0) {
+                $price_display = " | ₹" . number_format($row['price']);
+            }
+            $meta = $row['guests'] . " | " . ($row['room_type'] ?: 'Standard') . $price_display;
             $dates = date('d M Y', strtotime($row['check_in'])) . " to " . date('d M Y', strtotime($row['check_out']));
             $img = !empty($row['hotel_img']) ? $row['hotel_img'] : "assets/images/tour-2-550x590.jpg";
             $view_link = !empty($row['hotel_id']) ? "hotel-details.php?id=" . $row['hotel_id'] : "hotel.php";

@@ -8,8 +8,8 @@ if ($check_cabs && $check_cabs->num_rows == 0) {
     $conn->query("ALTER TABLE cabs ADD user_name VARCHAR(100) AFTER id");
 }
 $check_hotels = $conn->query("SHOW COLUMNS FROM app_hotels LIKE 'category'");
-if ($check_hotels && $check_hotels->num_rows == 0) { 
-    $conn->query("ALTER TABLE app_hotels ADD category VARCHAR(50) DEFAULT 'Standard' AFTER accommodations"); 
+if ($check_hotels && $check_hotels->num_rows == 0) {
+    $conn->query("ALTER TABLE app_hotels ADD category VARCHAR(50) DEFAULT 'Standard' AFTER accommodations");
 }
 
 // Auto-fix: Ensure hotel_rooms table exists
@@ -79,6 +79,31 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit;
 }
 
+// Password Update Logic
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'change_password') {
+    $current_pass = $_POST['current_password'];
+    $new_pass = $_POST['new_password'];
+    $confirm_pass = $_POST['confirm_password'];
+    $admin_username = $_SESSION['admin_username'];
+
+    if ($new_pass !== $confirm_pass) {
+        header('Location: admin.php?tab=change-password&error=New+passwords+do+not+match');
+        exit;
+    }
+
+    $res = $conn->query("SELECT password FROM admins WHERE username='$admin_username'");
+    $admin = $res->fetch_assoc();
+
+    if (password_verify($current_pass, $admin['password'])) {
+        $hashed_pass = password_hash($new_pass, PASSWORD_DEFAULT);
+        $conn->query("UPDATE admins SET password='$hashed_pass' WHERE username='$admin_username'");
+        header('Location: admin.php?tab=change-password&success=Password+Updated+Successfully');
+    } else {
+        header('Location: admin.php?tab=change-password&error=Invalid+current+password');
+    }
+    exit;
+}
+
 // FAQ Management Logic
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_faq') {
     $faq_id = intval($_POST['faq_id'] ?? 0);
@@ -99,13 +124,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 if (isset($_GET['action']) && $_GET['action'] === 'delete_faq' && isset($_GET['id'])) {
-    $conn->query("DELETE FROM faqs WHERE id=" . (int)$_GET['id']);
+    $conn->query("DELETE FROM faqs WHERE id=" . (int) $_GET['id']);
     header('Location: admin.php?tab=manage-faqs&success=FAQ+Deleted');
     exit;
 }
 
 if (isset($_GET['action']) && $_GET['action'] === 'toggle_faq' && isset($_GET['id'])) {
-    $conn->query("UPDATE faqs SET status = !status WHERE id=" . (int)$_GET['id']);
+    $conn->query("UPDATE faqs SET status = !status WHERE id=" . (int) $_GET['id']);
     header('Location: admin.php?tab=manage-faqs&success=FAQ+Status+Updated');
     exit;
 }
@@ -171,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Add Hotel Room Logic
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_hotel_room') {
-    $hotel_id = (int)$_POST['hotel_id'];
+    $hotel_id = (int) $_POST['hotel_id'];
     $r_name = $conn->real_escape_string($_POST['room_name']);
     $r_price = $conn->real_escape_string($_POST['room_price']);
     $cap = $conn->real_escape_string($_POST['capacity']);
@@ -182,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     $sql = "INSERT INTO hotel_rooms (hotel_id, room_name, capacity, bed_type, features, room_price, room_image) 
             VALUES ($hotel_id, '$r_name', '$cap', '$bed', '$feats', '$r_price', '$image')";
-    
+
     if ($conn->query($sql)) {
         header("Location: admin.php?tab=hotel-inventory&success=Room+Type+Added");
     } else {
@@ -193,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Delete Hotel Room Logic
 if (isset($_GET['action']) && $_GET['action'] === 'delete_room' && isset($_GET['id'])) {
-    $room_id = (int)$_GET['id'];
+    $room_id = (int) $_GET['id'];
     $conn->query("DELETE FROM hotel_rooms WHERE id=$room_id");
     header("Location: admin.php?tab=hotel-inventory&success=Room+Type+Deleted");
     exit;
@@ -977,29 +1002,39 @@ $room_modals_html = '';
 
         <div class="sidebar-content">
             <ul class="sidebar-menu">
-                <li><a href="#" class="admin-nav-link active" data-target="flights"><i class="fas fa-plane-departure"></i>
+                <li><a href="#" class="admin-nav-link active" data-target="flights"><i
+                            class="fas fa-plane-departure"></i>
                         Flight
                         Bookings</a></li>
-                <li><a href="#" class="admin-nav-link" data-target="flight-searches"><i class="fas fa-search-location"></i>
+                <li><a href="#" class="admin-nav-link" data-target="flight-searches"><i
+                            class="fas fa-search-location"></i>
                         Flight Searches</a></li>
                 <li><a href="#" class="admin-nav-link" data-target="manage-routes"><i class="fas fa-route"></i> Manage
                         Routes</a></li>
                 <li><a href="#" class="admin-nav-link" data-target="manage-offers"><i class="fas fa-tags"></i> Manage
                         Offers</a></li>
-                <li><a href="#" class="admin-nav-link" data-target="cabs"><i class="fas fa-car-side"></i> Cab Bookings</a>
+                <li><a href="#" class="admin-nav-link" data-target="cabs"><i class="fas fa-car-side"></i> Cab
+                        Bookings</a>
                 </li>
-                <li><a href="#" class="admin-nav-link" data-target="manage-cabs"><i class="fas fa-taxi"></i> Manage Cabs</a>
+                <li><a href="#" class="admin-nav-link" data-target="manage-cabs"><i class="fas fa-taxi"></i> Manage
+                        Cabs</a>
                 </li>
-                <li><a href="#" class="admin-nav-link" data-target="hotel-bookings"><i class="fas fa-hotel"></i> Hotel Bookings</a>
+                <li><a href="#" class="admin-nav-link" data-target="hotel-bookings"><i class="fas fa-hotel"></i> Hotel
+                        Bookings</a>
                 </li>
-                <li><a href="#" class="admin-nav-link" data-target="hotel-inventory"><i class="fas fa-building"></i> Manage
+                <li><a href="#" class="admin-nav-link" data-target="hotel-inventory"><i class="fas fa-building"></i>
+                        Manage
                         Hotels</a></li>
-                <li><a href="#" class="admin-nav-link" data-target="hotel-promotional"><i class="fas fa-percent text-warning"></i>
+                <li><a href="#" class="admin-nav-link" data-target="hotel-promotional"><i
+                            class="fas fa-percent text-warning"></i>
                         Hotel Offers</a></li>
 
-                <li><a href="#" class="admin-nav-link" data-target="manage-faqs"><i class="fas fa-question-circle"></i> Manage FAQ</a></li>
+                <li><a href="#" class="admin-nav-link" data-target="manage-faqs"><i class="fas fa-question-circle"></i>
+                        Manage FAQ</a></li>
                 <li><a href="#" class="admin-nav-link" data-target="contacts"><i class="fas fa-envelope-open-text"></i>
                         Messages</a></li>
+                <li><a href="#" class="admin-nav-link" data-target="change-password"><i class="fas fa-user-shield text-danger"></i>
+                        Security Settings</a></li>
                 <li><a href="../index.php" target="_blank"><i class="fas fa-external-link-alt"></i> View Website</a>
                 </li>
             </ul>
@@ -1349,7 +1384,8 @@ $room_modals_html = '';
                                     echo "<td>{$row['hotel_search']}</td>";
                                     echo "<td><span class='badge' style='background: #eef2f7; color: #4b5563; font-weight: 500;'>{$row['accommodations']}</span></td>";
                                     echo "<td>
-                                            <div class='fw-bold text-dark' style='font-size:13px;'><i class='fas fa-phone-alt text-success me-1 small'></i> {$row['phone']}</div>
+                                            <div class='fw-bold text-dark' style='font-size:14px;'>{$row['user_name']}</div>
+                                            <div class='text-muted' style='font-size:12px;'><i class='fas fa-phone-alt text-success me-1 small'></i> {$row['phone']}</div>
                                             <div class='small text-muted' style='font-size:11px;'><i class='fas fa-envelope text-primary me-1 small'></i> {$row['email']}</div>
                                           </td>";
                                     echo "<td><span class='badge bg-light text-dark border'>{$row['status']}</span></td>";
@@ -1581,7 +1617,7 @@ $room_modals_html = '';
                                           </td>";
                                     echo "<td class='text-center'><span class='badge bg-light text-primary border border-primary-subtle' style='font-size:12px; font-weight:500;'>{$row['accommodations']}</span></td>";
                                     echo "<td class='text-center'><span class='badge bg-light text-warning border border-warning-subtle' style='font-size:11px; font-weight:600;'>" . ($row['category'] ?? 'Standard') . "</span></td>";
-                                    
+
                                     // Room Count
                                     $room_cnt = $conn->query("SELECT COUNT(*) as total FROM hotel_rooms WHERE hotel_id = {$row['id']}")->fetch_assoc()['total'];
                                     echo "<td class='text-center'>
@@ -1613,7 +1649,8 @@ $room_modals_html = '';
 
                                     // EXTRACT MODAL TO GLOBAL BUFFER
                                     ob_start(); ?>
-                                    <div class='modal fade' id='manageRoomsModal<?php echo $row['id']; ?>' tabindex='-1' aria-hidden='true'>
+                                    <div class='modal fade' id='manageRoomsModal<?php echo $row['id']; ?>' tabindex='-1'
+                                        aria-hidden='true'>
                                         <div class='modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable'>
                                             <div class='modal-content border-0 shadow-lg' style='border-radius: 20px;'>
                                                 <div class='modal-header border-0 bg-light p-4'>
@@ -1621,19 +1658,21 @@ $room_modals_html = '';
                                                         <h5 class='modal-title fw-bold text-dark'>Manage Room Types</h5>
                                                         <small class='text-muted'>Hotel: <?php echo $row['name']; ?></small>
                                                     </div>
-                                                    <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                                    <button type='button' class='btn-close' data-bs-dismiss='modal'
+                                                        aria-label='Close'></button>
                                                 </div>
                                                 <div class='modal-body p-4'>
                                                     <!-- List Existing Rooms -->
                                                     <div class='mb-4'>
-                                                        <h6 class='fw-bold mb-3'><i class='fas fa-list me-2 text-info'></i>Existing Room Types</h6>
+                                                        <h6 class='fw-bold mb-3'><i
+                                                                class='fas fa-list me-2 text-info'></i>Existing Room Types</h6>
                                                         <?php
                                                         $rooms_res = $conn->query("SELECT * FROM hotel_rooms WHERE hotel_id = {$row['id']} ORDER BY room_price ASC");
-                                                        if($rooms_res && $rooms_res->num_rows > 0) {
+                                                        if ($rooms_res && $rooms_res->num_rows > 0) {
                                                             echo "<div class='table-responsive'><table class='table table-sm align-middle'>
                                                                     <thead class='small text-muted'><tr><th>Room Type</th><th>Price</th><th>Capacity</th><th class='text-end'>Action</th></tr></thead>
                                                                     <tbody>";
-                                                            while($rm = $rooms_res->fetch_assoc()) {
+                                                            while ($rm = $rooms_res->fetch_assoc()) {
                                                                 echo "<tr>
                                                                         <td class='fw-bold small text-dark'>{$rm['room_name']}</td>
                                                                         <td class='small text-success fw-bold'>₹" . number_format($rm['room_price']) . "</td>
@@ -1647,50 +1686,79 @@ $room_modals_html = '';
                                                         }
                                                         ?>
                                                     </div>
-                                                    
+
                                                     <hr class='opacity-0 my-4'>
 
                                                     <!-- Add New Room Form -->
                                                     <div class='bg-light p-4 rounded-4'>
-                                                        <h6 class='fw-bold mb-4'><i class='fas fa-plus-circle me-2 text-primary'></i>Add New Room Type</h6>
-                                                        <form action='admin.php' method='POST' enctype='multipart/form-data' class='row g-3'>
+                                                        <h6 class='fw-bold mb-4'><i
+                                                                class='fas fa-plus-circle me-2 text-primary'></i>Add New Room
+                                                            Type</h6>
+                                                        <form action='admin.php' method='POST' enctype='multipart/form-data'
+                                                            class='row g-3'>
                                                             <input type='hidden' name='action' value='add_hotel_room'>
-                                                            <input type='hidden' name='hotel_id' value='<?php echo $row['id']; ?>'>
-                                                            
+                                                            <input type='hidden' name='hotel_id'
+                                                                value='<?php echo $row['id']; ?>'>
+
                                                             <div class='col-md-6'>
-                                                                <label class='form-label small fw-bold text-muted'>Room Name</label>
-                                                                <input type='text' class='form-control rounded-pill' name='room_name' placeholder='Standard / Deluxe / Suite' required>
+                                                                <label class='form-label small fw-bold text-muted'>Room
+                                                                    Name</label>
+                                                                <input type='text' class='form-control rounded-pill'
+                                                                    name='room_name' placeholder='Standard / Deluxe / Suite'
+                                                                    required>
                                                             </div>
                                                             <div class='col-md-3'>
-                                                                <label class='form-label small fw-bold text-muted'>Price / Night</label>
-                                                                <input type='number' class='form-control rounded-pill' name='room_price' placeholder='₹' required>
+                                                                <label class='form-label small fw-bold text-muted'>Price /
+                                                                    Night</label>
+                                                                <input type='number' class='form-control rounded-pill'
+                                                                    name='room_price' placeholder='₹' required>
                                                             </div>
                                                             <div class='col-md-3'>
-                                                                <label class='form-label small fw-bold text-muted'>Capacity</label>
-                                                                <input type='text' class='form-control rounded-pill' name='capacity' value='2 Adults, 1 Child' required>
+                                                                <label
+                                                                    class='form-label small fw-bold text-muted'>Capacity</label>
+                                                                <input type='text' class='form-control rounded-pill'
+                                                                    name='capacity' value='2 Adults, 1 Child' required>
                                                             </div>
                                                             <div class='col-md-4'>
-                                                                <label class='form-label small fw-bold text-muted'>Bed Type</label>
-                                                                <input type='text' class='form-control rounded-pill' name='bed_type' value='King Bed' required>
+                                                                <label class='form-label small fw-bold text-muted'>Bed
+                                                                    Type</label>
+                                                                <input type='text' class='form-control rounded-pill'
+                                                                    name='bed_type' value='King Bed' required>
                                                             </div>
                                                             <div class='col-md-5'>
-                                                                <label class='form-label small fw-bold text-muted'>Room Photo</label>
-                                                                <input type='file' class='form-control rounded-pill py-1' name='room_image' required>
+                                                                <label class='form-label small fw-bold text-muted'>Room
+                                                                    Photo</label>
+                                                                <input type='file' class='form-control rounded-pill py-1'
+                                                                    name='room_image' required>
                                                             </div>
-                                                            
+
                                                             <div class='col-md-12'>
-                                                                <label class='form-label small fw-bold text-muted mb-2'>Room Features</label>
+                                                                <label class='form-label small fw-bold text-muted mb-2'>Room
+                                                                    Features</label>
                                                                 <div class='d-flex flex-wrap gap-3'>
-                                                                    <div class='form-check'><input class='form-check-input' type='checkbox' name='features[]' value='WiFi' checked> <label class='small'>Free WiFi</label></div>
-                                                                    <div class='form-check'><input class='form-check-input' type='checkbox' name='features[]' value='AC' checked> <label class='small'>AC</label></div>
-                                                                    <div class='form-check'><input class='form-check-input' type='checkbox' name='features[]' value='Bathtub'> <label class='small'>Bathtub</label></div>
-                                                                    <div class='form-check'><input class='form-check-input' type='checkbox' name='features[]' value='Mini Bar'> <label class='small'>Mini Bar</label></div>
-                                                                    <div class='form-check'><input class='form-check-input' type='checkbox' name='features[]' value='City View'> <label class='small'>City View</label></div>
+                                                                    <div class='form-check'><input class='form-check-input'
+                                                                            type='checkbox' name='features[]' value='WiFi'
+                                                                            checked> <label class='small'>Free WiFi</label>
+                                                                    </div>
+                                                                    <div class='form-check'><input class='form-check-input'
+                                                                            type='checkbox' name='features[]' value='AC'
+                                                                            checked> <label class='small'>AC</label></div>
+                                                                    <div class='form-check'><input class='form-check-input'
+                                                                            type='checkbox' name='features[]' value='Bathtub'>
+                                                                        <label class='small'>Bathtub</label></div>
+                                                                    <div class='form-check'><input class='form-check-input'
+                                                                            type='checkbox' name='features[]' value='Mini Bar'>
+                                                                        <label class='small'>Mini Bar</label></div>
+                                                                    <div class='form-check'><input class='form-check-input'
+                                                                            type='checkbox' name='features[]' value='City View'>
+                                                                        <label class='small'>City View</label></div>
                                                                 </div>
                                                             </div>
 
                                                             <div class='col-md-12 text-end pt-2'>
-                                                                <button type='submit' class='btn btn-primary rounded-pill px-5 fw-bold'>Add Room Type</button>
+                                                                <button type='submit'
+                                                                    class='btn btn-primary rounded-pill px-5 fw-bold'>Add Room
+                                                                    Type</button>
                                                             </div>
                                                         </form>
                                                     </div>
@@ -2767,7 +2835,8 @@ $room_modals_html = '';
                         <input type="hidden" name="faq_id" id="faq_id" value="0">
                         <div class="col-md-6">
                             <label class="small fw-bold text-muted">Category</label>
-                            <select class="form-select rounded-pill border-0 shadow-sm px-3" name="category" id="faq_category" required style="height: 45px;">
+                            <select class="form-select rounded-pill border-0 shadow-sm px-3" name="category"
+                                id="faq_category" required style="height: 45px;">
                                 <option value="General">General</option>
                                 <option value="Flight">Flight</option>
                                 <option value="Hotel">Hotel</option>
@@ -2776,21 +2845,28 @@ $room_modals_html = '';
                         </div>
                         <div class="col-md-6">
                             <label class="small fw-bold text-muted">Sort Order</label>
-                            <input type="number" class="form-control rounded-pill border-0 shadow-sm px-3" name="sort_order" id="faq_order" value="0" style="height: 45px;">
+                            <input type="number" class="form-control rounded-pill border-0 shadow-sm px-3"
+                                name="sort_order" id="faq_order" value="0" style="height: 45px;">
                         </div>
                         <div class="col-md-12">
                             <label class="small fw-bold text-muted">Question</label>
-                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="question" id="faq_question" placeholder="E.g. How do I book a tour?" required style="height: 45px;">
+                            <input type="text" class="form-control rounded-pill border-0 shadow-sm px-3" name="question"
+                                id="faq_question" placeholder="E.g. How do I book a tour?" required
+                                style="height: 45px;">
                         </div>
                         <div class="col-md-12">
                             <label class="small fw-bold text-muted">Answer</label>
-                            <textarea class="form-control rounded-4 border-0 shadow-sm px-3" name="answer" id="faq_answer" rows="3" placeholder="Provide a detailed answer here..." required></textarea>
+                            <textarea class="form-control rounded-4 border-0 shadow-sm px-3" name="answer"
+                                id="faq_answer" rows="3" placeholder="Provide a detailed answer here..."
+                                required></textarea>
                         </div>
                         <div class="col-md-3 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm">Save FAQ</button>
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm">Save
+                                FAQ</button>
                         </div>
                         <div class="col-md-3 d-flex align-items-end">
-                            <button type="button" class="btn btn-light w-100 rounded-pill fw-bold py-2 shadow-sm" onclick="resetFaqForm()">Clear</button>
+                            <button type="button" class="btn btn-light w-100 rounded-pill fw-bold py-2 shadow-sm"
+                                onclick="resetFaqForm()">Clear</button>
                         </div>
                     </form>
                 </div>
@@ -2814,10 +2890,13 @@ $room_modals_html = '';
                                     $status_badge = $f['status'] ? 'bg-success' : 'bg-secondary';
                                     $status_text = $f['status'] ? 'Active' : 'Inactive';
                                     $cat_badge = 'bg-light text-dark';
-                                    if($f['category'] == 'Flight') $cat_badge = 'bg-primary text-white';
-                                    if($f['category'] == 'Hotel') $cat_badge = 'bg-success text-white';
-                                    if($f['category'] == 'Cab') $cat_badge = 'bg-warning text-dark';
-                                    
+                                    if ($f['category'] == 'Flight')
+                                        $cat_badge = 'bg-primary text-white';
+                                    if ($f['category'] == 'Hotel')
+                                        $cat_badge = 'bg-success text-white';
+                                    if ($f['category'] == 'Cab')
+                                        $cat_badge = 'bg-warning text-dark';
+
                                     $q_json = json_encode($f['question']);
                                     $a_json = json_encode($f['answer']);
                                     $c_json = json_encode($f['category']);
@@ -2846,7 +2925,106 @@ $room_modals_html = '';
             </div>
         </div>
 
+        <!-- Change Password Card -->
+        <div class="data-card" id="change-password-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4><i class="fas fa-key text-danger"></i> Security Settings</h4>
+                <span class="badge bg-light text-dark border rounded-pill px-3">Admin Account</span>
+            </div>
+            <div class="p-5">
+                <div class="row justify-content-center">
+                    <div class="col-xl-6 col-lg-8">
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="text-center mb-4">
+                                    <div class="icon-circle bg-light-danger text-danger mb-3 mx-auto"
+                                        style="width: 70px; height: 70px; line-height: 70px; border-radius: 50%; font-size: 30px;">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    <h5 class="fw-bold">Update Admin Password</h5>
+                                    <p class="text-muted small">Keep your account secure by using a strong password.</p>
+                                </div>
+
+                                <form action="admin.php" method="POST" class="needs-validation">
+                                    <input type="hidden" name="action" value="change_password">
+
+                                    <div class="mb-4">
+                                        <label class="small fw-bold text-muted mb-2">Current Password</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-0"><i
+                                                    class="fas fa-shield-alt text-muted"></i></span>
+                                            <input type="password" name="current_password" class="form-control bg-light border-0"
+                                                placeholder="Enter current password" required style="height: 48px;">
+                                            <span class="input-group-text bg-light border-0 cursor-pointer" onclick="togglePassword(this)">
+                                                <i class="fas fa-eye text-muted"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="small fw-bold text-muted mb-2">New Password</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-0"><i
+                                                    class="fas fa-key text-muted"></i></span>
+                                            <input type="password" name="new_password" class="form-control bg-light border-0"
+                                                placeholder="Enter new password" required style="height: 48px;">
+                                            <span class="input-group-text bg-light border-0 cursor-pointer" onclick="togglePassword(this)">
+                                                <i class="fas fa-eye text-muted"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="small fw-bold text-muted mb-2">Confirm New Password</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-0"><i
+                                                    class="fas fa-check-circle text-muted"></i></span>
+                                            <input type="password" name="confirm_password" class="form-control bg-light border-0"
+                                                placeholder="Repeat new password" required style="height: 48px;">
+                                            <span class="input-group-text bg-light border-0 cursor-pointer" onclick="togglePassword(this)">
+                                                <i class="fas fa-eye text-muted"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-2">
+                                        <button type="submit"
+                                            class="btn btn-danger w-100 rounded-pill fw-bold py-3 shadow-sm transition-all hover-lift">
+                                            <i class="fas fa-sync-alt me-2"></i> Update Password
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 p-4 bg-light rounded-4 border-start border-danger border-4">
+                            <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2"></i> Password Guidelines</h6>
+                            <ul class="small text-muted mb-0 ps-3">
+                                <li class="mb-1">Use at least 8 characters for better security.</li>
+                                <li class="mb-1">Include uppercase, lowercase letters, numbers, and symbols.</li>
+                                <li>Never share your password with anyone else.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
+            function togglePassword(btn) {
+                const input = btn.parentElement.querySelector('input');
+                const icon = btn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+
             function editFaq(id, q, a, order, cat) {
                 document.getElementById('faq_id').value = id;
                 document.getElementById('faq_question').value = q;
@@ -2891,9 +3069,9 @@ $room_modals_html = '';
             // Auto-hide alerts and clean URL
             const alerts = document.querySelectorAll('.alert');
             const errors = document.querySelectorAll('.error-message');
-            
-            setTimeout(function() {
-                alerts.forEach(function(alert) {
+
+            setTimeout(function () {
+                alerts.forEach(function (alert) {
                     if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
                         const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
                         if (bsAlert) bsAlert.close();
@@ -2914,27 +3092,27 @@ $room_modals_html = '';
                 }
             }
             // Robust Tab Switching using Event Delegation
-                        document.addEventListener('click', function (e) {
-                            const link = e.target.closest('.admin-nav-link');
-                            if (link) {
-                                e.preventDefault();
-                                const target = link.getAttribute('data-target');
-                                if (target) {
-                                    document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
-                                    link.classList.add('active');
-                                    document.querySelectorAll('.data-card').forEach(c => c.classList.remove('active'));
-                                    const targetCard = document.getElementById(target + '-card');
-                                    if (targetCard) targetCard.classList.add('active');
-                                    localStorage.setItem('activeAdminTab', target);
-                                }
-                            }
-                        });
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('.admin-nav-link');
+                if (link) {
+                    e.preventDefault();
+                    const target = link.getAttribute('data-target');
+                    if (target) {
+                        document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                        document.querySelectorAll('.data-card').forEach(c => c.classList.remove('active'));
+                        const targetCard = document.getElementById(target + '-card');
+                        if (targetCard) targetCard.classList.add('active');
+                        localStorage.setItem('activeAdminTab', target);
+                    }
+                }
+            });
 
             // Initial Tab Selection from URL or Storage
             const urlParams = new URLSearchParams(window.location.search);
             const urlTab = urlParams.get('tab');
             const savedTab = urlTab || localStorage.getItem('activeAdminTab') || 'flights';
-            
+
             const initialLink = document.querySelector('.admin-nav-link[data-target="' + savedTab + '"]');
             if (initialLink) {
                 document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));

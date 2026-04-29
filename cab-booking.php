@@ -224,7 +224,7 @@ include_once 'includes/auth.php';
         .booking-form-wrapper {
             background: #fff;
             border-radius: 24px;
-            padding: 25px 40px;
+            padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
@@ -1820,6 +1820,7 @@ include_once 'includes/auth.php';
             <?php endif; ?>
 
             <!-- Premium Overseas Transfers -->
+            <?php if (false): // Temporarily disabled by user ?>
             <div class="row align-items-end mb-40 mt-60">
                 <div class="col-lg-8">
                     <div class="section-title">
@@ -1859,6 +1860,7 @@ include_once 'includes/auth.php';
                 }
                 ?>
             </div>
+            <?php endif; ?>
 
             <!-- Premium Hourly Car Rentals Slider Section -->
             <div class="hourly-slider-section mt-60">
