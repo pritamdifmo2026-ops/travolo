@@ -1036,7 +1036,8 @@ $cab_modals_html = '';
                         Manage FAQ</a></li>
                 <li><a href="#" class="admin-nav-link" data-target="contacts"><i class="fas fa-envelope-open-text"></i>
                         Messages</a></li>
-                <li><a href="#" class="admin-nav-link" data-target="change-password"><i class="fas fa-user-shield text-danger"></i>
+                <li><a href="#" class="admin-nav-link" data-target="change-password"><i
+                            class="fas fa-user-shield text-danger"></i>
                         Security Settings</a></li>
                 <li><a href="../index.php" target="_blank"><i class="fas fa-external-link-alt"></i> View Website</a>
                 </li>
@@ -1748,13 +1749,16 @@ $cab_modals_html = '';
                                                                             checked> <label class='small'>AC</label></div>
                                                                     <div class='form-check'><input class='form-check-input'
                                                                             type='checkbox' name='features[]' value='Bathtub'>
-                                                                        <label class='small'>Bathtub</label></div>
+                                                                        <label class='small'>Bathtub</label>
+                                                                    </div>
                                                                     <div class='form-check'><input class='form-check-input'
                                                                             type='checkbox' name='features[]' value='Mini Bar'>
-                                                                        <label class='small'>Mini Bar</label></div>
+                                                                        <label class='small'>Mini Bar</label>
+                                                                    </div>
                                                                     <div class='form-check'><input class='form-check-input'
                                                                             type='checkbox' name='features[]' value='City View'>
-                                                                        <label class='small'>City View</label></div>
+                                                                        <label class='small'>City View</label>
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
@@ -2051,15 +2055,15 @@ $cab_modals_html = '';
                                                             <input type='hidden' name='existing_image' value='{$row['image_path']}'>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>City Name</label>
-                                                                <input type='text' name='city' class='form-control rounded-pill' value='".htmlspecialchars($row['city'])."' required>
+                                                                <input type='text' name='city' class='form-control rounded-pill' value='" . htmlspecialchars($row['city']) . "' required>
                                                             </div>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>Airport Name</label>
-                                                                <input type='text' name='airport' class='form-control rounded-pill' value='".htmlspecialchars($row['airport'])."' required>
+                                                                <input type='text' name='airport' class='form-control rounded-pill' value='" . htmlspecialchars($row['airport']) . "' required>
                                                             </div>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>Badge Text</label>
-                                                                <input type='text' name='badge_text' class='form-control rounded-pill' value='".htmlspecialchars($row['badge_text'])."'>
+                                                                <input type='text' name='badge_text' class='form-control rounded-pill' value='" . htmlspecialchars($row['badge_text']) . "'>
                                                             </div>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>Update Image (Optional)</label>
@@ -2095,12 +2099,13 @@ $cab_modals_html = '';
                                 </div>
                                 <div class="col-md-3">
                                     <label class="small fw-bold text-muted">Service City</label>
-                                    <select class="form-select rounded-pill border-0 shadow-sm" name="city_name" required>
+                                    <select class="form-select rounded-pill border-0 shadow-sm" name="city_name"
+                                        required>
                                         <option value="All Cities">All Cities</option>
                                         <?php
                                         $cities = $conn->query("SELECT DISTINCT city FROM cab_transfers UNION SELECT DISTINCT city FROM cab_hourly UNION SELECT DISTINCT city FROM cab_outstation ORDER BY city ASC");
-                                        while($c = $cities->fetch_assoc()) {
-                                            echo "<option value='".htmlspecialchars($c['city'])."'>".htmlspecialchars($c['city'])."</option>";
+                                        while ($c = $cities->fetch_assoc()) {
+                                            echo "<option value='" . htmlspecialchars($c['city']) . "'>" . htmlspecialchars($c['city']) . "</option>";
                                         }
                                         ?>
                                     </select>
@@ -2215,18 +2220,18 @@ $cab_modals_html = '';
                                                                 <div class='row g-3'>
                                                                     <div class='col-md-6'>
                                                                         <label class='form-label small fw-bold'>Car Name</label>
-                                                                        <input type='text' name='car_name' class='form-control rounded-pill' value='".htmlspecialchars($row['car_name'])."' required>
+                                                                        <input type='text' name='car_name' class='form-control rounded-pill' value='" . htmlspecialchars($row['car_name']) . "' required>
                                                                     </div>
                                                                     <div class='col-md-6'>
                                                                         <label class='form-label small fw-bold'>Service City</label>
                                                                         <select class='form-select rounded-pill' name='city_name' required>
                                                                             <option value='All Cities'>All Cities</option>";
-                                            
+
                                             $cities_list = $conn->query("SELECT DISTINCT city FROM cab_transfers UNION SELECT DISTINCT city FROM cab_hourly UNION SELECT DISTINCT city FROM cab_outstation ORDER BY city ASC");
                                             $current_city = $row['city_name'] ?? 'All Cities';
-                                            while($cl = $cities_list->fetch_assoc()) {
+                                            while ($cl = $cities_list->fetch_assoc()) {
                                                 $selected = ($cl['city'] == $current_city) ? 'selected' : '';
-                                                $cab_modals_html .= "<option value='".htmlspecialchars($cl['city'])."' $selected>".htmlspecialchars($cl['city'])."</option>";
+                                                $cab_modals_html .= "<option value='" . htmlspecialchars($cl['city']) . "' $selected>" . htmlspecialchars($cl['city']) . "</option>";
                                             }
 
                                             $cab_modals_html .= "
@@ -2235,11 +2240,11 @@ $cab_modals_html = '';
                                                                     <div class='col-md-4'>
                                                                         <label class='form-label small fw-bold'>Category</label>
                                                                         <select class='form-select rounded-pill' name='category' required>
-                                                                            <option value='Hatchback' ".($row['category'] == 'Hatchback' ? 'selected' : '').">Hatchback</option>
-                                                                            <option value='Sedan' ".($row['category'] == 'Sedan' ? 'selected' : '').">Sedan</option>
-                                                                            <option value='SUV' ".($row['category'] == 'SUV' ? 'selected' : '').">SUV</option>
-                                                                            <option value='Luxury' ".($row['category'] == 'Luxury' ? 'selected' : '').">Luxury</option>
-                                                                            <option value='Tempo Traveller' ".($row['category'] == 'Tempo Traveller' ? 'selected' : '').">Tempo Traveller</option>
+                                                                            <option value='Hatchback' " . ($row['category'] == 'Hatchback' ? 'selected' : '') . ">Hatchback</option>
+                                                                            <option value='Sedan' " . ($row['category'] == 'Sedan' ? 'selected' : '') . ">Sedan</option>
+                                                                            <option value='SUV' " . ($row['category'] == 'SUV' ? 'selected' : '') . ">SUV</option>
+                                                                            <option value='Luxury' " . ($row['category'] == 'Luxury' ? 'selected' : '') . ">Luxury</option>
+                                                                            <option value='Tempo Traveller' " . ($row['category'] == 'Tempo Traveller' ? 'selected' : '') . ">Tempo Traveller</option>
                                                                         </select>
                                                                     </div>
                                                                     <div class='col-md-4'>
@@ -2268,7 +2273,7 @@ $cab_modals_html = '';
                                                                     </div>
                                                                     <div class='col-md-12'>
                                                                         <label class='form-label small fw-bold'>Features</label>
-                                                                        <input type='text' name='features' class='form-control rounded-pill' value='".htmlspecialchars($row['features'])."'>
+                                                                        <input type='text' name='features' class='form-control rounded-pill' value='" . htmlspecialchars($row['features']) . "'>
                                                                     </div>
                                                                     <div class='col-md-12'>
                                                                         <label class='form-label small fw-bold'>Update Car Image (Optional)</label>
@@ -2370,11 +2375,11 @@ $cab_modals_html = '';
                                                             <input type='hidden' name='existing_image' value='{$row['image_path']}'>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>City Name</label>
-                                                                <input type='text' name='city' class='form-control rounded-pill' value='".htmlspecialchars($row['city'])."' required>
+                                                                <input type='text' name='city' class='form-control rounded-pill' value='" . htmlspecialchars($row['city']) . "' required>
                                                             </div>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>Location Tag</label>
-                                                                <input type='text' name='location_tag' class='form-control rounded-pill' value='".htmlspecialchars($row['location_tag'])."' required>
+                                                                <input type='text' name='location_tag' class='form-control rounded-pill' value='" . htmlspecialchars($row['location_tag']) . "' required>
                                                             </div>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>Price Per Hour (₹)</label>
@@ -2478,15 +2483,15 @@ $cab_modals_html = '';
                                                             <input type='hidden' name='existing_image' value='{$row['image_path']}'>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>City Name</label>
-                                                                <input type='text' name='city' class='form-control rounded-pill' value='".htmlspecialchars($row['city'])."' required>
+                                                                <input type='text' name='city' class='form-control rounded-pill' value='" . htmlspecialchars($row['city']) . "' required>
                                                             </div>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>Short Description</label>
-                                                                <input type='text' name='description' class='form-control rounded-pill' value='".htmlspecialchars($row['description'])."' required>
+                                                                <input type='text' name='description' class='form-control rounded-pill' value='" . htmlspecialchars($row['description']) . "' required>
                                                             </div>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>Price Starts (e.g. AED 120)</label>
-                                                                <input type='text' name='price_starts' class='form-control rounded-pill' value='".htmlspecialchars($row['price_starts'])."' required>
+                                                                <input type='text' name='price_starts' class='form-control rounded-pill' value='" . htmlspecialchars($row['price_starts']) . "' required>
                                                             </div>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>Update Image (Optional)</label>
@@ -2617,31 +2622,31 @@ $cab_modals_html = '';
                                                             <div class='row'>
                                                                 <div class='col-md-6 mb-3'>
                                                                     <label class='form-label small fw-bold'>Promo Code</label>
-                                                                    <input type='text' name='promo_code' class='form-control rounded-pill' value='".htmlspecialchars($row['promo_code'])."' required>
+                                                                    <input type='text' name='promo_code' class='form-control rounded-pill' value='" . htmlspecialchars($row['promo_code']) . "' required>
                                                                 </div>
                                                                 <div class='col-md-6 mb-3'>
                                                                     <label class='form-label small fw-bold'>Badge Text</label>
-                                                                    <input type='text' name='badge' class='form-control rounded-pill' value='".htmlspecialchars($row['badge'])."' required>
+                                                                    <input type='text' name='badge' class='form-control rounded-pill' value='" . htmlspecialchars($row['badge']) . "' required>
                                                                 </div>
                                                                 <div class='col-md-6 mb-3'>
                                                                     <label class='form-label small fw-bold'>Header (Small)</label>
-                                                                    <input type='text' name='header_small' class='form-control rounded-pill' value='".htmlspecialchars($row['header_small'])."' required>
+                                                                    <input type='text' name='header_small' class='form-control rounded-pill' value='" . htmlspecialchars($row['header_small']) . "' required>
                                                                 </div>
                                                                 <div class='col-md-6 mb-3'>
                                                                     <label class='form-label small fw-bold'>Highlight (Main)</label>
-                                                                    <input type='text' name='header_main' class='form-control rounded-pill' value='".htmlspecialchars($row['header_main'])."' required>
+                                                                    <input type='text' name='header_main' class='form-control rounded-pill' value='" . htmlspecialchars($row['header_main']) . "' required>
                                                                 </div>
                                                                 <div class='col-md-6 mb-3'>
                                                                     <label class='form-label small fw-bold'>Theme Color (HEX)</label>
-                                                                    <input type='text' name='theme_color' class='form-control rounded-pill' value='".htmlspecialchars($row['theme_color'])."' required>
+                                                                    <input type='text' name='theme_color' class='form-control rounded-pill' value='" . htmlspecialchars($row['theme_color']) . "' required>
                                                                 </div>
                                                                 <div class='col-md-12 mb-3'>
                                                                     <label class='form-label small fw-bold'>Main Body Title</label>
-                                                                    <input type='text' name='main_title' class='form-control rounded-pill' value='".htmlspecialchars($row['main_title'])."' required>
+                                                                    <input type='text' name='main_title' class='form-control rounded-pill' value='" . htmlspecialchars($row['main_title']) . "' required>
                                                                 </div>
                                                                 <div class='col-md-6 mb-3'>
                                                                     <label class='form-label small fw-bold'>Validity Text</label>
-                                                                    <input type='text' name='validity_text' class='form-control rounded-pill' value='".htmlspecialchars($row['validity_text'])."' required>
+                                                                    <input type='text' name='validity_text' class='form-control rounded-pill' value='" . htmlspecialchars($row['validity_text']) . "' required>
                                                                 </div>
                                                                 <div class='col-md-6 mb-3'>
                                                                     <label class='form-label small fw-bold'>Update Banner (Optional)</label>
@@ -2742,11 +2747,11 @@ $cab_modals_html = '';
                                                             <input type='hidden' name='existing_image' value='{$row['thumbnail']}'>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>City Name</label>
-                                                                <input type='text' name='city' class='form-control rounded-pill' value='".htmlspecialchars($row['city'])."' required>
+                                                                <input type='text' name='city' class='form-control rounded-pill' value='" . htmlspecialchars($row['city']) . "' required>
                                                             </div>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>Destinations (Comma separated)</label>
-                                                                <textarea name='destinations' class='form-control rounded-4' rows='3' required>".htmlspecialchars($row['destinations'])."</textarea>
+                                                                <textarea name='destinations' class='form-control rounded-4' rows='3' required>" . htmlspecialchars($row['destinations']) . "</textarea>
                                                             </div>
                                                             <div class='mb-3'>
                                                                 <label class='form-label small fw-bold'>Update Thumbnail (Optional)</label>
@@ -3271,9 +3276,11 @@ $cab_modals_html = '';
                                         <div class="input-group">
                                             <span class="input-group-text bg-light border-0"><i
                                                     class="fas fa-shield-alt text-muted"></i></span>
-                                            <input type="password" name="current_password" class="form-control bg-light border-0"
+                                            <input type="password" name="current_password"
+                                                class="form-control bg-light border-0"
                                                 placeholder="Enter current password" required style="height: 48px;">
-                                            <span class="input-group-text bg-light border-0 cursor-pointer" onclick="togglePassword(this)">
+                                            <span class="input-group-text bg-light border-0 cursor-pointer"
+                                                onclick="togglePassword(this)">
                                                 <i class="fas fa-eye text-muted"></i>
                                             </span>
                                         </div>
@@ -3284,9 +3291,11 @@ $cab_modals_html = '';
                                         <div class="input-group">
                                             <span class="input-group-text bg-light border-0"><i
                                                     class="fas fa-key text-muted"></i></span>
-                                            <input type="password" name="new_password" class="form-control bg-light border-0"
-                                                placeholder="Enter new password" required style="height: 48px;">
-                                            <span class="input-group-text bg-light border-0 cursor-pointer" onclick="togglePassword(this)">
+                                            <input type="password" name="new_password"
+                                                class="form-control bg-light border-0" placeholder="Enter new password"
+                                                required style="height: 48px;">
+                                            <span class="input-group-text bg-light border-0 cursor-pointer"
+                                                onclick="togglePassword(this)">
                                                 <i class="fas fa-eye text-muted"></i>
                                             </span>
                                         </div>
@@ -3297,9 +3306,11 @@ $cab_modals_html = '';
                                         <div class="input-group">
                                             <span class="input-group-text bg-light border-0"><i
                                                     class="fas fa-check-circle text-muted"></i></span>
-                                            <input type="password" name="confirm_password" class="form-control bg-light border-0"
-                                                placeholder="Repeat new password" required style="height: 48px;">
-                                            <span class="input-group-text bg-light border-0 cursor-pointer" onclick="togglePassword(this)">
+                                            <input type="password" name="confirm_password"
+                                                class="form-control bg-light border-0" placeholder="Repeat new password"
+                                                required style="height: 48px;">
+                                            <span class="input-group-text bg-light border-0 cursor-pointer"
+                                                onclick="togglePassword(this)">
                                                 <i class="fas fa-eye text-muted"></i>
                                             </span>
                                         </div>
