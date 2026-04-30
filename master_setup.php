@@ -151,6 +151,7 @@ $tables = [
     "CREATE TABLE IF NOT EXISTS cab_inventory (
         id INT AUTO_INCREMENT PRIMARY KEY,
         category VARCHAR(50) NOT NULL,
+        city_name VARCHAR(100) DEFAULT 'All Cities',
         car_name VARCHAR(100) NOT NULL,
         image_path VARCHAR(255) NOT NULL,
         capacity INT DEFAULT 4,
@@ -250,6 +251,10 @@ if ($check && $check->num_rows == 0) {
     $conn->query("INSERT INTO admins (username, password) VALUES ('admin', '$hashed')");
     echo "Admin seeded.<br>";
 }
+
+// Maintenance - Ensure city_name column exists for city-wise fleet
+$conn->query("ALTER TABLE cab_inventory ADD COLUMN IF NOT EXISTS city_name VARCHAR(100) DEFAULT 'All Cities' AFTER category");
+echo "Database maintenance completed.<br>";
 
 echo "<h3>All tables verified/created!</h3>";
 ?>

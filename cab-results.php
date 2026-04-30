@@ -16,27 +16,33 @@ $duration = trim(isset($_GET['duration']) && $_GET['duration'] !== '' ? $_GET['d
 $serviceable = false;
 $city_pack = null;
 if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
-    $q = $conn->query("SELECT * FROM cab_transfers WHERE (
-        city LIKE '%$from%' OR '$from' LIKE CONCAT('%', city, '%') OR
-        city LIKE '%$to%' OR '$to' LIKE CONCAT('%', city, '%') OR
-        airport LIKE '%$from%' OR '$from' LIKE CONCAT('%', airport, '%') OR
-        airport LIKE '%$to%' OR '$to' LIKE CONCAT('%', airport, '%')
-    ) AND status = 1 LIMIT 1");
+    // Prioritize City Match first, then Airport
+    $q = $conn->query("SELECT * FROM cab_transfers WHERE status = 1 AND (
+        city = '$from' OR city = '$to'
+    ) LIMIT 1");
+    
+    if (!$q || $q->num_rows == 0) {
+        $q = $conn->query("SELECT * FROM cab_transfers WHERE status = 1 AND (
+            city LIKE '%$from%' OR '$from' LIKE CONCAT('%', city, '%') OR
+            city LIKE '%$to%' OR '$to' LIKE CONCAT('%', city, '%') OR
+            airport LIKE '%$from%' OR '$from' LIKE CONCAT('%', airport, '%') OR
+            airport LIKE '%$to%' OR '$to' LIKE CONCAT('%', airport, '%')
+        ) LIMIT 1");
+    }
     if ($q && $q->num_rows > 0) { $serviceable = true; $city_pack = $q->fetch_assoc(); }
 } elseif ($tripType === 'Outstation') {
-    $q = $conn->query("SELECT * FROM cab_outstation WHERE (
-        city LIKE '%$from%' OR '$from' LIKE CONCAT('%', city, '%') OR
+    $q = $conn->query("SELECT * FROM cab_outstation WHERE status = 1 AND (
+        city = '$from' OR city LIKE '%$from%' OR '$from' LIKE CONCAT('%', city, '%') OR
         destinations LIKE '%$to%' OR '$to' LIKE CONCAT('%', destinations, '%')
-    ) AND status = 1 LIMIT 1");
+    ) LIMIT 1");
     if ($q && $q->num_rows > 0) { $serviceable = true; $city_pack = $q->fetch_assoc(); }
 } elseif ($tripType === 'Hourly') {
-    $q = $conn->query("SELECT * FROM cab_hourly WHERE (
-        city LIKE '%$from%' OR '$from' LIKE CONCAT('%', city, '%') OR
+    $q = $conn->query("SELECT * FROM cab_hourly WHERE status = 1 AND (
+        city = '$from' OR city LIKE '%$from%' OR '$from' LIKE CONCAT('%', city, '%') OR
         location_tag LIKE '%$from%' OR '$from' LIKE CONCAT('%', location_tag, '%')
-    ) AND status = 1 LIMIT 1");
+    ) LIMIT 1");
     if ($q && $q->num_rows > 0) { $serviceable = true; $city_pack = $q->fetch_assoc(); }
 } else {
-    // Basic city check if trip type is not specific
     $serviceable = true; 
 }
 ?>
@@ -371,7 +377,8 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
                         $cab_filter = " AND id = $target_cab_id";
                     }
 
-                    $cabs_res = $conn->query("SELECT *, $price_col as display_price FROM cab_inventory WHERE status = 1 $cab_filter ORDER BY display_price ASC");
+                    $city_filter = " AND (city_name = '$city_name' OR city_name = 'All Cities')";
+                    $cabs_res = $conn->query("SELECT *, $price_col as display_price FROM cab_inventory WHERE status = 1 $city_filter $cab_filter ORDER BY display_price ASC");
                     if ($cabs_res && $cabs_res->num_rows > 0) {
                         while ($cab = $cabs_res->fetch_assoc()) {
                             $display_price = ($cab['display_price'] > 0) ? $cab['display_price'] : $cab['base_price'];
@@ -390,7 +397,7 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
                             ?>
                             <div class="car-result-card wow fadeInUp">
                                 <div class="car-image-box">
-                                    <img src="https://placehold.co/400x250/f4f7f6/133a25?text=<?php echo urlencode($cab['car_name']); ?>" alt="<?php echo htmlspecialchars($cab['car_name']); ?>">
+                                    <img src="<?php echo $cab['image_path']; ?>" alt="<?php echo htmlspecialchars($cab['car_name']); ?>">
                                 </div>
                                 <div class="car-detail-main">
                                     <span class="car-category <?php echo $cat_class; ?>"><?php echo htmlspecialchars($cab['category']); ?></span>

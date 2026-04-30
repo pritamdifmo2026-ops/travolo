@@ -1,19 +1,20 @@
 # Travolo Root Security (Apache 2.4+)
 
-# 1. Prevent Directory Browsing
-Options -Indexes
-
-# 2. Protect sensitive file types
-<FilesMatch "^\.|\.(ini|log|sh|sql)$">
-    Require all denied
-</FilesMatch>
-
-# 3. Specifically protect db.php and setup files
-<FilesMatch "^(db|master_setup|database_repair|master_seed|seed|setup_.*)\.php$">
-    Require all denied
-</FilesMatch>
-
-# 4. Prevent access to git and hidden files
-<FilesMatch "^\.">
-    Require all denied
-</FilesMatch>
+# .htaccess DISABLED FOR DEVELOPMENT
+# # 1. Prevent Directory Browsing
+# Options -Indexes
+#
+# # 2. Protect sensitive file types
+# <FilesMatch "^\.|\.(ini|log|sh|sql)$">
+#     Require all denied
+# </FilesMatch>
+#
+# # 3. Specifically protect db.php and setup files
+# #<FilesMatch "^(db|master_setup|database_repair|master_seed|seed|setup_.*)\.php$">
+#     Require all denied
+# </FilesMatch>
+#
+# # 4. Prevent access to git and hidden files
+# <FilesMatch "^\.">
+#     Require all denied
+# </FilesMatch>

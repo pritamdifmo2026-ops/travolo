@@ -467,6 +467,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete_cab_overseas' && isset
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_cab_inventory') {
     $name = $conn->real_escape_string($_POST['car_name']);
     $cat = $conn->real_escape_string($_POST['category']);
+    $city = $conn->real_escape_string($_POST['city_name'] ?? 'All Cities');
     $cap = (int) $_POST['capacity'];
     $lug = (int) $_POST['luggage'];
     $base = (int) $_POST['base_price'];
@@ -477,7 +478,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $feats = $conn->real_escape_string($_POST['features']);
     $image = handleFileUpload('car_image') ?: 'assets/images/tour-3-550x590.jpg';
 
-    $conn->query("INSERT INTO cab_inventory (car_name, category, capacity, luggage, base_price, hourly_price, airport_price, outstation_price, price_per_km, features, image_path) VALUES ('$name', '$cat', $cap, $lug, $base, $h_price, $a_price, $o_price, $pkm, '$feats', '$image')");
+    $conn->query("INSERT INTO cab_inventory (car_name, category, city_name, capacity, luggage, base_price, hourly_price, airport_price, outstation_price, price_per_km, features, image_path) VALUES ('$name', '$cat', '$city', $cap, $lug, $base, $h_price, $a_price, $o_price, $pkm, '$feats', '$image')");
     header("Location: admin.php?tab=manage-cabs&success=Vehicle+Added");
     exit;
 }
@@ -486,6 +487,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $id = (int) $_POST['id'];
     $name = $conn->real_escape_string($_POST['car_name']);
     $cat = $conn->real_escape_string($_POST['category']);
+    $city = $conn->real_escape_string($_POST['city_name'] ?? 'All Cities');
     $cap = (int) $_POST['capacity'];
     $lug = (int) $_POST['luggage'];
     $base = (int) $_POST['base_price'];
@@ -498,7 +500,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if ($new = handleFileUpload('car_image'))
         $image = $new;
 
-    $conn->query("UPDATE cab_inventory SET car_name='$name', category='$cat', capacity=$cap, luggage=$lug, base_price=$base, hourly_price=$h_price, airport_price=$a_price, outstation_price=$o_price, price_per_km=$pkm, features='$feats', image_path='$image' WHERE id=$id");
+    $conn->query("UPDATE cab_inventory SET car_name='$name', category='$cat', city_name='$city', capacity=$cap, luggage=$lug, base_price=$base, hourly_price=$h_price, airport_price=$a_price, outstation_price=$o_price, price_per_km=$pkm, features='$feats', image_path='$image' WHERE id=$id");
     header("Location: admin.php?tab=manage-cabs&success=Vehicle+Updated");
     exit;
 }
@@ -2092,6 +2094,18 @@ $cab_modals_html = '';
                                         name="car_name" placeholder="E.g. Toyota Etios" required>
                                 </div>
                                 <div class="col-md-3">
+                                    <label class="small fw-bold text-muted">Service City</label>
+                                    <select class="form-select rounded-pill border-0 shadow-sm" name="city_name" required>
+                                        <option value="All Cities">All Cities</option>
+                                        <?php
+                                        $cities = $conn->query("SELECT DISTINCT city FROM cab_transfers UNION SELECT DISTINCT city FROM cab_hourly UNION SELECT DISTINCT city FROM cab_outstation ORDER BY city ASC");
+                                        while($c = $cities->fetch_assoc()) {
+                                            echo "<option value='".htmlspecialchars($c['city'])."'>".htmlspecialchars($c['city'])."</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
                                     <label class="small fw-bold text-muted">Category</label>
                                     <select class="form-select rounded-pill border-0 shadow-sm" name="category"
                                         required>
@@ -2149,6 +2163,7 @@ $cab_modals_html = '';
                                 <thead class="bg-light">
                                     <tr>
                                         <th>Car</th>
+                                        <th>Service City</th>
                                         <th>Category</th>
                                         <th>Capacity/Features</th>
                                         <th>Base Price</th>
@@ -2165,6 +2180,7 @@ $cab_modals_html = '';
                                             $s_text = $row['status'] ? 'Active' : 'Offline';
                                             echo "<tr>";
                                             echo "<td><div class='fw-bold text-dark'>{$row['car_name']}</div></td>";
+                                            echo "<td><span class='badge bg-info text-white rounded-pill px-3'>" . ($row['city_name'] ?? 'All Cities') . "</span></td>";
                                             echo "<td><span class='badge bg-light text-dark border px-3 rounded-pill'>{$row['category']}</span></td>";
                                             echo "<td><div class='small'><i class='fas fa-users me-1'></i>{$row['capacity']} Pax | <span class='text-muted'>{$row['features']}</span></div></td>";
                                             echo "<td><strong>₹" . number_format($row['base_price']) . "</strong></td>";
@@ -2181,6 +2197,93 @@ $cab_modals_html = '';
                                                     <a href='admin.php?action=delete_cab_inventory&id={$row['id']}' class='btn btn-sm btn-outline-danger rounded-pill px-3' style='font-size:12px;' onclick='return confirm(\"Permanently remove from fleet?\")'>Delete</a>
                                                   </td>";
                                             echo "</tr>";
+
+                                            // Build Edit Modal for Car
+                                            $cab_modals_html .= "
+                                            <div class='modal fade' id='editCarModal{$row['id']}' tabindex='-1'>
+                                                <div class='modal-dialog modal-dialog-centered modal-lg'>
+                                                    <div class='modal-content rounded-4 border-0 shadow'>
+                                                        <div class='modal-header border-0'>
+                                                            <h5 class='modal-title fw-bold'>Edit Vehicle Details</h5>
+                                                            <button type='button' class='btn-close' data-bs-dismiss='modal'></button>
+                                                        </div>
+                                                        <form action='admin.php' method='POST' enctype='multipart/form-data'>
+                                                            <div class='modal-body'>
+                                                                <input type='hidden' name='action' value='edit_cab_inventory'>
+                                                                <input type='hidden' name='id' value='{$row['id']}'>
+                                                                <input type='hidden' name='existing_image' value='{$row['image_path']}'>
+                                                                <div class='row g-3'>
+                                                                    <div class='col-md-6'>
+                                                                        <label class='form-label small fw-bold'>Car Name</label>
+                                                                        <input type='text' name='car_name' class='form-control rounded-pill' value='".htmlspecialchars($row['car_name'])."' required>
+                                                                    </div>
+                                                                    <div class='col-md-6'>
+                                                                        <label class='form-label small fw-bold'>Service City</label>
+                                                                        <select class='form-select rounded-pill' name='city_name' required>
+                                                                            <option value='All Cities'>All Cities</option>";
+                                            
+                                            $cities_list = $conn->query("SELECT DISTINCT city FROM cab_transfers UNION SELECT DISTINCT city FROM cab_hourly UNION SELECT DISTINCT city FROM cab_outstation ORDER BY city ASC");
+                                            $current_city = $row['city_name'] ?? 'All Cities';
+                                            while($cl = $cities_list->fetch_assoc()) {
+                                                $selected = ($cl['city'] == $current_city) ? 'selected' : '';
+                                                $cab_modals_html .= "<option value='".htmlspecialchars($cl['city'])."' $selected>".htmlspecialchars($cl['city'])."</option>";
+                                            }
+
+                                            $cab_modals_html .= "
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class='col-md-4'>
+                                                                        <label class='form-label small fw-bold'>Category</label>
+                                                                        <select class='form-select rounded-pill' name='category' required>
+                                                                            <option value='Hatchback' ".($row['category'] == 'Hatchback' ? 'selected' : '').">Hatchback</option>
+                                                                            <option value='Sedan' ".($row['category'] == 'Sedan' ? 'selected' : '').">Sedan</option>
+                                                                            <option value='SUV' ".($row['category'] == 'SUV' ? 'selected' : '').">SUV</option>
+                                                                            <option value='Luxury' ".($row['category'] == 'Luxury' ? 'selected' : '').">Luxury</option>
+                                                                            <option value='Tempo Traveller' ".($row['category'] == 'Tempo Traveller' ? 'selected' : '').">Tempo Traveller</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class='col-md-4'>
+                                                                        <label class='form-label small fw-bold'>Capacity</label>
+                                                                        <input type='number' name='capacity' class='form-control rounded-pill' value='{$row['capacity']}' required>
+                                                                    </div>
+                                                                    <div class='col-md-4'>
+                                                                        <label class='form-label small fw-bold'>Luggage</label>
+                                                                        <input type='number' name='luggage' class='form-control rounded-pill' value='{$row['luggage']}' required>
+                                                                    </div>
+                                                                    <div class='col-md-3'>
+                                                                        <label class='form-label small fw-bold'>Base Price (₹)</label>
+                                                                        <input type='number' name='base_price' class='form-control rounded-pill' value='{$row['base_price']}' required>
+                                                                    </div>
+                                                                    <div class='col-md-3'>
+                                                                        <label class='form-label small fw-bold'>Airport Rate (₹)</label>
+                                                                        <input type='number' name='airport_price' class='form-control rounded-pill' value='{$row['airport_price']}' required>
+                                                                    </div>
+                                                                    <div class='col-md-3'>
+                                                                        <label class='form-label small fw-bold'>Hourly Rate (₹)</label>
+                                                                        <input type='number' name='hourly_price' class='form-control rounded-pill' value='{$row['hourly_price']}' required>
+                                                                    </div>
+                                                                    <div class='col-md-3'>
+                                                                        <label class='form-label small fw-bold'>Outstation/km (₹)</label>
+                                                                        <input type='number' name='outstation_price' class='form-control rounded-pill' value='{$row['outstation_price']}' required>
+                                                                    </div>
+                                                                    <div class='col-md-12'>
+                                                                        <label class='form-label small fw-bold'>Features</label>
+                                                                        <input type='text' name='features' class='form-control rounded-pill' value='".htmlspecialchars($row['features'])."'>
+                                                                    </div>
+                                                                    <div class='col-md-12'>
+                                                                        <label class='form-label small fw-bold'>Update Car Image (Optional)</label>
+                                                                        <input type='file' name='car_image' class='form-control rounded-pill' accept='image/*'>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class='modal-footer border-0'>
+                                                                <button type='button' class='btn btn-light rounded-pill' data-bs-dismiss='modal'>Cancel</button>
+                                                                <button type='submit' class='btn btn-dark rounded-pill px-4'>Update Vehicle</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>";
                                         }
                                     }
                                     ?>

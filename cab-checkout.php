@@ -117,7 +117,7 @@ $u_phone = $_SESSION['user_phone'] ?? '';
                         
                         <div class="cab-summary-card">
                             <div class="cab-summary-img">
-                                <img src="https://placehold.co/400x250/f4f7f6/133a25?text=<?php echo urlencode($cab['car_name']); ?>" alt="<?php echo htmlspecialchars($cab['car_name']); ?>">
+                                <img src="<?php echo $cab['image_path']; ?>" alt="<?php echo htmlspecialchars($cab['car_name']); ?>">
                                 <div class="bg-dark text-white rounded-pill small mt-2 py-1 fw-bold"><?php echo htmlspecialchars($cab['category']); ?></div>
                             </div>
                             <div class="cab-details flex-grow-1">
