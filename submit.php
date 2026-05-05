@@ -350,15 +350,45 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['action']) && $_GET['acti
     $uid = $_SESSION['user_id'] ?? 0;
     $email = $_GET['email'] ?? $_SESSION['user_email'] ?? '';
     $user_name = $conn->real_escape_string($_GET['name'] ?? $_SESSION['user_name'] ?? 'User');
+    $payment_type = $conn->real_escape_string($_GET['payment_type'] ?? 'full');
+    $coupon_code = $conn->real_escape_string($_GET['coupon_code'] ?? '');
 
     // Ensure we have a user session (Guest Booking Logic)
     $uid = ensureUserSession($conn, $user_name, $email, $mobile);
 
     $pick_addr = $conn->real_escape_string($_GET['pickup_address'] ?? '');
     $drop_addr = $conn->real_escape_string($_GET['dropoff_address'] ?? '');
+    $hours = $conn->real_escape_string($_GET['hours'] ?? '');
 
-    $sql = "INSERT INTO cabs (user_id, user_name, cab_id, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, phone, email, pickup_address, dropoff_address) 
-            VALUES ($uid, '$user_name', $cab_id, '$trip', '$pickup', '$from', '$to', '$date', '$time', '$mobile', '$email', '$pick_addr', '$drop_addr')";
+    // Fetch Base Price and Calculate Total
+    $price_col = 'base_price';
+    if ($trip === 'Hourly') $price_col = 'hourly_price';
+    elseif ($trip === 'Airport Transfer' || $to === 'Airport' || $from === 'Airport') $price_col = 'airport_price';
+    elseif ($trip === 'Outstation') $price_col = 'outstation_price';
+
+    $cabs_res = $conn->query("SELECT $price_col as display_price FROM cab_inventory WHERE id = $cab_id LIMIT 1");
+    $cab_data = $cabs_res->fetch_assoc();
+    $total_fare = $cab_data['display_price'] ?? 0;
+
+    if ($trip === 'Hourly' && !empty($hours)) {
+        $selected_hours = intval($hours);
+        if ($selected_hours > 0) {
+            $price_per_hour = $total_fare / 8;
+            $total_fare = round($price_per_hour * $selected_hours);
+        }
+    }
+
+    // Calculate Paid Amount
+    $paid_amount = $total_fare;
+    $payment_status = 'Fully Paid';
+
+    if ($payment_type === 'partial') {
+        $paid_amount = round($total_fare * 0.25);
+        $payment_status = 'Partially Paid';
+    }
+
+    $sql = "INSERT INTO cabs (user_id, user_name, cab_id, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, phone, email, pickup_address, dropoff_address, payment_type, coupon_code, total_fare, paid_amount, payment_status, hours) 
+            VALUES ($uid, '$user_name', $cab_id, '$trip', '$pickup', '$from', '$to', '$date', '$time', '$mobile', '$email', '$pick_addr', '$drop_addr', '$payment_type', '$coupon_code', $total_fare, $paid_amount, '$payment_status', '$hours')";
 
     $success = false;
     if ($conn->query($sql) === TRUE) {

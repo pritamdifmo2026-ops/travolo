@@ -102,7 +102,8 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             overflow: hidden;
         }
 
-        .welcome-card h2, .welcome-card p {
+        .welcome-card h2,
+        .welcome-card p {
             color: #ffffff !important;
         }
 
@@ -172,12 +173,16 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
         }
 
         .booking-preview-container {
-            width: 60px;
-            height: 60px;
+            width: 130px;
+            height: 95px;
             flex-shrink: 0;
             border-radius: 8px;
             overflow: hidden;
-            background: #f7fafc;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #f0f0f0;
         }
 
         .booking-preview-img {
@@ -656,27 +661,57 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
         } elseif ($type == 'Cab') {
             $cab_name = !empty($row['car_name']) ? " (" . $row['car_name'] . ")" : "";
             $title = $row['from_city'] . " to " . $row['to_city'] . $cab_name;
-            
-            $price_display = "";
-            $price_val = 0;
-            if (!empty($row['car_name'])) {
-                if ($row['trip_type'] === 'Hourly') $price_val = $row['hourly_price'];
-                elseif ($row['trip_type'] === 'Airport Transfer' || $row['to_city'] === 'Airport' || $row['from_city'] === 'Airport') $price_val = $row['airport_price'];
-                elseif ($row['trip_type'] === 'Outstation') $price_val = $row['outstation_price'];
-                else $price_val = $row['base_price'];
-                
-                // Fallback to base price if the specific tier is 0 or null
-                if (empty($price_val) || $price_val <= 0) {
-                    $price_val = $row['base_price'];
-                }
-            }
-            if ($price_val > 0) {
-                $price_display = " | ₹" . number_format($price_val);
+
+            $total_f = (isset($row['total_fare']) && $row['total_fare'] > 0) ? $row['total_fare'] : 0;
+            $paid_f = (isset($row['paid_amount']) && $row['paid_amount'] > 0) ? $row['paid_amount'] : 0;
+            $p_status = $row['payment_status'] ?: 'Pending';
+
+            // Fallback for older bookings
+            if ($total_f <= 0) {
+                if ($row['trip_type'] === 'Hourly')
+                    $total_f = $row['hourly_price'];
+                elseif ($row['trip_type'] === 'Airport Transfer' || $row['to_city'] === 'Airport' || $row['from_city'] === 'Airport')
+                    $total_f = $row['airport_price'];
+                elseif ($row['trip_type'] === 'Outstation')
+                    $total_f = $row['outstation_price'];
+
+                if ($total_f <= 0)
+                    $total_f = $row['base_price'];
+                $paid_f = $total_f; // Assume fully paid for old records
+                $p_status = 'Fully Paid';
             }
 
-            $meta = $row['trip_type'] . " | " . ($row['pickup_type'] ?: 'Transfer') . $price_display;
+            $price_display = "";
+            if ($total_f > 0) {
+                $price_display = " | <span class='text-primary fw-bold'>Paid: ₹" . number_format($paid_f) . "</span> / Total: ₹" . number_format($total_f);
+            }
+
+            $hours_info = ($row['trip_type'] === 'Hourly' && !empty($row['hours'])) ? " (" . $row['hours'] . ") " : "";
+            $meta = $row['trip_type'] . $hours_info . " | " . ($row['pickup_type'] ?: 'Transfer') . $price_display;
+
+            // Address Details
+            $addr_info = "";
+            if (!empty($row['pickup_address']) || !empty($row['dropoff_address'])) {
+                $p_addr = $row['pickup_address'] ?: 'Not specified';
+                $d_addr = $row['dropoff_address'] ?: 'Not specified';
+                $addr_info = "<div class='mt-2 small border-top pt-2' style='font-size:11px; line-height:1.4;'>
+                                <div class='text-muted'><i class='fas fa-map-marker-alt text-primary me-1'></i> <b>Pick:</b> $p_addr</div>
+                                <div class='text-muted mt-1'><i class='fas fa-map-pin text-danger me-1'></i> <b>Drop:</b> $d_addr</div>
+                              </div>";
+            }
+
             $dates = date('d M Y', strtotime($row['pickup_date'])) . " at " . $row['pickup_time'];
             $img = !empty($row['cab_img']) ? $row['cab_img'] : "assets/images/car.png";
+
+            // Payment Badge Logic
+            $p_badge_class = 'bg-secondary';
+            if ($p_status == 'Partially Paid')
+                $p_badge_class = 'bg-warning text-dark';
+            elseif ($p_status == 'Fully Paid')
+                $p_badge_class = 'bg-success';
+
+            $status_badge = "<div class='booking-status status-{$status_lc}'>{$status}</div>
+                             <div class='badge {$p_badge_class} ms-1' style='font-size:8px; text-transform:uppercase;'>{$p_status}</div>";
 
             // Dynamic Search Link for Cabs
             $params = http_build_query([
@@ -698,20 +733,20 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             <div class='booking-preview-container'>
                 <img src='{$img}' class='booking-preview-img' alt='{$type}'>
             </div>
-
             <!-- Main Info -->
             <div class='booking-main-info'>
                 <span class='booking-type-badge {$badge_class}'>{$type}</span>
                 <h5>{$title}</h5>
                 <div class='meta-line'>{$meta}</div>
+                " . ($type == 'Cab' ? $addr_info : "") . "
             </div>
-
             <!-- Meta/Dates -->
             <div class='booking-meta-info'>
                 <div class='date-line'><i class='fas fa-calendar-alt'></i> {$dates}</div>
-                <div class='booking-status status-{$status_lc}'>{$status}</div>
+                <div class='d-flex flex-column gap-1'>
+                    " . ($type == 'Cab' ? $status_badge : "<div class='booking-status status-{$status_lc}'>{$status}</div>") . "
+                </div>
             </div>
-
             <!-- Actions -->
             <div class='booking-actions'>
                 " . (($status_lc == 'requested' || $status_lc == 'pending') ? "
@@ -738,76 +773,96 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
                     <h5 class="modal-title fw-bold text-white" id="editModalTitle">Edit Booking</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="bg-light px-4 py-2 border-bottom d-flex justify-content-between align-items-center" id="editModalMetaHeader" style="font-size: 13px;">
-                    <div><span class="text-muted fw-bold">ID:</span> <span id="display_booking_id" class="fw-bold text-dark"></span></div>
-                    <div><span class="text-muted fw-bold">Status:</span> <span id="display_booking_status" class="badge bg-warning text-dark"></span></div>
+                <div class="bg-light px-4 py-2 border-bottom d-flex justify-content-between align-items-center"
+                    id="editModalMetaHeader" style="font-size: 13px;">
+                    <div><span class="text-muted fw-bold">ID:</span> <span id="display_booking_id"
+                            class="fw-bold text-dark"></span></div>
+                    <div><span class="text-muted fw-bold">Status:</span> <span id="display_booking_status"
+                            class="badge bg-warning text-dark"></span></div>
                 </div>
                 <div class="modal-body p-4">
                     <form id="editBookingForm">
                         <input type="hidden" name="action" value="update_booking">
                         <input type="hidden" name="type" id="edit_type">
                         <input type="hidden" name="id" id="edit_id">
-                        
+
                         <!-- Common Field: Contact -->
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Mobile Number</label>
-                            <input type="tel" class="form-control rounded-3" name="phone" id="edit_phone" required pattern="[0-9]{10}">
+                            <input type="tel" class="form-control rounded-3" name="phone" id="edit_phone" required
+                                pattern="[0-9]{10}">
                         </div>
 
                         <!-- Flight Specific Fields -->
                         <div id="flight_fields" class="type-fields" style="display:none;">
                             <div class="row g-2">
-                                <div class="col-6 mb-3"><label class="small fw-bold">From</label><input type="text" name="from_city" id="edit_f_from" class="form-control rounded-3"></div>
-                                <div class="col-6 mb-3"><label class="small fw-bold">To</label><input type="text" name="to_city" id="edit_f_to" class="form-control rounded-3"></div>
+                                <div class="col-6 mb-3"><label class="small fw-bold">From</label><input type="text"
+                                        name="from_city" id="edit_f_from" class="form-control rounded-3"></div>
+                                <div class="col-6 mb-3"><label class="small fw-bold">To</label><input type="text"
+                                        name="to_city" id="edit_f_to" class="form-control rounded-3"></div>
                             </div>
                             <div class="row g-2">
-                                <div class="col-6 mb-3"><label class="small fw-bold">Departure</label><input type="date" name="depart_date" id="edit_f_depart" class="form-control rounded-3"></div>
-                                <div class="col-6 mb-3"><label class="small fw-bold">Return</label><input type="date" name="return_date" id="edit_f_return" class="form-control rounded-3"></div>
+                                <div class="col-6 mb-3"><label class="small fw-bold">Departure</label><input type="date"
+                                        name="depart_date" id="edit_f_depart" class="form-control rounded-3"></div>
+                                <div class="col-6 mb-3"><label class="small fw-bold">Return</label><input type="date"
+                                        name="return_date" id="edit_f_return" class="form-control rounded-3"></div>
                             </div>
                         </div>
 
                         <!-- Hotel Specific Fields -->
                         <div id="hotel_fields" class="type-fields" style="display:none;">
-                            <div class="mb-3"><label class="small fw-bold">Hotel/Location</label><input type="text" name="hotel_search" id="edit_h_search" class="form-control rounded-3"></div>
+                            <div class="mb-3"><label class="small fw-bold">Hotel/Location</label><input type="text"
+                                    name="hotel_search" id="edit_h_search" class="form-control rounded-3"></div>
                             <div class="row g-2">
-                                <div class="col-6 mb-3"><label class="small fw-bold">Check-in</label><input type="date" name="check_in" id="edit_h_in" class="form-control rounded-3" onchange="calcHotelPrice()"></div>
-                                <div class="col-6 mb-3"><label class="small fw-bold">Check-out</label><input type="date" name="check_out" id="edit_h_out" class="form-control rounded-3" onchange="calcHotelPrice()"></div>
+                                <div class="col-6 mb-3"><label class="small fw-bold">Check-in</label><input type="date"
+                                        name="check_in" id="edit_h_in" class="form-control rounded-3"
+                                        onchange="calcHotelPrice()"></div>
+                                <div class="col-6 mb-3"><label class="small fw-bold">Check-out</label><input type="date"
+                                        name="check_out" id="edit_h_out" class="form-control rounded-3"
+                                        onchange="calcHotelPrice()"></div>
                             </div>
-                            
+
                             <!-- Room Type -->
                             <div class="mb-3">
                                 <label class="small fw-bold">Room Type</label>
-                                <input type="text" name="room_type" id="edit_h_room_type" class="form-control rounded-3" placeholder="e.g. Standard Room">
+                                <input type="text" name="room_type" id="edit_h_room_type" class="form-control rounded-3"
+                                    placeholder="e.g. Standard Room">
                             </div>
-                            
+
                             <!-- Guests configuration -->
                             <div class="mb-3">
                                 <label class="small fw-bold d-block mb-2">Guests & Rooms</label>
                                 <div class="row g-2 text-center">
                                     <div class="col-3">
                                         <div class="small text-muted mb-1">Rooms</div>
-                                        <input type="number" id="edit_h_rooms" class="form-control text-center px-1" value="1" min="1" max="10" onchange="calcHotelPrice()">
+                                        <input type="number" id="edit_h_rooms" class="form-control text-center px-1"
+                                            value="1" min="1" max="10" onchange="calcHotelPrice()">
                                     </div>
                                     <div class="col-3">
                                         <div class="small text-muted mb-1">Adults</div>
-                                        <input type="number" id="edit_h_adults" class="form-control text-center px-1" value="2" min="1" max="20" onchange="updateGuestString()">
+                                        <input type="number" id="edit_h_adults" class="form-control text-center px-1"
+                                            value="2" min="1" max="20" onchange="updateGuestString()">
                                     </div>
                                     <div class="col-3">
                                         <div class="small text-muted mb-1">Children</div>
-                                        <input type="number" id="edit_h_children" class="form-control text-center px-1" value="0" min="0" max="10" onchange="updateGuestString()">
+                                        <input type="number" id="edit_h_children" class="form-control text-center px-1"
+                                            value="0" min="0" max="10" onchange="updateGuestString()">
                                     </div>
                                     <div class="col-3">
                                         <div class="small text-muted mb-1">Infants</div>
-                                        <input type="number" id="edit_h_infants" class="form-control text-center px-1" value="0" min="0" max="5" onchange="updateGuestString()">
+                                        <input type="number" id="edit_h_infants" class="form-control text-center px-1"
+                                            value="0" min="0" max="5" onchange="updateGuestString()">
                                     </div>
                                 </div>
                                 <input type="hidden" name="guests" id="edit_h_guests_str">
                             </div>
-                            
+
                             <!-- Price Recalculation -->
-                            <div class="bg-primary bg-opacity-10 p-2 px-3 rounded-3 mb-2 border border-primary border-opacity-25 d-flex justify-content-between align-items-center">
+                            <div
+                                class="bg-primary bg-opacity-10 p-2 px-3 rounded-3 mb-2 border border-primary border-opacity-25 d-flex justify-content-between align-items-center">
                                 <div>
-                                    <div class="small text-primary fw-bold" style="font-size: 10px;">Estimated Total</div>
+                                    <div class="small text-primary fw-bold" style="font-size: 10px;">Estimated Total
+                                    </div>
                                     <div class="fw-bold mb-0 text-dark">₹<span id="displayHotelPrice">0</span></div>
                                 </div>
                                 <input type="hidden" name="price" id="inputHotelPrice">
@@ -818,7 +873,8 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
                         <div id="cab_fields" class="type-fields" style="display:none;">
                             <div class="mb-3">
                                 <label class="small fw-bold">Trip Type</label>
-                                <select name="trip_type" id="edit_c_trip_type" class="form-select rounded-3" onchange="calcCabPrice()">
+                                <select name="trip_type" id="edit_c_trip_type" class="form-select rounded-3"
+                                    onchange="calcCabPrice()">
                                     <option value="Transfer">Local / One Way</option>
                                     <option value="Hourly">Hourly Package (8h/80km)</option>
                                     <option value="Airport Transfer">Airport Transfer</option>
@@ -826,18 +882,26 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
                                 </select>
                             </div>
                             <div class="row g-2">
-                                <div class="col-6 mb-3"><label class="small fw-bold">From</label><input type="text" name="from_city" id="edit_c_from" list="citiesList" class="form-control rounded-3" onchange="calcCabPrice()"></div>
-                                <div class="col-6 mb-3"><label class="small fw-bold">To</label><input type="text" name="to_city" id="edit_c_to" list="citiesList" class="form-control rounded-3" onchange="calcCabPrice()"></div>
+                                <div class="col-6 mb-3"><label class="small fw-bold">From</label><input type="text"
+                                        name="from_city" id="edit_c_from" list="citiesList"
+                                        class="form-control rounded-3" onchange="calcCabPrice()"></div>
+                                <div class="col-6 mb-3"><label class="small fw-bold">To</label><input type="text"
+                                        name="to_city" id="edit_c_to" list="citiesList" class="form-control rounded-3"
+                                        onchange="calcCabPrice()"></div>
                             </div>
                             <div class="row g-2">
-                                <div class="col-6 mb-3"><label class="small fw-bold">Date</label><input type="date" name="pickup_date" id="edit_c_date" class="form-control rounded-3"></div>
-                                <div class="col-6 mb-3"><label class="small fw-bold">Time</label><input type="time" name="pickup_time" id="edit_c_time" class="form-control rounded-3"></div>
+                                <div class="col-6 mb-3"><label class="small fw-bold">Date</label><input type="date"
+                                        name="pickup_date" id="edit_c_date" class="form-control rounded-3"></div>
+                                <div class="col-6 mb-3"><label class="small fw-bold">Time</label><input type="time"
+                                        name="pickup_time" id="edit_c_time" class="form-control rounded-3"></div>
                             </div>
-                            
+
                             <!-- Cab Price Recalculation -->
-                            <div class="bg-primary bg-opacity-10 p-2 px-3 rounded-3 mb-2 border border-primary border-opacity-25 d-flex justify-content-between align-items-center">
+                            <div
+                                class="bg-primary bg-opacity-10 p-2 px-3 rounded-3 mb-2 border border-primary border-opacity-25 d-flex justify-content-between align-items-center">
                                 <div>
-                                    <div class="small text-primary fw-bold" style="font-size: 10px;">Estimated Total</div>
+                                    <div class="small text-primary fw-bold" style="font-size: 10px;">Estimated Total
+                                    </div>
                                     <div class="fw-bold mb-0 text-dark">₹<span id="displayCabPrice">0</span></div>
                                 </div>
                             </div>
@@ -858,8 +922,10 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
                         </datalist>
 
                         <div class="text-end mt-4">
-                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Save Changes</button>
+                            <button type="button" class="btn btn-light rounded-pill px-4"
+                                data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">Save
+                                Changes</button>
                         </div>
                     </form>
                 </div>
@@ -893,45 +959,45 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
         function calcCabPrice() {
             const tripType = document.getElementById('edit_c_trip_type').value;
             let price = currentCabBasePrice;
-            
-            if(tripType === 'Hourly' && currentCabHourlyPrice > 0) price = currentCabHourlyPrice;
-            else if(tripType === 'Outstation' && currentCabOutstationPrice > 0) price = currentCabOutstationPrice;
-            else if((tripType === 'Airport Transfer' || document.getElementById('edit_c_to').value.toLowerCase().includes('airport') || document.getElementById('edit_c_from').value.toLowerCase().includes('airport')) && currentCabAirportPrice > 0) price = currentCabAirportPrice;
-            
+
+            if (tripType === 'Hourly' && currentCabHourlyPrice > 0) price = currentCabHourlyPrice;
+            else if (tripType === 'Outstation' && currentCabOutstationPrice > 0) price = currentCabOutstationPrice;
+            else if ((tripType === 'Airport Transfer' || document.getElementById('edit_c_to').value.toLowerCase().includes('airport') || document.getElementById('edit_c_from').value.toLowerCase().includes('airport')) && currentCabAirportPrice > 0) price = currentCabAirportPrice;
+
             document.getElementById('displayCabPrice').innerText = price > 0 ? price.toLocaleString() : 'N/A';
         }
 
         function parseGuestString(str) {
             let result = { rooms: 1, adults: 2, children: 0, infants: 0 };
-            if(!str) return result;
-            
+            if (!str) return result;
+
             // Example format: 1 Room, 2 Adults, 1 Child
             let parts = str.split(',').map(s => s.trim());
             parts.forEach(part => {
                 let num = parseInt(part);
-                if(isNaN(num)) return;
+                if (isNaN(num)) return;
                 let lower = part.toLowerCase();
-                if(lower.includes('room')) result.rooms = num;
-                else if(lower.includes('adult')) result.adults = num;
-                else if(lower.includes('child')) result.children = num;
-                else if(lower.includes('infant')) result.infants = num;
+                if (lower.includes('room')) result.rooms = num;
+                else if (lower.includes('adult')) result.adults = num;
+                else if (lower.includes('child')) result.children = num;
+                else if (lower.includes('infant')) result.infants = num;
             });
             return result;
         }
 
         function calcHotelPrice() {
-            if(currentHotelBasePrice <= 0) {
+            if (currentHotelBasePrice <= 0) {
                 updateGuestString();
                 return;
             }
-            
+
             const cin = new Date(document.getElementById('edit_h_in').value);
             const cout = new Date(document.getElementById('edit_h_out').value);
             const rooms = parseInt(document.getElementById('edit_h_rooms').value) || 1;
-            
+
             let nights = Math.ceil((cout - cin) / (1000 * 60 * 60 * 24));
             if (isNaN(nights) || nights < 1) nights = 1;
-            
+
             const total = currentHotelBasePrice * rooms * nights;
             document.getElementById('displayHotelPrice').innerText = total.toLocaleString();
             document.getElementById('inputHotelPrice').value = total;
@@ -943,11 +1009,11 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             let a = parseInt(document.getElementById('edit_h_adults').value) || 1;
             let c = parseInt(document.getElementById('edit_h_children').value) || 0;
             let i = parseInt(document.getElementById('edit_h_infants').value) || 0;
-            
+
             let str = `${r} Room${r > 1 ? 's' : ''}, ${a} Adult${a > 1 ? 's' : ''}`;
             if (c > 0) str += `, ${c} Child${c > 1 ? 'ren' : ''}`;
             if (i > 0) str += `, ${i} Infant${i > 1 ? 's' : ''}`;
-            
+
             document.getElementById('edit_h_guests_str').value = str;
         }
 
@@ -955,20 +1021,20 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             document.getElementById('edit_type').value = type;
             document.getElementById('edit_id').value = data.id;
             document.getElementById('editModalTitle').innerText = 'Edit ' + type + ' Request';
-            
+
             // Read-Only Header
             document.getElementById('display_booking_id').innerText = '#TRV-' + data.id;
             let statusBadge = document.getElementById('display_booking_status');
             statusBadge.innerText = data.booking_status || 'Pending';
-            if((data.booking_status||'').toLowerCase() === 'confirmed') {
+            if ((data.booking_status || '').toLowerCase() === 'confirmed') {
                 statusBadge.className = 'badge bg-success text-white';
             } else {
                 statusBadge.className = 'badge bg-warning text-dark';
             }
-            
+
             // Hide all specific fields first
             document.querySelectorAll('.type-fields').forEach(el => el.style.display = 'none');
-            
+
             // Common phone
             document.getElementById('edit_phone').value = data.phone || data.mobile || '';
 
@@ -984,32 +1050,32 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
                 document.getElementById('edit_h_in').value = data.check_in;
                 document.getElementById('edit_h_out').value = data.check_out;
                 document.getElementById('edit_h_room_type').value = data.room_type || '';
-                
+
                 let guestData = parseGuestString(data.guests);
                 document.getElementById('edit_h_rooms').value = guestData.rooms;
                 document.getElementById('edit_h_adults').value = guestData.adults;
                 document.getElementById('edit_h_children').value = guestData.children;
                 document.getElementById('edit_h_infants').value = guestData.infants;
-                
+
                 // Derive Base Price to allow dynamic recalculation
                 const cin = new Date(data.check_in);
                 const cout = new Date(data.check_out);
                 let nights = Math.ceil((cout - cin) / (1000 * 60 * 60 * 24));
                 if (isNaN(nights) || nights < 1) nights = 1;
-                
+
                 let totalPrice = parseInt(data.price) || 0;
                 currentHotelBasePrice = totalPrice > 0 ? (totalPrice / (guestData.rooms * nights)) : 0;
-                
+
                 calcHotelPrice();
             } else if (type === 'Cab') {
                 document.getElementById('cab_fields').style.display = 'block';
                 document.getElementById('edit_c_from').value = data.from_city;
                 document.getElementById('edit_c_to').value = data.to_city;
                 document.getElementById('edit_c_date').value = data.pickup_date;
-                
+
                 // Format time correctly for time input if needed (HH:mm)
                 let t = data.pickup_time;
-                if(t && t.includes(' ')) {
+                if (t && t.includes(' ')) {
                     // Try parsing AM/PM to 24h format for input type=time
                     let [time, modifier] = t.split(' ');
                     let [hours, minutes] = time.split(':');
@@ -1021,20 +1087,20 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
 
                 let dbTrip = data.trip_type || 'Transfer';
                 let selectEl = document.getElementById('edit_c_trip_type');
-                
+
                 // If the option doesn't exist, create it dynamically so it doesn't show empty
-                if(![...selectEl.options].some(o => o.value === dbTrip)) {
+                if (![...selectEl.options].some(o => o.value === dbTrip)) {
                     let newOption = new Option(dbTrip, dbTrip);
                     selectEl.add(newOption);
                 }
-                
+
                 selectEl.value = dbTrip;
-                
+
                 currentCabBasePrice = parseInt(data.base_price) || 0;
                 currentCabHourlyPrice = parseInt(data.hourly_price) || 0;
                 currentCabOutstationPrice = parseInt(data.outstation_price) || 0;
                 currentCabAirportPrice = parseInt(data.airport_price) || 0;
-                
+
                 calcCabPrice();
             }
 
@@ -1053,44 +1119,44 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
                 method: 'POST',
                 body: new FormData(this)
             })
-            .then(r => r.json())
-            .then(data => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                
-                // Hide modal
-                let modalEl = document.getElementById('editBookingModal');
-                let modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
+                .then(r => r.json())
+                .then(data => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
 
-                if(data.status === 'success') {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire('Updated!', data.message, 'success').then(() => {
+                    // Hide modal
+                    let modalEl = document.getElementById('editBookingModal');
+                    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+
+                    if (data.status === 'success') {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire('Updated!', data.message, 'success').then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            alert(data.message);
                             window.location.reload();
-                        });
+                        }
                     } else {
-                        alert(data.message);
-                        window.location.reload();
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire('Error', data.message, 'error');
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
                     }
-                } else {
+                })
+                .catch(err => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
                     if (typeof Swal !== 'undefined') {
-                        Swal.fire('Error', data.message, 'error');
+                        Swal.fire('Error', 'Something went wrong', 'error');
                     } else {
-                        alert('Error: ' + data.message);
+                        alert('Something went wrong');
                     }
-                }
-            })
-            .catch(err => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire('Error', 'Something went wrong', 'error');
-                } else {
-                    alert('Something went wrong');
-                }
-            });
+                });
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

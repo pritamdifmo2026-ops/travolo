@@ -201,6 +201,11 @@ addColumn('cabs', 'return_time', 'VARCHAR(20) AFTER return_date');
 addColumn('cabs', 'hours', 'VARCHAR(20) AFTER return_time');
 addColumn('cabs', 'pickup_address', 'TEXT AFTER hours');
 addColumn('cabs', 'dropoff_address', 'TEXT AFTER pickup_address');
+addColumn('cabs', 'payment_type', "VARCHAR(20) DEFAULT 'full' AFTER dropoff_address");
+addColumn('cabs', 'coupon_code', "VARCHAR(50) DEFAULT '' AFTER payment_type");
+addColumn('cabs', 'total_fare', "DECIMAL(10,2) DEFAULT 0 AFTER coupon_code");
+addColumn('cabs', 'paid_amount', "DECIMAL(10,2) DEFAULT 0 AFTER total_fare");
+addColumn('cabs', 'payment_status', "VARCHAR(30) DEFAULT 'Pending' AFTER paid_amount");
 
 addColumn('cab_inventory', 'hourly_price', 'INT DEFAULT 0 AFTER base_price');
 addColumn('cab_inventory', 'airport_price', 'INT DEFAULT 0 AFTER hourly_price');

@@ -1241,7 +1241,8 @@ $cab_modals_html = '';
                     <thead class="bg-light">
                         <tr>
                             <th>Trip Type</th>
-                            <th>Route / Details</th>
+                            <th>Route / City</th>
+                            <th>Exact Addresses</th>
                             <th>Pickup Date/Time</th>
                             <th>Return / Duration</th>
                             <th>Vehicle</th>
@@ -1281,6 +1282,10 @@ $cab_modals_html = '';
                                 echo "<td>
                                         <div class='fw-bold'>{$row['from_city']}</div>
                                         <div class='small text-muted'><i class='fas fa-long-arrow-alt-right mx-1'></i> {$row['to_city']}</div>
+                                      </td>";
+                                echo "<td>
+                                        <div class='small text-dark' style='max-width: 180px;'><i class='fas fa-map-marker-alt text-primary me-1' style='font-size:10px;'></i> <b>P:</b> " . ($row['pickup_address'] ?: 'N/A') . "</div>
+                                        <div class='small text-muted mt-1' style='max-width: 180px;'><i class='fas fa-map-pin text-danger me-1' style='font-size:10px;'></i> <b>D:</b> " . ($row['dropoff_address'] ?: 'N/A') . "</div>
                                       </td>";
                                 echo "<td>
                                         <div class='fw-bold text-dark' style='font-size:13px;'>{$row['pickup_date']}</div>

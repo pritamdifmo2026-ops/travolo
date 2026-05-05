@@ -178,14 +178,22 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
             text-align: right;
             border-left: 1px dashed #ddd;
             padding-left: 35px;
-            min-width: 220px;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        .car-price-tag { font-size: 34px; font-weight: 900; color: var(--travolo-dark); margin-bottom: 5px; }
-        .car-price-unit { font-size: 13px; color: #888; display: block; margin-bottom: 15px; }
+        .car-price-tag { 
+            font-size: 32px; 
+            font-weight: 900; 
+            color: #111; 
+            margin-bottom: 0px; 
+            line-height: 1.2;
+        }
 
-        .book-now-premium {
-            background: var(--travolo-teal);
+        .select-car-btn {
+            background: #00a79d;
             color: #fff;
             border: none;
             padding: 12px 0;
@@ -197,22 +205,16 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
             letter-spacing: 1px;
             transition: 0.3s;
             box-shadow: 0 4px 10px rgba(0, 167, 157, 0.2);
+            margin-top: 10px;
+            cursor: pointer;
         }
 
-        .book-now-premium:hover { 
+        .select-car-btn:hover { 
             transform: translateY(-3px); 
             box-shadow: 0 8px 20px rgba(0, 167, 157, 0.3); 
             color: #fff; 
             background: #008981;
         }
-            font-weight: 800;
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s;
-        }
-
-        .book-now-premium:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 167, 157, 0.3); color: #fff; }
 
         /* City Pack Banner */
         .city-pack-banner {
@@ -327,20 +329,62 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
 
     <div class="container pb-100">
         <div class="row">
-            <div class="col-lg-12">
+            <!-- Sidebar Filters -->
+            <div class="col-lg-3 d-none d-lg-block">
+                <div class="checkout-box p-4" style="background: #fff; border-radius: 16px; border: 1px solid #eee; position: sticky; top: 100px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="fw-bold mb-0">Filters</h6>
+                        <a href="cab-results.php?from=<?php echo urlencode($from); ?>&to=<?php echo urlencode($to); ?>&tripType=<?php echo urlencode($tripType); ?>" class="text-primary small text-decoration-none">Reset</a>
+                    </div>
+
+                    <div class="filter-section mb-4">
+                        <p class="small fw-bold text-muted mb-3">CAB TYPE</p>
+                        <?php
+                        $types = ['Hatchback', 'Sedan', 'SUV', 'Luxury'];
+                        foreach ($types as $t) {
+                            echo "<div class='form-check mb-2'>
+                                    <input class='form-check-input' type='checkbox' value='$t' id='type$t' onchange='filterCabs()'>
+                                    <label class='form-check-label small fw-semibold' for='type$t'>$t</label>
+                                  </div>";
+                        }
+                        ?>
+                    </div>
+
+                    <div class="filter-section">
+                        <p class="small fw-bold text-muted mb-3">FUEL TYPE</p>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" value="CNG" id="fuelCNG" onchange="filterCabs()">
+                            <label class="form-check-label small fw-semibold" for="fuelCNG">CNG</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" value="Petrol" id="fuelPetrol" onchange="filterCabs()">
+                            <label class="form-check-label small fw-semibold" for="fuelPetrol">Petrol</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" value="Diesel" id="fuelDiesel" onchange="filterCabs()">
+                            <label class="form-check-label small fw-semibold" for="fuelDiesel">Diesel</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="col-lg-9">
                 <div class="mb-4 d-flex align-items-center justify-content-between">
                     <?php
                     $target_cab_id = isset($_GET['cab_id']) ? intval($_GET['cab_id']) : 0;
-                    $header_text = "Cabs available for your route (" . htmlspecialchars($from) . ")";
-                    if ($target_cab_id > 0) {
-                        $header_text = "Your Selected Cab Details";
-                    }
+                    $header_text = "Cabs available from " . htmlspecialchars($from);
                     ?>
-                    <h5 class="fw-bold mb-0"><?php echo $header_text; ?></h5>
-                    <div class="text-muted small">Prices include taxes and tolls (estimated)</div>
+                    <div>
+                        <h4 class="fw-bold mb-1"><?php echo $header_text; ?></h4>
+                        <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i> All prices include GST and estimated Tolls</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-white text-dark border p-2 small fw-normal"><i class="fas fa-sort-amount-down me-1"></i> Price: Low to High</span>
+                    </div>
                 </div>
 
-                <div class="col-12">
+                <div class="results-container">
                 <?php
                 if (!$serviceable) {
                     echo "<div class='text-center py-5 bg-white border-dashed rounded-3 shadow-sm'>
@@ -350,23 +394,6 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
                             <a href='cab-booking.php' class='btn btn-outline-primary rounded-pill mt-3'>Try Another City</a>
                           </div>";
                 } else {
-                    // Show City Pack Info if available
-                    if ($city_pack) {
-                        $city_img = $city_pack['image_path'] ?? ($city_pack['thumbnail'] ?? 'assets/images/default-city.jpg');
-                        $city_name = $city_pack['city'] ?? $from;
-                        $pack_desc = $city_pack['airport'] ?? ($city_pack['destinations'] ?? ($city_pack['location_tag'] ?? 'Serving your route'));
-                        ?>
-                        <div class="city-pack-banner d-none d-md-flex">
-                            <img src="<?php echo $city_img; ?>" class="city-img-side" alt="<?php echo $city_name; ?>">
-                            <div class="city-info-side">
-                                <span class="featured-badge">Standard Service Area</span>
-                                <h2>Premium Cabs in <?php echo $city_name; ?></h2>
-                                <p><i class="fas fa-check-circle text-success me-2"></i> Verified Chauffeurs | <?php echo $pack_desc; ?> | No hidden costs</p>
-                            </div>
-                        </div>
-                        <?php
-                    }
-
                     $price_col = 'base_price';
                     if ($tripType === 'Hourly') $price_col = 'hourly_price';
                     elseif ($tripType === 'Airport Transfer' || $to === 'Airport' || $from === 'Airport') $price_col = 'airport_price';
@@ -377,49 +404,81 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
                         $cab_filter = " AND id = $target_cab_id";
                     }
 
+                    $city_name = $city_pack['city'] ?? $from;
                     $city_filter = " AND (city_name = '$city_name' OR city_name = 'All Cities')";
+                    
                     $cabs_res = $conn->query("SELECT *, $price_col as display_price FROM cab_inventory WHERE status = 1 $city_filter $cab_filter ORDER BY display_price ASC");
+                    
                     if ($cabs_res && $cabs_res->num_rows > 0) {
                         while ($cab = $cabs_res->fetch_assoc()) {
                             $display_price = ($cab['display_price'] > 0) ? $cab['display_price'] : $cab['base_price'];
                             
-                            // Dynamic Pricing Calculation for Hourly
                             if ($tripType === 'Hourly') {
-                                $selected_hours = intval($duration); // Extracts '4' from '4 hrs / 40 km'
+                                $selected_hours = intval($duration);
                                 if ($selected_hours > 0) {
-                                    // Assuming the DB's hourly_price is the default for 8 hours
                                     $price_per_hour = $display_price / 8;
                                     $display_price = round($price_per_hour * $selected_hours);
                                 }
                             }
 
                             $cat_class = 'category-' . strtolower($cab['category']);
+                            $fuel = (strpos($cab['car_name'], 'Maruti') !== false || strpos($cab['category'], 'Hatchback') !== false) ? 'CNG/Petrol' : 'Diesel';
                             ?>
-                            <div class="car-result-card wow fadeInUp">
+                            <div class="car-result-card cab-item" data-category="<?php echo $cab['category']; ?>" data-fuel="<?php echo $fuel; ?>">
                                 <div class="car-image-box">
-                                    <img src="<?php echo $cab['image_path']; ?>" alt="<?php echo htmlspecialchars($cab['car_name']); ?>">
+                                    <?php 
+                                        $car_img = $cab['image_path'];
+                                        // Stronger check to avoid watch images or empty paths
+                                        if (empty($car_img) || stripos($car_img, 'watch') !== false || stripos($car_img, 'product') !== false) {
+                                            $car_img = 'assets/images/cab-placeholder.png';
+                                        }
+                                    ?>
+                                    <img src="<?php echo $car_img; ?>" alt="<?php echo htmlspecialchars($cab['car_name']); ?>">
                                 </div>
                                 <div class="car-detail-main">
                                     <span class="car-category <?php echo $cat_class; ?>"><?php echo htmlspecialchars($cab['category']); ?></span>
-                                    <h3 class="car-name-title"><?php echo htmlspecialchars($cab['car_name']); ?></h3>
+                                    <h3 class="car-name-title mb-1"><?php echo htmlspecialchars($cab['car_name']); ?> <small class="text-muted fw-normal" style="font-size: 14px;">or Equivalent</small></h3>
+                                    
                                     <div class="car-features-icons">
-                                        <div class="feature-icon-item" title="Capacity"><i class="fas fa-users"></i> <?php echo $cab['capacity']; ?> People</div>
-                                        <div class="feature-icon-item" title="Luggage"><i class="fas fa-briefcase"></i> <?php echo $cab['luggage']; ?> Bags</div>
+                                        <div class="feature-icon-item"><i class="fas fa-users"></i> <?php echo $cab['capacity']; ?> Seats</div>
+                                        <div class="feature-icon-item"><i class="fas fa-briefcase"></i> <?php echo $cab['luggage']; ?> Bags</div>
                                         <div class="feature-icon-item"><i class="fas fa-snowflake"></i> AC</div>
-                                        <div class="feature-icon-item"><i class="fas fa-shield-alt"></i> Safe journey</div>
+                                        <div class="feature-icon-item"><i class="fas fa-gas-pump"></i> <?php echo $fuel; ?></div>
                                     </div>
-                                    <div class="text-success small fw-bold"><i class="fas fa-check-circle me-1"></i> Refundable fare | Free Cancellation</div>
+                                    
+                                    <div class="mt-3">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <span class="badge bg-success-subtle text-success small border border-success-subtle px-2"><i class="fas fa-check me-1"></i> Free Cancellation</span>
+                                            <span class="badge bg-primary-subtle text-primary small border border-primary-subtle px-2"><i class="fas fa-bolt me-1"></i> Instant Confirmation</span>
+                                        </div>
+                                        <p class="small text-muted mb-0"><i class="fas fa-shield-alt text-warning me-1"></i> Safety Guaranteed Chauffeurs</p>
+                                    </div>
                                 </div>
                                 <div class="car-price-section">
+                                    <div class="text-muted small mb-0 fw-bold" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Total Fare</div>
                                     <div class="car-price-tag">₹<?php echo number_format($display_price); ?></div>
-                                    <span class="car-price-unit border rounded px-2 py-1 bg-light text-dark" style="font-size: 11px; font-weight: 700;"><?php echo ($tripType === 'Hourly') ? 'For ' . htmlspecialchars($duration) : 'all inclusive fare'; ?></span>
-                                    <button class="book-now-premium" onclick="bookCab(<?php echo $cab['id']; ?>)"><?php echo ($target_cab_id > 0) ? 'Book Again' : 'Book Now'; ?></button>
+                                    <div class="text-muted small mb-3" style="font-size: 10px;">All Inclusive (GST, Tolls)</div>
+                                    
+                                    <button class="select-car-btn w-100" onclick="bookCab(<?php echo $cab['id']; ?>)">
+                                        SELECT CAB <i class="fas fa-chevron-right ms-1" style="font-size: 10px;"></i>
+                                    </button>
+                                    
+                                    <div class="mt-2 text-center">
+                                        <a href="javascript:void(0)" class="text-primary text-decoration-none fw-bold" style="font-size: 12px;" onclick="alert('Price breakdown:\nBase Fare: ₹<?php echo number_format($display_price - 150); ?>\nService Fee: ₹150\nTaxes: Included\n\nNo Hidden Charges!')">
+                                            <i class="fas fa-info-circle me-1"></i> Fare Breakup
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                             <?php
                         }
                     } else {
-                        echo "<div class='alert alert-info py-4 text-center'>No cabs available for this route currently. Please try another selection.</div>";
+                        echo "<div class='alert alert-info py-5 text-center bg-white rounded-4 border-0 shadow-sm'>
+                                <i class='fas fa-search fa-2x mb-3 opacity-20'></i>
+                                <h5 class='fw-bold'>No Cabs Found</h5>
+                                <p class='text-muted'>We couldn't find any cabs matching your current filters. Try resetting them.</p>
+                                <button class='btn btn-primary rounded-pill px-4 mt-2' onclick='location.reload()'>Reset Filters</button>
+                              </div>";
                     }
                 }
                 ?>
@@ -433,6 +492,25 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
 
 
     <script>
+        function filterCabs() {
+            const selectedTypes = Array.from(document.querySelectorAll('input[id^="type"]:checked')).map(el => el.value);
+            const selectedFuels = Array.from(document.querySelectorAll('input[id^="fuel"]:checked')).map(el => el.value);
+            
+            document.querySelectorAll('.cab-item').forEach(item => {
+                const category = item.dataset.category;
+                const fuel = item.dataset.fuel;
+                
+                const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(category);
+                const fuelMatch = selectedFuels.length === 0 || selectedFuels.some(f => fuel.includes(f));
+                
+                if (typeMatch && fuelMatch) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
         function bookCab(id) {
             const params = new URLSearchParams();
             params.append('cab_id', id);
