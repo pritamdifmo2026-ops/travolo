@@ -1638,7 +1638,9 @@ include_once 'includes/auth.php';
                                                 echo "<option value='{$p['package_name']}' $sel>{$p['package_name']}</option>";
                                             }
                                         } else {
-                                            echo "<option value='8hrs / 80km'>8hrs / 80km (Default)</option>";
+                                            echo "<option value='4 hrs / 40 km'>4 hrs / 40 km</option>";
+                                            echo "<option value='8 hrs / 80 km' selected>8 hrs / 80 km</option>";
+                                            echo "<option value='12 hrs / 120 km'>12 hrs / 120 km</option>";
                                         }
                                         ?>
                                     </select>

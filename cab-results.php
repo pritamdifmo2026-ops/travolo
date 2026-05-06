@@ -10,7 +10,7 @@ $time = isset($_GET['time']) ? $_GET['time'] : '12:00 PM';
 $tripType = trim(isset($_GET['tripType']) ? $_GET['tripType'] : 'Transfer');
 $mobile = $_SESSION['user_phone'] ?? ($_GET['mobile'] ?? '');
 $pickup_type = isset($_GET['pickup']) ? $_GET['pickup'] : 'One Way';
-$duration = trim(isset($_GET['duration']) && $_GET['duration'] !== '' ? $_GET['duration'] : '8hrs / 80km');
+$duration = trim(isset($_GET['duration']) && $_GET['duration'] !== '' ? $_GET['duration'] : '8 hrs / 80 km');
 
 // Serviceability Check
 $serviceable = false;
@@ -420,9 +420,10 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
                                     echo "<option value='{$p['package_name']}' $sel>{$p['package_name']}</option>";
                                 }
                             } else {
-                                echo "<option value='4 hrs / 40 km' " . (strpos($duration, '4') !== false ? 'selected' : '') . ">4 hrs / 40 km</option>";
-                                echo "<option value='8 hrs / 80 km' " . (strpos($duration, '8') !== false ? 'selected' : '') . ">8 hrs / 80 km</option>";
-                                echo "<option value='12 hrs / 120 km' " . (strpos($duration, '12') !== false ? 'selected' : '') . ">12 hrs / 120 km</option>";
+                                $is_default = (!isset($_GET['duration']) || $_GET['duration'] === '');
+                                echo "<option value='4 hrs / 40 km' " . ($duration == '4 hrs / 40 km' ? 'selected' : '') . ">4 hrs / 40 km</option>";
+                                echo "<option value='8 hrs / 80 km' " . ($is_default || $duration == '8 hrs / 80 km' ? 'selected' : '') . ">8 hrs / 80 km</option>";
+                                echo "<option value='12 hrs / 120 km' " . ($duration == '12 hrs / 120 km' ? 'selected' : '') . ">12 hrs / 120 km</option>";
                             }
                             ?>
                         </select>
@@ -566,7 +567,7 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
                                 }
 
                                 $cat_class = 'category-' . strtolower($cab['category']);
-                                $fuel = (strpos($cab['car_name'], 'Maruti') !== false || strpos($cab['category'], 'Hatchback') !== false) ? 'CNG/Petrol' : 'Diesel';
+                                $fuel = $cab['fuel_type'] ?? 'Petrol/CNG';
                                 ?>
                                 <div class="car-result-card cab-item" data-category="<?php echo $cab['category']; ?>"
                                     data-fuel="<?php echo $fuel; ?>">
@@ -614,6 +615,11 @@ if ($tripType === 'Transfer' || $tripType === 'Airport Transfer') {
                                             style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Total Fare
                                         </div>
                                         <div class="car-price-tag">₹<?php echo number_format($display_price); ?></div>
+                                        <?php if ($tripType === 'Hourly'): ?>
+                                            <div class="fw-bold text-success mb-1" style="font-size: 11px;">
+                                                <i class="far fa-clock me-1"></i> For <?php echo htmlspecialchars($duration); ?>
+                                            </div>
+                                        <?php endif; ?>
                                         <div class="text-muted small mb-3" style="font-size: 10px;">All Inclusive (GST, Tolls)</div>
 
                                         <button class="select-car-btn w-100" onclick="bookCab(<?php echo $cab['id']; ?>)">

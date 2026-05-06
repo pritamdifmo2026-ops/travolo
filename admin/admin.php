@@ -12,6 +12,12 @@ if ($check_hotels && $check_hotels->num_rows == 0) {
     $conn->query("ALTER TABLE app_hotels ADD category VARCHAR(50) DEFAULT 'Standard' AFTER accommodations");
 }
 
+// Auto-fix: Ensure fuel_type exists in cab_inventory
+$check_fuel = $conn->query("SHOW COLUMNS FROM cab_inventory LIKE 'fuel_type'");
+if ($check_fuel && $check_fuel->num_rows == 0) {
+    $conn->query("ALTER TABLE cab_inventory ADD fuel_type VARCHAR(50) DEFAULT 'Petrol/CNG' AFTER luggage");
+}
+
 // Auto-fix: Ensure hotel_rooms table exists
 $conn->query("CREATE TABLE IF NOT EXISTS hotel_rooms (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -476,9 +482,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $o_price = (int) $_POST['outstation_price'];
     $pkm = (float) $_POST['price_per_km'];
     $feats = $conn->real_escape_string($_POST['features']);
+    $fuel = $conn->real_escape_string($_POST['fuel_type'] ?? 'Petrol/CNG');
     $image = handleFileUpload('car_image') ?: 'assets/images/tour-3-550x590.jpg';
 
-    $conn->query("INSERT INTO cab_inventory (car_name, category, city_name, capacity, luggage, base_price, hourly_price, airport_price, outstation_price, price_per_km, features, image_path) VALUES ('$name', '$cat', '$city', $cap, $lug, $base, $h_price, $a_price, $o_price, $pkm, '$feats', '$image')");
+    $conn->query("INSERT INTO cab_inventory (car_name, category, city_name, capacity, luggage, base_price, hourly_price, airport_price, outstation_price, price_per_km, features, fuel_type, image_path) VALUES ('$name', '$cat', '$city', $cap, $lug, $base, $h_price, $a_price, $o_price, $pkm, '$feats', '$fuel', '$image')");
     header("Location: admin.php?tab=manage-cabs&success=Vehicle+Added");
     exit;
 }
@@ -496,11 +503,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $o_price = (int) $_POST['outstation_price'];
     $pkm = (float) $_POST['price_per_km'];
     $feats = $conn->real_escape_string($_POST['features']);
+    $fuel = $conn->real_escape_string($_POST['fuel_type'] ?? 'Petrol/CNG');
     $image = $_POST['existing_image'];
     if ($new = handleFileUpload('car_image'))
         $image = $new;
 
-    $conn->query("UPDATE cab_inventory SET car_name='$name', category='$cat', city_name='$city', capacity=$cap, luggage=$lug, base_price=$base, hourly_price=$h_price, airport_price=$a_price, outstation_price=$o_price, price_per_km=$pkm, features='$feats', image_path='$image' WHERE id=$id");
+    $conn->query("UPDATE cab_inventory SET car_name='$name', category='$cat', city_name='$city', capacity=$cap, luggage=$lug, base_price=$base, hourly_price=$h_price, airport_price=$a_price, outstation_price=$o_price, price_per_km=$pkm, features='$feats', fuel_type='$fuel', image_path='$image' WHERE id=$id");
     header("Location: admin.php?tab=manage-cabs&success=Vehicle+Updated");
     exit;
 }
@@ -2135,10 +2143,15 @@ $cab_modals_html = '';
                                         <option value="Tempo Traveller">Tempo Traveller</option>
                                     </select>
                                 </div>
-                                <div class="col-md-2">
-                                    <label class="small fw-bold text-muted">Capacity (Pax)</label>
+                                <div class="col-md-1">
+                                    <label class="small fw-bold text-muted">Capacity</label>
                                     <input type="number" class="form-control rounded-pill border-0 shadow-sm"
                                         name="capacity" value="4" required>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="small fw-bold text-muted">Luggage</label>
+                                    <input type="number" class="form-control rounded-pill border-0 shadow-sm"
+                                        name="luggage" value="2" required>
                                 </div>
                                 <div class="col-md-2">
                                     <label class="small fw-bold text-muted">Airport Rate (₹)</label>
@@ -2164,6 +2177,14 @@ $cab_modals_html = '';
                                     <label class="small fw-bold text-muted">Car Image</label>
                                     <input type="file" class="form-control rounded-pill border-0 shadow-sm px-3"
                                         name="car_image" accept="image/*" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="small fw-bold text-muted">Fuel Type</label>
+                                    <select class="form-select rounded-pill border-0 shadow-sm" name="fuel_type" required>
+                                        <option value="Petrol/CNG">Petrol/CNG</option>
+                                        <option value="Diesel">Diesel</option>
+                                        <option value="Electric">Electric</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-12 mt-3">
                                     <label class="small fw-bold text-muted">Features (Comma separated)</label>
@@ -2288,6 +2309,14 @@ $cab_modals_html = '';
                                                                     <div class='col-md-12'>
                                                                         <label class='form-label small fw-bold'>Features</label>
                                                                         <input type='text' name='features' class='form-control rounded-pill' value='" . htmlspecialchars($row['features']) . "'>
+                                                                    </div>
+                                                                    <div class='col-md-12'>
+                                                                        <label class='form-label small fw-bold'>Fuel Type</label>
+                                                                        <select class='form-select rounded-pill' name='fuel_type' required>
+                                                                            <option value='Petrol/CNG' " . (($row['fuel_type'] ?? '') == 'Petrol/CNG' ? 'selected' : '') . ">Petrol/CNG</option>
+                                                                            <option value='Diesel' " . (($row['fuel_type'] ?? '') == 'Diesel' ? 'selected' : '') . ">Diesel</option>
+                                                                            <option value='Electric' " . (($row['fuel_type'] ?? '') == 'Electric' ? 'selected' : '') . ">Electric</option>
+                                                                        </select>
                                                                     </div>
                                                                     <div class='col-md-12'>
                                                                         <label class='form-label small fw-bold'>Update Car Image (Optional)</label>
