@@ -5,9 +5,9 @@ include 'includes/auth.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'phpmailer/src/Exception.php';
-require 'phpmailer/src/PHPMailer.php';
-require 'phpmailer/src/SMTP.php';
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
 
 // MOBILE & EMAIL VALIDATION HELPER
 function isValidPhone($p)
@@ -123,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $children = intval($_POST['children'] ?? 0);
             $infants = intval($_POST['infants'] ?? 0);
             $tclass = $conn->real_escape_string($_POST['travel_class'] ?? 'Economy');
-            
+
             $email = $_POST['email'] ?? $_SESSION['user_email'] ?? '';
             $user_name = $_POST['name'] ?? $_SESSION['user_name'] ?? 'User';
 
@@ -134,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     VALUES ($uid, '$user_name', '$trip_type', '$from', '$to', '$depart_date', '$return_date', $adults, $children, $infants, '$tclass', '$phone', '$email')";
             if ($conn->query($sql) === TRUE) {
                 $response = [
-                    'status' => 'success', 
+                    'status' => 'success',
                     'message' => 'Flight Booking Request Sent! Redirecting to your dashboard...',
                     'redirect' => 'user-dashboard.php'
                 ];
@@ -197,7 +197,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $hotel_id = intval($_POST['hotel_id'] ?? 0);
             $status = $conn->real_escape_string($_POST['status'] ?? 'Checked');
             $b_type = $conn->real_escape_string($_POST['booking_type'] ?? 'Check');
-            
+
             // Ensure we have a user session (Guest Booking Logic)
             $uid = ensureUserSession($conn, $user_name, $email, $phone);
 
@@ -207,7 +207,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($conn->query($sql) === TRUE) {
                 $msg = ($b_type == 'Booking') ? "Booking Query Sent Successfully! Redirecting to dashboard..." : "Hotel Availability Checked!";
                 $response = [
-                    'status' => 'success', 
+                    'status' => 'success',
                     'message' => $msg,
                     'redirect' => ($b_type == 'Booking') ? 'user-dashboard.php' : ''
                 ];
@@ -254,7 +254,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 if ($conn->query($sql) === TRUE) {
                     $response = [
-                        'status' => 'success', 
+                        'status' => 'success',
                         'message' => 'Cab Booking Request Sent! Redirecting to dashboard...',
                         'redirect' => 'user-dashboard.php'
                     ];
@@ -264,7 +264,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
     } elseif ($type == "update_booking" || (isset($_POST['action']) && $_POST['action'] == "update_booking")) {
-        $id = (int)($_POST['id'] ?? 0);
+        $id = (int) ($_POST['id'] ?? 0);
         $booking_type = $_POST['type'] ?? '';
         $phone = $conn->real_escape_string($_POST['phone'] ?? '');
         $uid = $_SESSION['user_id'] ?? 0;
@@ -284,7 +284,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $sets[] = "from_city = '$from'";
                 $sets[] = "to_city = '$to'";
                 $sets[] = "depart_date = '$depart'";
-                if($return) $sets[] = "return_date = '$return'";
+                if ($return)
+                    $sets[] = "return_date = '$return'";
             } elseif ($booking_type == "Hotel") {
                 $table = "hotels";
                 $h_search = $conn->real_escape_string($_POST['hotel_search'] ?? '');
@@ -293,13 +294,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $room_type = $conn->real_escape_string($_POST['room_type'] ?? '');
                 $guests = $conn->real_escape_string($_POST['guests'] ?? '');
                 $price = intval($_POST['price'] ?? 0);
-                
+
                 $sets[] = "hotel_search = '$h_search'";
                 $sets[] = "check_in = '$checkin'";
                 $sets[] = "check_out = '$checkout'";
                 $sets[] = "room_type = '$room_type'";
                 $sets[] = "guests = '$guests'";
-                if($price > 0) $sets[] = "price = $price";
+                if ($price > 0)
+                    $sets[] = "price = $price";
             } elseif ($booking_type == "Cab") {
                 $table = "cabs";
                 $from = $conn->real_escape_string($_POST['from_city'] ?? '');
@@ -362,11 +364,17 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['action']) && $_GET['acti
 
     // Fetch Base Price and Calculate Total
     $price_col = 'base_price';
-    if ($trip === 'Hourly') $price_col = 'hourly_price';
-    elseif ($trip === 'Airport Transfer' || $to === 'Airport' || $from === 'Airport') $price_col = 'airport_price';
-    elseif ($trip === 'Outstation') $price_col = 'outstation_price';
+    if ($trip === 'Hourly')
+        $price_col = 'hourly_price';
+    elseif ($trip === 'Airport Transfer' || $to === 'Airport' || $from === 'Airport')
+        $price_col = 'airport_price';
+    elseif ($trip === 'Outstation')
+        $price_col = 'outstation_price';
 
     $cabs_res = $conn->query("SELECT $price_col as display_price FROM cab_inventory WHERE id = $cab_id LIMIT 1");
+    if (!$cabs_res) {
+        die("Database Error: " . $conn->error . " (Column: $price_col). Please check if cab_inventory table exists.");
+    }
     $cab_data = $cabs_res->fetch_assoc();
     $total_fare = $cab_data['display_price'] ?? 0;
 
