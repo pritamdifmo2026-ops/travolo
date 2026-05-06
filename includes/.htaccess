@@ -1,2 +1,2 @@
-# .htaccess DISABLED
-# Require all denied
+# Deny direct access to include files
+Require all denied

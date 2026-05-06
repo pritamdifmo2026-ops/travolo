@@ -9,7 +9,8 @@ echo "<body style='font-family:sans-serif; background:#f4f7f6; padding:20px;'>";
 echo "<div style='max-width:800px; margin:auto; background:white; padding:30px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.1);'>";
 echo "<h2 style='color:#133a25; border-bottom:2px solid #F7921E; padding-bottom:10px;'>🛠️ Travolo Database Repair Tool</h2>";
 
-function execute($sql, $desc) {
+function execute($sql, $desc)
+{
     global $conn;
     if ($conn->query($sql)) {
         echo "<div style='color:green; margin-bottom:10px;'>✅ Success: $desc</div>";
@@ -18,7 +19,8 @@ function execute($sql, $desc) {
     }
 }
 
-function addColumn($table, $column, $definition) {
+function addColumn($table, $column, $definition)
+{
     global $conn;
     $check = $conn->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
     if ($check && $check->num_rows == 0) {
