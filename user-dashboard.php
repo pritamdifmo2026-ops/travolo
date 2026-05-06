@@ -192,18 +192,17 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
         }
 
         .booking-main-info {
-            flex: 2;
-            min-width: 150px;
+            flex: 3; /* Increased from 2 */
+            min-width: 200px;
         }
 
         .booking-main-info h5 {
             font-size: 15px;
             font-weight: 800;
-            margin-bottom: 0px;
+            margin-bottom: 2px;
             color: var(--primary-dark);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal; /* Changed from nowrap to allow two lines if needed */
+            line-height: 1.3;
         }
 
         .booking-type-badge {
@@ -232,17 +231,25 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             color: #f7921e;
         }
 
+        .meta-line {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
         .booking-meta-info {
-            flex: 3;
+            flex: 2; /* Decreased from 3 */
             display: flex;
             align-items: center;
-            gap: 20px;
+            justify-content: flex-end;
+            gap: 15px;
             border-left: 1px solid #f0f0f0;
-            padding-left: 20px;
+            padding-left: 15px;
+            text-align: right;
         }
 
         .date-line {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-dark);
             white-space: nowrap;

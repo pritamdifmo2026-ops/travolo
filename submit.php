@@ -359,7 +359,16 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['action']) && $_GET['acti
     $pick_addr = $conn->real_escape_string($_GET['pickup_address'] ?? '');
     $drop_addr = $conn->real_escape_string($_GET['dropoff_address'] ?? '');
 
-<<<<<<< HEAD
+    $payment_type = $conn->real_escape_string($_GET['payment_type'] ?? 'full');
+    $coupon_code = $conn->real_escape_string($_GET['coupon_code'] ?? '');
+
+    // Ensure we have a user session (Guest Booking Logic)
+    $uid = ensureUserSession($conn, $user_name, $email, $mobile);
+
+    $pick_addr = $conn->real_escape_string($_GET['pickup_address'] ?? '');
+    $drop_addr = $conn->real_escape_string($_GET['dropoff_address'] ?? '');
+    $hours = $conn->real_escape_string($_GET['hours'] ?? '');
+
     // Fetch Base Price and Calculate Total
     $price_col = 'base_price';
     if ($trip === 'Hourly')
@@ -395,10 +404,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['action']) && $_GET['acti
 
     $sql = "INSERT INTO cabs (user_id, user_name, cab_id, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, phone, email, pickup_address, dropoff_address, payment_type, coupon_code, total_fare, paid_amount, payment_status, hours) 
             VALUES ($uid, '$user_name', $cab_id, '$trip', '$pickup', '$from', '$to', '$date', '$time', '$mobile', '$email', '$pick_addr', '$drop_addr', '$payment_type', '$coupon_code', $total_fare, $paid_amount, '$payment_status', '$hours')";
-=======
-    $sql = "INSERT INTO cabs (user_id, user_name, cab_id, trip_type, pickup_type, from_city, to_city, pickup_date, pickup_time, phone, email, pickup_address, dropoff_address) 
-            VALUES ($uid, '$user_name', $cab_id, '$trip', '$pickup', '$from', '$to', '$date', '$time', '$mobile', '$email', '$pick_addr', '$drop_addr')";
->>>>>>> dc5b180b09a611fb907bfa46bc6b7ddf8f69c7ff
 
     $success = false;
     if ($conn->query($sql) === TRUE) {
