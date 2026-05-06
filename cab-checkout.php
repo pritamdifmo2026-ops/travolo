@@ -366,7 +366,7 @@ $advance_amount = round($display_price * 0.25);
             width: 100%;
             border: none;
             transition: 0.3s;
-            box-shadow: 0 10px 20px rgba(227, 90, 20, 0.2);
+            /* box-shadow: 0 10px 20px rgba(227, 90, 20, 0.2);*/
         }
 
         .submit-btn:hover {
@@ -460,7 +460,7 @@ $advance_amount = round($display_price * 0.25);
             <div class="step active">
                 <div class="step-circle">1</div>
                 Review
-            & Travellers
+                & Travellers
             </div>
             <div class="step-line"></div>
             <div class="step">
@@ -495,7 +495,8 @@ $advance_amount = round($display_price * 0.25);
                                 <img src="<?php echo (!empty($cab['image_path']) && strpos($cab['image_path'], 'watch') === false) ? $cab['image_path'] : 'assets/images/cab-placeholder.png'; ?>"
                                     alt="<?php echo htmlspecialchars($cab['car_name']); ?>">
                                 <div class="bg-dark text-white rounded-pill small mt-3 px-3 py-1 fw-bold">
-                                    <?php echo htmlspecialchars($cab['category']); ?></div>
+                                    <?php echo htmlspecialchars($cab['category']); ?>
+                                </div>
                             </div>
                             <div class="cab-details">
                                 <div class="route-info">
@@ -514,10 +515,10 @@ $advance_amount = round($display_price * 0.25);
 
                                 <div class="features-grid">
                                     <?php if ($tripType === 'Hourly'): ?>
-                                                <div class="feature-item text-primary fw-bold" title="Package Duration">
-                                                    <i class="fas fa-clock"></i>
-                                                    <?php echo htmlspecialchars($_GET['duration'] ?? ''); ?>
-                                                </div>
+                                        <div class="feature-item text-primary fw-bold" title="Package Duration">
+                                            <i class="fas fa-clock"></i>
+                                            <?php echo htmlspecialchars($_GET['duration'] ?? ''); ?>
+                                        </div>
                                     <?php endif; ?>
                                     <div class="feature-item">
                                         <i class="fas fa-users"></i>

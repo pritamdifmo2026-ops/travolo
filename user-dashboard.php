@@ -19,9 +19,10 @@ $f_sql = "SELECT * FROM flights WHERE (user_id > 0 AND user_id = $user_id)
           OR (email != '' AND TRIM(LOWER(email)) = TRIM(LOWER('$user_email'))) 
           OR (phone != '' AND TRIM(phone) = TRIM('$user_phone')) ORDER BY id DESC";
 
-$h_sql = "SELECT h.*, ah.image as hotel_img, ah.id as original_hotel_id 
+$h_sql = "SELECT h.*, ah.image as hotel_img, ah.id as original_hotel_id, hr.room_image 
           FROM hotels h 
           LEFT JOIN app_hotels ah ON h.hotel_id = ah.id 
+          LEFT JOIN hotel_rooms hr ON h.hotel_id = hr.hotel_id AND h.room_type = hr.room_name
           WHERE (h.user_id > 0 AND h.user_id = $user_id) 
           OR (h.email != '' AND TRIM(LOWER(h.email)) = TRIM(LOWER('$user_email'))) 
           OR (h.phone != '' AND TRIM(h.phone) = TRIM('$user_phone')) ORDER BY h.id DESC";
@@ -663,7 +664,7 @@ $total_bookings = $flights->num_rows + $hotels->num_rows + $cabs->num_rows;
             }
             $meta = $row['guests'] . " | " . ($row['room_type'] ?: 'Standard') . $price_display;
             $dates = date('d M Y', strtotime($row['check_in'])) . " to " . date('d M Y', strtotime($row['check_out']));
-            $img = !empty($row['hotel_img']) ? $row['hotel_img'] : "assets/images/tour-2-550x590.jpg";
+            $img = !empty($row['room_image']) ? $row['room_image'] : (!empty($row['hotel_img']) ? $row['hotel_img'] : "assets/images/tour-2-550x590.jpg");
             $view_link = !empty($row['hotel_id']) ? "hotel-details.php?id=" . $row['hotel_id'] : "hotel.php";
         } elseif ($type == 'Cab') {
             $cab_name = !empty($row['car_name']) ? " (" . $row['car_name'] . ")" : "";

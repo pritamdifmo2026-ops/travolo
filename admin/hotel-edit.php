@@ -53,7 +53,26 @@ if (isset($_GET['delete_room'])) {
     exit;
 }
 
-// 3. Handle Hotel Update
+// 3. Handle Room Editing
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_action']) && $_POST['room_action'] === 'edit_room') {
+    $roomId = (int) $_POST['room_id'];
+    $roomName = $conn->real_escape_string($_POST['room_name']);
+    $roomPrice = (int) $_POST['room_price'];
+    $capacity = $conn->real_escape_string($_POST['capacity']);
+    $bedType = $conn->real_escape_string($_POST['bed_type']);
+    $features = isset($_POST['features']) ? json_encode($_POST['features']) : '[]';
+    $existingImg = $_POST['existing_room_image'];
+
+    $roomImg = handleFileUpload('room_image') ?: $existingImg;
+
+    $sql = "UPDATE hotel_rooms SET room_name='$roomName', room_price=$roomPrice, capacity='$capacity', bed_type='$bedType', features='$features', room_image='$roomImg' 
+            WHERE id=$roomId AND hotel_id=$id";
+    $conn->query($sql);
+    header("Location: hotel-edit.php?id=$id&success=Room+Updated");
+    exit;
+}
+
+// 4. Handle Hotel Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_hotel') {
     $name = $conn->real_escape_string($_POST['name']);
     $loc = $conn->real_escape_string($_POST['location']);
@@ -394,7 +413,11 @@ if (isset($_GET['delete_img'])) {
                                         <td><?php echo $rm['bed_type']; ?></td>
                                         <td class="text-success fw-bold">₹<?php echo number_format($rm['room_price']); ?></td>
                                         <td><small class="text-muted"><?php echo implode(', ', (array) $fts); ?></small></td>
-                                        <td>
+                                        <td class="text-nowrap">
+                                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 me-1"
+                                                onclick='openEditRoomModal(<?php echo htmlspecialchars(json_encode($rm), ENT_QUOTES, "UTF-8"); ?>)'>
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </button>
                                             <a href="?id=<?php echo $id; ?>&delete_room=<?php echo $rm['id']; ?>"
                                                 class="btn btn-outline-danger btn-sm rounded-pill px-3"
                                                 onclick="return confirm('Remove this room type?')">
@@ -467,6 +490,116 @@ if (isset($_GET['delete_img'])) {
             </div>
         </div>
     </div>
+
+    <!-- Edit Room Modal -->
+    <div class="modal fade" id="editRoomModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+                <div class="modal-header border-0 bg-light p-4">
+                    <h5 class="modal-title fw-bold">Edit Room Variety</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="modal-body p-4">
+                        <input type="hidden" name="room_action" value="edit_room">
+                        <input type="hidden" name="room_id" id="edit_room_id">
+                        <input type="hidden" name="existing_room_image" id="edit_existing_image">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="small fw-bold">Room Title</label>
+                                <input type="text" name="room_name" id="edit_room_name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold">Price / Night (INR)</label>
+                                <input type="number" name="room_price" id="edit_room_price" class="form-control"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold">Capacity</label>
+                                <input type="text" name="capacity" id="edit_capacity" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold">Bed Type</label>
+                                <input type="text" name="bed_type" id="edit_bed_type" class="form-control">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="small fw-bold">Update Photo (Leave blank to keep current)</label>
+                                <input type="file" name="room_image" class="form-control" accept="image/*">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="small fw-bold">Quick Features</label>
+                                <div class="d-flex flex-wrap gap-2 mt-2" id="edit_features_container">
+                                    <?php
+                                    $all_fts = ["AC", "Free WiFi", "Bathtub", "Minibar", "City View"];
+                                    foreach ($all_fts as $f): ?>
+                                        <label class="btn btn-sm btn-outline-primary">
+                                            <input type="checkbox" name="features[]" value="<?php echo $f; ?>"
+                                                class="feature-check" hidden>
+                                            <?php echo str_replace("Free ", "", $f); ?>
+                                        </label>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning rounded-pill px-5 fw-bold text-white">SAVE
+                            CHANGES</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function openEditRoomModal(room) {
+            document.getElementById('edit_room_id').value = room.id;
+            document.getElementById('edit_room_name').value = room.room_name;
+            document.getElementById('edit_room_price').value = room.room_price;
+            document.getElementById('edit_capacity').value = room.capacity;
+            document.getElementById('edit_bed_type').value = room.bed_type;
+            document.getElementById('edit_existing_image').value = room.room_image;
+
+            // Handle features checkboxes
+            const features = JSON.parse(room.features || '[]');
+            const container = document.getElementById('edit_features_container');
+            const checks = container.querySelectorAll('.feature-check');
+
+            checks.forEach(check => {
+                const label = check.parentElement;
+                if (features.includes(check.value)) {
+                    check.checked = true;
+                    label.classList.add('active');
+                    label.classList.replace('btn-outline-primary', 'btn-primary');
+                } else {
+                    check.checked = false;
+                    label.classList.remove('active');
+                    label.classList.replace('btn-primary', 'btn-outline-primary');
+                }
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('editRoomModal'));
+            modal.show();
+        }
+
+        // Toggle button active state for features
+        document.querySelectorAll('.feature-check').forEach(check => {
+            check.addEventListener('change', function () {
+                const label = this.parentElement;
+                if (this.checked) {
+                    label.classList.add('active');
+                    label.classList.replace('btn-outline-primary', 'btn-primary');
+                } else {
+                    label.classList.remove('active');
+                    label.classList.replace('btn-primary', 'btn-outline-primary');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

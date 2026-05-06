@@ -1096,8 +1096,15 @@ $cab_modals_html = '';
     <div class="main-content">
 
         <?php if (isset($_GET['success'])): ?>
-            <div class="alert alert-success alert-dismissible fade show mx-4 mt-2 mb-0" role="alert" id="success-alert">
+            <div class="alert alert-success alert-dismissible fade show mx-4 mt-2 mb-0 shadow-sm" role="alert" id="success-alert" style="z-index: 1100; position: relative;">
                 <i class="fas fa-check-circle me-2"></i> <?php echo htmlspecialchars($_GET['success']); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['error'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show mx-4 mt-2 mb-0 shadow-sm" role="alert" id="error-alert" style="z-index: 1100; position: relative;">
+                <i class="fas fa-exclamation-circle me-2"></i> <?php echo htmlspecialchars($_GET['error']); ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
@@ -1679,14 +1686,16 @@ $cab_modals_html = '';
                                                         $rooms_res = $conn->query("SELECT * FROM hotel_rooms WHERE hotel_id = {$row['id']} ORDER BY room_price ASC");
                                                         if ($rooms_res && $rooms_res->num_rows > 0) {
                                                             echo "<div class='table-responsive'><table class='table table-sm align-middle'>
-                                                                    <thead class='small text-muted'><tr><th>Room Type</th><th>Price</th><th>Capacity</th><th class='text-end'>Action</th></tr></thead>
+                                                                    <thead class='small text-muted'><tr><th>Photo</th><th>Room Type</th><th>Price</th><th>Capacity</th><th class='text-end'>Action</th></tr></thead>
                                                                     <tbody>";
                                                             while ($rm = $rooms_res->fetch_assoc()) {
+                                                                $r_img = !empty($rm['room_image']) ? "../" . $rm['room_image'] : "../assets/images/rooms/default.jpg";
                                                                 echo "<tr>
+                                                                        <td><img src='{$r_img}' class='rounded-2' style='width:50px; height:35px; object-fit:cover; border:1px solid #eee;'></td>
                                                                         <td class='fw-bold small text-dark'>{$rm['room_name']}</td>
                                                                         <td class='small text-success fw-bold'>₹" . number_format($rm['room_price']) . "</td>
                                                                         <td class='small text-muted'>{$rm['capacity']}</td>
-                                                                        <td class='text-end'><a href='admin.php?action=delete_room&id={$rm['id']}' class='text-danger' onclick='return confirm(\"Delete this room type?\")'><i class='fas fa-trash'></i></a></td>
+                                                                        <td class='text-end'><a href='admin.php?action=delete_room&id={$rm['id']}' class='text-danger px-2' onclick='return confirm(\"Delete this room type?\")'><i class='fas fa-trash'></i></a></td>
                                                                       </tr>";
                                                             }
                                                             echo "</tbody></table></div>";
