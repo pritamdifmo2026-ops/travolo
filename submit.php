@@ -476,17 +476,17 @@ function sendEmail($from_name, $from_email, $mobile, $message, $website)
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'rg515642@gmail.com'; // sender email
-        $mail->Password = 'cfka yyiv segn rwqi';    // app password
+        $mail->Username = 'travoloindia@gmail.com'; // sender email
+        $mail->Password = 'rflu mnya exke gkbw';    // app password
         $mail->SMTPSecure = 'tls';
         $mail->Port = 587;
 
         // Sender & Reply-To
-        $mail->setFrom('rg515642@gmail.com', 'Travolo Website');
+        $mail->setFrom('travoloindia@gmail.com', 'Travolo Website');
         $mail->addReplyTo($from_email, $from_name);
 
         // Receiver
-        $mail->addAddress('rg515642@gmail.com');
+        $mail->addAddress('travoloindia@gmail.com');
 
         // Content
         $mail->isHTML(true);
