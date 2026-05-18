@@ -118,7 +118,7 @@
         <!--=== Map Box ===-->
         <div class="map-box">
             <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3815.4257716602883!2d81.79353427577344!3d17.00277311376997!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a37a39468ce2901%3A0x570c5015ea8c3c11!2s86%2C%20Tilak%20Rd%2C%20State%20Bank%20Colony%202%2C%20Gandhipuram%2C%20Rajamahendravaram%2C%20Andhra%20Pradesh%20533103%2C%20India!5e0!3m2!1sen!2sus!4v1759399752874!5m2!1sen!2sus"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14032.912981308169!2d77.0646225!3d28.4425352!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d19d12e768efb%3A0xdee5c51f202706c3!2sKM%20Travels%20House!5e0!3m2!1sen!2sin!4v1715939975287!5m2!1sen!2sin"
                 width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
